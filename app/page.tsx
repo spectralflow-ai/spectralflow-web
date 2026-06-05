@@ -114,6 +114,29 @@ export default function Home() {
         </div>
       </Section>
 
+      {/* ===================== HOW IT WORKS ===================== */}
+      <Section bordered>
+        <Reveal>
+          <Eyebrow>How it works</Eyebrow>
+          <H2 className="max-w-3xl mb-12">From the Earth&rsquo;s field to a true heading.</H2>
+        </Reveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            { n: "01", t: "Sense", d: "The NV-diamond reads the Earth's ambient magnetic field — a fixed, global signature that no one can switch off." },
+            { n: "02", t: "Match", d: "Onboard firmware matches the live reading against a magnetic map to resolve position and heading in real time." },
+            { n: "03", t: "Navigate", d: "It continuously corrects inertial drift — holding a true course with no satellites, no emissions, nothing to jam." },
+          ].map((c, i) => (
+            <Reveal key={c.t} delay={i * 90}>
+              <div className="card p-6 h-full">
+                <p className="font-mono text-sm mb-3" style={{ color: "var(--accent)" }}>{c.n}</p>
+                <p className="font-semibold mb-2.5" style={{ color: "var(--text-primary)" }}>{c.t}</p>
+                <Body>{c.d}</Body>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
       {/* ===================== VERTICAL TEASER ===================== */}
       <Section bordered>
         <Reveal>
@@ -175,6 +198,31 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </Reveal>
+        </div>
+      </Section>
+
+      {/* ===================== ECOSYSTEM ===================== */}
+      <Section bordered>
+        <div className="grid grid-cols-1 md:grid-cols-[0.85fr_1.4fr] gap-8 md:gap-12 items-center">
+          <Reveal>
+            {/* The badge ships on white; do not alter it */}
+            <div className="rounded-xl bg-white p-6 flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/nvidia-inception-badge.svg" alt="Member of NVIDIA Inception" className="h-16 w-auto" />
+            </div>
+          </Reveal>
+          <Reveal delay={120}>
+            <Eyebrow>Ecosystem & trust</Eyebrow>
+            <H2 className="mb-5">Building in good company.</H2>
+            <Body className="max-w-xl">
+              SpectralFlow is a member of NVIDIA Inception and works alongside public research
+              institutions across the diamond, photonics and navigation value chains — a sovereign,
+              European effort to take quantum sensing out of the lab.
+            </Body>
+            <Link href="/company" className="inline-flex items-center gap-2 text-sm font-medium mt-5" style={{ color: "var(--accent)" }}>
+              About the company <span>→</span>
+            </Link>
           </Reveal>
         </div>
       </Section>

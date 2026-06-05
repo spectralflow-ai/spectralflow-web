@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "./components/Nav";
@@ -50,6 +50,30 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#05050A",
+  colorScheme: "dark",
+};
+
+const ORG_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "SpectralFlow",
+  legalName: "Spectral Flow SAS",
+  url: "https://spectralflow.ai",
+  logo: "https://spectralflow.ai/icon.svg",
+  description: DESCRIPTION,
+  foundingLocation: { "@type": "Country", name: "France" },
+  email: "alex@spectralflow.ai",
+  knowsAbout: [
+    "NV-diamond quantum sensors",
+    "Magnetometry",
+    "GPS-denied navigation",
+    "Quantum sensing",
+  ],
+  memberOf: { "@type": "Organization", name: "NVIDIA Inception" },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -60,8 +84,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
+        />
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg"
+          style={{ background: "var(--accent)", color: "#05050A" }}
+        >
+          Skip to content
+        </a>
         <Nav />
-        {children}
+        <div id="main">{children}</div>
         <Footer />
       </body>
     </html>
