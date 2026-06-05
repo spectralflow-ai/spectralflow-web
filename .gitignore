@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# internal — keep private notes out of the public repo
+REDESIGN_BRIEF.md

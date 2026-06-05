@@ -1,22 +1,161 @@
 @import "tailwindcss";
 
+/* ============================================================
+   SpectralFlow — Design tokens (V2, investor-grade)
+   Dark deep-tech family: near-black base, cyan quantum accent,
+   a warm secondary for "out of the lab" / room-temperature cues.
+   ============================================================ */
 :root {
+  /* Base surfaces */
   --background: #05050A;
+  --surface: #0A0A12;
+  --surface-2: #10101A;
   --foreground: #FFFFFF;
-  --accent: #00E5FF;
+
+  /* Text */
+  --text-primary: #F4F6FB;
+  --text-secondary: #A7AEC2;
   --muted: #6B7280;
+
+  /* Accents */
+  --accent: #00E5FF;          /* quantum cyan */
+  --accent-deep: #0094B3;
+  --accent-soft: rgba(0, 229, 255, 0.12);
+  --accent-2: #7C5CFF;        /* violet — diamond lattice / spin */
+  --warm: #FFB36B;            /* room-temperature warmth cue */
+
+  /* Lines */
   --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Glow */
+  --glow-cyan: 0 0 40px rgba(0, 229, 255, 0.25);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--text-primary);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Subtle atmospheric gradient — keeps the dark base from feeling flat */
+  background-image:
+    radial-gradient(60rem 60rem at 78% -10%, rgba(0, 229, 255, 0.07), transparent 60%),
+    radial-gradient(50rem 50rem at 8% 6%, rgba(124, 92, 255, 0.06), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* ----- Type helpers ---------------------------------------- */
+.font-mono {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+.eyebrow {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.display {
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+/* Gradient text for hero / section accents */
+.text-gradient {
+  background: linear-gradient(120deg, #FFFFFF 0%, #CFEFFF 45%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ----- Components ------------------------------------------ */
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
+}
+.card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #05050A;
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 28px rgba(0, 229, 255, 0.55);
+}
+
+.btn-ghost {
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  background: var(--accent-soft);
+}
+
+.hairline {
+  border-top: 1px solid var(--border);
+}
+
+/* Pill / badge */
+.pill {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+}
+
+/* ----- Motion ---------------------------------------------- */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
 }
