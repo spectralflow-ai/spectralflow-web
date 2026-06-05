@@ -12,14 +12,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const TITLE = "SpectralFlow — Quantum Sensing, Out of the Lab";
+const DESCRIPTION =
+  "NV-diamond magnetometers for resilient navigation where GPS is jammed or denied — room temperature, miniature, un-jammable. Sovereign deep tech. 13 UK patents filed.";
+
 export const metadata: Metadata = {
-  title: "SpectralFlow — Quantum Co-Design Platform",
-  description:
-    "Predict T₂, gate fidelity, and sensitivity before you enter the cleanroom. 17+ channel decoherence model · 80 experimental anchors · 12 UK patents filed.",
+  title: TITLE,
+  description: DESCRIPTION,
   openGraph: {
-    title: "SpectralFlow — Quantum Co-Design Platform",
-    description:
-      "Predict T₂, gate fidelity, and sensitivity before you enter the cleanroom. 17+ channel decoherence model · 80 experimental anchors · 12 UK patents filed.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: "https://spectralflow.ai",
     siteName: "SpectralFlow",
     locale: "en_US",
@@ -27,9 +29,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "SpectralFlow — Quantum Co-Design Platform",
-    description:
-      "Predict T₂, gate fidelity, and sensitivity before you enter the cleanroom. 17+ channel decoherence model · 80 experimental anchors · 12 UK patents filed.",
+    title: TITLE,
+    description: DESCRIPTION,
   },
 };
 
