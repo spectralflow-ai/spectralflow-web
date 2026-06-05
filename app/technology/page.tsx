@@ -5,7 +5,7 @@ import HeroVisual from "../components/HeroVisual";
 import { Section, Eyebrow, H2, Lead, Body, PageHeader } from "../components/ui";
 
 export const metadata: Metadata = {
-  title: "Technology — SpectralFlow",
+  title: "Technology",
   description:
     "The NV-diamond principle and SpectralFlow's three proprietary bricks: SF-QSim (the simulation engine), SF-CORE (fab process) and the SF-100 sensor family.",
 };
@@ -94,6 +94,69 @@ export default function Technology() {
             </Reveal>
           ))}
         </div>
+      </Section>
+
+      {/* Why it matters */}
+      {/* Comparison */}
+      <Section bordered>
+        <Reveal>
+          <Eyebrow>How it compares</Eyebrow>
+          <H2 className="max-w-3xl mb-6">Lab-grade sensitivity, field-grade ruggedness.</H2>
+          <Lead className="max-w-2xl mb-10">
+            The leading magnetometry approaches trade ruggedness for sensitivity. NV-diamond is the
+            one designed to leave the lab.
+          </Lead>
+        </Reveal>
+        <Reveal delay={80}>
+          <div className="card overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[640px]">
+              <thead>
+                <tr>
+                  <th className="p-4 md:p-5 font-mono text-xs tracking-widest uppercase" style={{ color: "var(--muted)", borderBottom: "1px solid var(--border)" }} />
+                  <th
+                    className="p-4 md:p-5 font-semibold text-sm"
+                    style={{ color: "var(--accent)", borderBottom: "1px solid var(--accent)", background: "var(--accent-soft)" }}
+                  >
+                    NV-diamond
+                  </th>
+                  <th className="p-4 md:p-5 font-semibold text-sm" style={{ color: "var(--text-secondary)", borderBottom: "1px solid var(--border)" }}>
+                    SQUID
+                  </th>
+                  <th className="p-4 md:p-5 font-semibold text-sm" style={{ color: "var(--text-secondary)", borderBottom: "1px solid var(--border)" }}>
+                    Cold-atom
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { c: "Operating conditions", nv: "Room temperature", b: "Cryogenic — liquid helium", d: "Vacuum + laser cooling" },
+                  { c: "Size, weight & power", nv: "Chip-scale, low power", b: "Bulky + cooling plant", d: "Bench-scale apparatus" },
+                  { c: "Vibration & shock", nv: "Solid-state, robust", b: "Shielding-sensitive", d: "Vibration-sensitive" },
+                  { c: "Emission", nv: "Passive — no RF", b: "Passive", d: "Active (laser)" },
+                  { c: "Field readiness", nv: "Field-ready", b: "Fixed installations", d: "Mostly laboratory" },
+                ].map((row) => (
+                  <tr key={row.c}>
+                    <td className="p-4 md:p-5 text-sm font-medium" style={{ color: "var(--text-primary)", borderBottom: "1px solid var(--border)" }}>
+                      {row.c}
+                    </td>
+                    <td className="p-4 md:p-5 text-sm" style={{ color: "var(--text-primary)", borderBottom: "1px solid var(--border)", background: "var(--accent-soft)" }}>
+                      {row.nv}
+                    </td>
+                    <td className="p-4 md:p-5 text-sm" style={{ color: "var(--muted)", borderBottom: "1px solid var(--border)" }}>
+                      {row.b}
+                    </td>
+                    <td className="p-4 md:p-5 text-sm" style={{ color: "var(--muted)", borderBottom: "1px solid var(--border)" }}>
+                      {row.d}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="font-mono text-xs mt-4" style={{ color: "var(--muted)" }}>
+            Qualitative positioning across magnetometry approaches.
+          </p>
+        </Reveal>
       </Section>
 
       {/* Why it matters */}

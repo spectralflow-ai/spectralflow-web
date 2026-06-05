@@ -19,18 +19,32 @@ const DESCRIPTION =
   "NV-diamond magnetometers for resilient navigation where GPS is jammed or denied — room temperature, miniature, un-jammable. Sovereign deep tech. 13 UK patents filed.";
 
 export const metadata: Metadata = {
-  title: TITLE,
+  metadataBase: new URL("https://spectralflow.ai"),
+  title: {
+    default: TITLE,
+    template: "%s · SpectralFlow",
+  },
   description: DESCRIPTION,
+  applicationName: "SpectralFlow",
+  keywords: [
+    "NV-diamond",
+    "quantum sensing",
+    "magnetometer",
+    "GPS-denied navigation",
+    "inertial navigation",
+    "deep tech",
+    "sovereign",
+  ],
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
-    url: "https://spectralflow.ai",
+    url: "/",
     siteName: "SpectralFlow",
     locale: "en_US",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
   },

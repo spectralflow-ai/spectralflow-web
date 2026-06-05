@@ -4,7 +4,7 @@ import Reveal from "../components/Reveal";
 import { Section, Eyebrow, H2, Lead, Body, PageHeader } from "../components/ui";
 
 export const metadata: Metadata = {
-  title: "Company — SpectralFlow",
+  title: "Company",
   description:
     "SpectralFlow SAS: European, sovereign deep tech building NV-diamond quantum sensors. Vision, sovereignty thesis, founder Alexandre Papa, NVIDIA Inception membership and 13 UK patents.",
 };

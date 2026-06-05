@@ -4,7 +4,7 @@ import ContactForm from "../components/ContactForm";
 import { Section, Eyebrow, H2, Body, PageHeader } from "../components/ui";
 
 export const metadata: Metadata = {
-  title: "Contact — SpectralFlow",
+  title: "Contact",
   description:
     "Talk to SpectralFlow about NV-diamond quantum sensors, partnerships and investment. Email alex@spectralflow.ai.",
 };

@@ -4,7 +4,7 @@ import Reveal from "../components/Reveal";
 import { Section, Eyebrow, H2, Body, PageHeader } from "../components/ui";
 
 export const metadata: Metadata = {
-  title: "News & Insights — SpectralFlow",
+  title: "News & Insights",
   description:
     "Behind the scenes at SpectralFlow — milestones and insights on NV-diamond quantum sensing and GPS-denied navigation.",
 };

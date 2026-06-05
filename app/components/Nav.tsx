@@ -47,7 +47,8 @@ export default function Nav() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-sm transition-colors"
+                aria-current={active ? "page" : undefined}
+                className="text-sm transition-colors hover:text-white"
                 style={{ color: active ? "var(--accent)" : "var(--text-secondary)" }}
               >
                 {l.label}
@@ -64,18 +65,26 @@ export default function Nav() {
 
         {/* Mobile toggle */}
         <button
-          aria-label="Menu"
-          className="md:hidden flex flex-col gap-1.5 p-2"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          className="md:hidden flex flex-col justify-center gap-1.5 p-2 h-10 w-10"
           onClick={() => setOpen((o) => !o)}
         >
-          <span className="block h-px w-6" style={{ background: "var(--text-secondary)" }} />
-          <span className="block h-px w-6" style={{ background: "var(--text-secondary)" }} />
+          <span
+            className="block h-px w-6 transition-transform duration-300"
+            style={{ background: "var(--text-secondary)", transform: open ? "translateY(3px) rotate(45deg)" : "none" }}
+          />
+          <span
+            className="block h-px w-6 transition-transform duration-300"
+            style={{ background: "var(--text-secondary)", transform: open ? "translateY(-3px) rotate(-45deg)" : "none" }}
+          />
         </button>
       </nav>
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden px-6 pb-4 flex flex-col gap-1" style={{ borderTop: "1px solid var(--border)" }}>
+        <div id="mobile-menu" className="md:hidden px-6 pb-4 flex flex-col gap-1" style={{ borderTop: "1px solid var(--border)" }}>
           {LINKS.map((l) => (
             <Link
               key={l.href}

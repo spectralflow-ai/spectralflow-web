@@ -4,7 +4,7 @@ import Reveal from "../components/Reveal";
 import { Section, Eyebrow, H2, Lead, Body, PageHeader } from "../components/ui";
 
 export const metadata: Metadata = {
-  title: "Applications — SpectralFlow",
+  title: "Applications",
   description:
     "Navigation in GPS-denied environments is SpectralFlow's first vertical (air, sea, space). Semiconductor metrology, life sciences and industry follow as patented verticals.",
 };

@@ -8,7 +8,8 @@ export default function Home() {
     <main>
       {/* ============================ HERO ============================ */}
       <section className="relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 pt-16 md:pt-24 pb-20 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-8 items-center">
+        <div className="grid-backdrop" />
+        <div className="relative max-w-6xl mx-auto px-6 md:px-8 pt-16 md:pt-24 pb-20 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-8 items-center">
           <div>
             <div className="flex flex-wrap gap-2.5 mb-7">
               <span className="pill">Member of NVIDIA Inception</span>
