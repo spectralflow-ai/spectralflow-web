@@ -15,7 +15,7 @@ const BRICKS = [
     tag: "SF-QSim — the engine",
     title: "Design the sensor in software",
     body: "A first-principles physics engine that predicts coherence and magnetic sensitivity across independent decoherence channels, from cryogenic to well above room temperature. It is the design layer that lets a lean team explore the parameter space before committing to the cleanroom.",
-    cta: { href: "https://studio.spectralflow.ai", label: "Open SpectralFlow Studio →" },
+    cta: { href: "https://spectralflow.streamlit.app", label: "Open SpectralFlow Studio →" },
   },
   {
     tag: "SF-CORE — the process",

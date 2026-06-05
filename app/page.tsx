@@ -41,7 +41,7 @@ export default function Home() {
               <Link href="/technology" className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg">
                 Explore the technology <span>→</span>
               </Link>
-              <a href="https://studio.spectralflow.ai" className="btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-lg">
+              <a href="https://spectralflow.streamlit.app" className="btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-lg">
                 Open SpectralFlow Studio
               </a>
             </div>
@@ -156,7 +156,7 @@ export default function Home() {
               across independent decoherence channels — the design layer that lets a lean team move
               at deep-tech speed.
             </Body>
-            <a href="https://studio.spectralflow.ai" className="inline-flex items-center gap-2 text-sm font-medium mt-2" style={{ color: "var(--accent)" }}>
+            <a href="https://spectralflow.streamlit.app" className="inline-flex items-center gap-2 text-sm font-medium mt-2" style={{ color: "var(--accent)" }}>
               Open SpectralFlow Studio <span>→</span>
             </a>
           </Reveal>

@@ -36,8 +36,8 @@ export default function Contact() {
               </div>
               <div>
                 <Eyebrow>The engine</Eyebrow>
-                <a href="https://studio.spectralflow.ai" className="text-lg" style={{ color: "var(--accent)" }}>
-                  studio.spectralflow.ai
+                <a href="https://spectralflow.streamlit.app" className="text-lg" style={{ color: "var(--accent)" }}>
+                  spectralflow.streamlit.app
                 </a>
                 <Body className="mt-1">Explore SF-QSim, our simulation engine.</Body>
               </div>
