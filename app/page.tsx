@@ -1,5 +1,5 @@
 import Link from "next/link";
-import HeroVisual from "./components/HeroVisual";
+import HeroVisualSwitch from "./components/HeroVisualSwitch";
 import Reveal from "./components/Reveal";
 import { Section, Eyebrow, H2, Lead, Body } from "./components/ui";
 
@@ -48,8 +48,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative" style={{ animation: "float 9s ease-in-out infinite" }}>
-            <HeroVisual />
+          <div className="relative">
+            <HeroVisualSwitch />
           </div>
         </div>
       </section>
