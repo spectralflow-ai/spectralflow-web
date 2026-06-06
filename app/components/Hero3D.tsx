@@ -73,8 +73,10 @@ export default function Hero3D() {
         <Diamond />
       </Float>
 
-      {/* Floating glints around the crystal */}
-      <Sparkles count={44} scale={[7, 5, 5]} size={2.2} speed={0.3} color="#9fe9ff" opacity={0.7} />
+      {/* Floating glints — a wide ambient field + a tight bright cluster that
+          really catches the light around the facets */}
+      <Sparkles count={70} scale={[8, 6, 6]} size={2.6} speed={0.45} color="#aeefff" opacity={0.75} />
+      <Sparkles count={34} scale={[3.6, 3.6, 3.6]} size={5} speed={0.7} color="#ffffff" opacity={1} />
 
       {/* Reflections built from light shapes — no external HDR needed */}
       <Environment resolution={256}>
@@ -87,7 +89,7 @@ export default function Hero3D() {
       </Environment>
 
       <EffectComposer>
-        <Bloom mipmapBlur intensity={0.9} luminanceThreshold={0.55} luminanceSmoothing={0.25} />
+        <Bloom mipmapBlur intensity={1.25} luminanceThreshold={0.45} luminanceSmoothing={0.3} />
       </EffectComposer>
     </Canvas>
   );
