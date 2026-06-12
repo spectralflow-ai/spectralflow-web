@@ -1,6 +1,9 @@
 import Link from "next/link";
 import HeroVisualSwitch from "./components/HeroVisualSwitch";
 import Reveal from "./components/Reveal";
+import MissionChart from "./components/MissionChart";
+import StepsScroll from "./components/StepsScroll";
+import Counter from "./components/Counter";
 import { Section, Eyebrow, H2, Lead, Body } from "./components/ui";
 
 export default function Home() {
@@ -16,7 +19,7 @@ export default function Home() {
               <span className="pill">13 UK patents · 326 claims</span>
             </div>
 
-            <h1 className="display text-5xl md:text-7xl font-semibold tracking-tight mb-7">
+            <h1 className="display text-5xl md:text-7xl xl:text-[5.4rem] font-semibold tracking-tight mb-7">
               <span className="text-gradient">Quantum sensing,</span>
               <br />
               out of the lab.
@@ -120,28 +123,9 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* ===================== HOW IT WORKS ===================== */}
+      {/* ===================== HOW IT WORKS (scroll story) ===================== */}
       <Section bordered>
-        <Reveal>
-          <Eyebrow>How it works</Eyebrow>
-          <H2 className="max-w-3xl mb-12">From the Earth&rsquo;s field to a true heading.</H2>
-        </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {[
-            { n: "01", t: "Sense", d: "The NV-diamond reads the Earth's ambient magnetic field — a fixed, global signature that no one can switch off." },
-            { n: "02", t: "Reject", d: "The vehicle carries its own magnetic noise — motors, currents, ferrous masses. Our sensing architecture identifies and removes it on board, in real time." },
-            { n: "03", t: "Match", d: "Onboard firmware matches the cleaned reading against a magnetic map to resolve position and heading in real time." },
-            { n: "04", t: "Navigate", d: "It continuously corrects inertial drift — holding a true course with no satellites, no emissions, nothing to jam." },
-          ].map((c, i) => (
-            <Reveal key={c.t} delay={i * 90}>
-              <div className="card p-6 h-full">
-                <p className="font-mono text-sm mb-3" style={{ color: "var(--accent)" }}>{c.n}</p>
-                <p className="font-semibold mb-2.5" style={{ color: "var(--text-primary)" }}>{c.t}</p>
-                <Body>{c.d}</Body>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        <StepsScroll />
       </Section>
 
       {/* ===================== VERTICAL TEASER ===================== */}
@@ -194,13 +178,15 @@ export default function Home() {
           <Reveal delay={120}>
             <div className="grid grid-cols-2 gap-px rounded-xl overflow-hidden" style={{ background: "var(--border)" }}>
               {[
-                { value: "3", label: "Proprietary bricks" },
-                { value: "5", label: "Patented verticals" },
-                { value: "13", label: "UK patents filed" },
-                { value: "326", label: "Claims" },
+                { value: 3, label: "Proprietary bricks" },
+                { value: 5, label: "Patented verticals" },
+                { value: 13, label: "UK patents filed" },
+                { value: 326, label: "Claims" },
               ].map((s) => (
                 <div key={s.label} className="p-7" style={{ background: "var(--surface)" }}>
-                  <p className="text-4xl font-semibold display" style={{ color: "var(--accent)" }}>{s.value}</p>
+                  <p className="text-4xl font-semibold display" style={{ color: "var(--accent)" }}>
+                    <Counter value={s.value} />
+                  </p>
                   <p className="font-mono text-xs mt-2" style={{ color: "var(--muted)" }}>{s.label}</p>
                 </div>
               ))}
@@ -220,14 +206,19 @@ export default function Home() {
             sensor model and the navigation filter — every figure honestly labelled as
             model-derived.
           </Lead>
-          <Body className="max-w-3xl mb-8">
+          <Body className="max-w-3xl mb-10">
             It is how we engineer, and how we intend to be measured: the twin&rsquo;s predictions
             are the targets our hardware milestones will be judged against. The interactive twin
             is online — access is granted on request.
           </Body>
+        </Reveal>
+        <Reveal delay={120}>
+          <MissionChart />
+        </Reveal>
+        <Reveal delay={180}>
           <a
             href="mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request"
-            className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg"
+            className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg mt-8"
           >
             Request demo access <span>→</span>
           </a>
