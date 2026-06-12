@@ -4,56 +4,82 @@ import Reveal from "./components/Reveal";
 import MissionChart from "./components/MissionChart";
 import StepsScroll from "./components/StepsScroll";
 import Counter from "./components/Counter";
+import FieldFlow from "./components/FieldFlow";
 import { Section, Eyebrow, H2, Lead, Body } from "./components/ui";
 
 export default function Home() {
   return (
     <main>
       {/* ============================ HERO ============================ */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden min-h-[88vh] flex items-center">
         <div className="grid-backdrop" />
-        <div className="relative max-w-6xl mx-auto px-6 md:px-8 pt-16 md:pt-24 pb-20 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-8 items-center">
+        <FieldFlow />
+        <div className="relative w-full max-w-6xl mx-auto px-6 md:px-8 pt-10 md:pt-12 pb-24 grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-8 items-center">
           <div>
-            <div className="flex flex-wrap gap-2.5 mb-7">
-              <span className="pill">Member of NVIDIA Inception</span>
-              <span className="pill">13 UK patents · 326 claims</span>
-            </div>
+            <Reveal>
+              <div className="flex flex-wrap gap-2.5 mb-7">
+                <span className="pill">Member of NVIDIA Inception</span>
+                <span className="pill">13 UK patents · 326 claims</span>
+              </div>
+            </Reveal>
 
-            <h1 className="display text-5xl md:text-7xl xl:text-[5.4rem] font-semibold tracking-tight mb-7">
-              <span className="text-gradient">Quantum sensing,</span>
-              <br />
-              out of the lab.
-            </h1>
+            <Reveal delay={90}>
+              <h1 className="display text-5xl md:text-7xl xl:text-[5.4rem] font-semibold tracking-tight mb-7">
+                <span className="text-gradient">Quantum sensing,</span>
+                <br />
+                out of the lab.
+              </h1>
+            </Reveal>
 
-            <Lead className="max-w-xl mb-5">
-              SpectralFlow designs and patents <strong style={{ color: "var(--text-primary)" }}>NV-diamond
-              quantum sensors</strong> — extreme magnetic sensitivity at room temperature, in a
-              chip-scale form factor.
-            </Lead>
-            <Body className="max-w-xl">
-              Our first mission: resilient navigation where GPS is jammed, denied, or gone. We
-              read the Earth&rsquo;s own magnetic field as an ultra-high-definition compass —
-              passive, un-jammable, undetectable. Where cold atoms and SQUIDs stay too bulky,
-              too cold, or too costly, diamond runs warm, small, and field-ready.
-            </Body>
+            <Reveal delay={180}>
+              <Lead className="max-w-xl mb-5">
+                SpectralFlow designs and patents <strong style={{ color: "var(--text-primary)" }}>NV-diamond
+                quantum sensors</strong> — extreme magnetic sensitivity at room temperature, in a
+                chip-scale form factor.
+              </Lead>
+              <Body className="max-w-xl">
+                Our first mission: resilient navigation where GPS is jammed, denied, or gone. We
+                read the Earth&rsquo;s own magnetic field as an ultra-high-definition compass —
+                passive, un-jammable, undetectable. Where cold atoms and SQUIDs stay too bulky,
+                too cold, or too costly, diamond runs warm, small, and field-ready.
+              </Body>
+            </Reveal>
 
-            <p className="eyebrow mt-6" style={{ opacity: 0.85 }}>
-              Room temperature · Vibration-immune · No RF emission · Air · Sea · Space
-            </p>
+            <Reveal delay={260}>
+              <p className="eyebrow mt-6" style={{ opacity: 0.85 }}>
+                Room temperature · Vibration-immune · No RF emission · Air · Sea · Space
+              </p>
 
-            <div className="flex flex-col sm:flex-row gap-3.5 mt-9">
-              <Link href="/technology" className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg">
-                Explore the technology <span>→</span>
-              </Link>
-              <a href="https://studio.spectralflow.ai" className="btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-lg">
-                Open SpectralFlow Studio
-              </a>
-            </div>
+              <div className="flex flex-col sm:flex-row gap-3.5 mt-9">
+                <Link href="/technology" className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg">
+                  Explore the technology <span>→</span>
+                </Link>
+                <a href="https://studio.spectralflow.ai" className="btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-lg">
+                  Open SpectralFlow Studio
+                </a>
+              </div>
+            </Reveal>
           </div>
 
           <div className="relative">
-            <HeroVisualSwitch />
+            <Reveal delay={160}>
+              <HeroVisualSwitch />
+            </Reveal>
           </div>
+        </div>
+
+        {/* Scroll cue */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" aria-hidden>
+          <span className="font-mono text-[10px] tracking-[0.3em] uppercase" style={{ color: "var(--muted)" }}>
+            Scroll
+          </span>
+          <span
+            className="block w-px h-9"
+            style={{
+              background: "linear-gradient(to bottom, var(--accent), transparent)",
+              animation: "pulse-glow 2.2s ease-in-out infinite",
+            }}
+          />
         </div>
       </section>
 
