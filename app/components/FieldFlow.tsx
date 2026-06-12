@@ -1,23 +1,24 @@
 "use client";
 
 /**
- * FieldFlow — the cinematic hero backdrop.
- * Thousands of particles advected along the field lines of a magnetic
- * dipole, drawn as fading trails on a full-bleed 2D canvas. The company's
- * own physics, used as visual matter.
+ * FieldFlow V4 — the engraving.
+ * The only living matter in the hero: field lines of a magnetic dipole,
+ * drawn slowly as a very pale ink engraving across the full width,
+ * BEHIND the typography. No object, no glow — a drawing that breathes.
  *
- * Engineering notes: plain canvas 2D (no shader risk), devicePixelRatio
- * capped at 2, pauses when offscreen or tab hidden, skipped entirely
- * under prefers-reduced-motion or on small screens.
+ * Engineering notes: plain canvas 2D, devicePixelRatio capped at 2,
+ * pauses when offscreen or tab hidden, skipped entirely under
+ * prefers-reduced-motion or on small screens (the typography stands
+ * alone there).
  */
 
 import { useEffect, useRef } from "react";
 
-const N_PARTICLES = 1100;
-const SPEED = 34; // px/s at DPR 1
-const TRAIL_FADE = 0.075; // background alpha per frame — trail persistence
+const N_PARTICLES = 750;
+const SPEED = 17; // px/s at DPR 1 — slow, deliberate
+const TRAIL_FADE = 0.006; // per-frame erase — lines persist, the drawing builds
 
-type P = { x: number; y: number; life: number; hue: 0 | 1 };
+type P = { x: number; y: number; life: number; blue: boolean };
 
 export default function FieldFlow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -56,28 +57,27 @@ export default function FieldFlow() {
     function seed(p: P) {
       p.x = Math.random() * w;
       p.y = Math.random() * h;
-      p.life = 3 + Math.random() * 6;
-      p.hue = Math.random() < 0.82 ? 0 : 1; // mostly cyan, some violet
+      p.life = 4 + Math.random() * 8;
+      p.blue = Math.random() < 0.06; // the one blue, rare
     }
 
     for (let i = 0; i < N_PARTICLES; i++) {
-      const p: P = { x: 0, y: 0, life: 0, hue: 0 };
-      parts.push(p);
+      parts.push({ x: 0, y: 0, life: 0, blue: false });
     }
 
-    // Dipole field at centre-right (where the diamond sits), moment tilted.
+    // Dipole centred under the headline, moment tilted — the lines arc
+    // across the full width of the page.
     function field(x: number, y: number): [number, number] {
-      const cx = w * 0.66;
-      const cy = h * 0.44;
-      let rx = (x - cx) / (0.32 * Math.min(w, h));
-      let ry = (y - cy) / (0.32 * Math.min(w, h));
+      const cx = w * 0.5;
+      const cy = h * 0.56;
+      let rx = (x - cx) / (0.42 * Math.min(w, h));
+      let ry = (y - cy) / (0.42 * Math.min(w, h));
       const r2 = rx * rx + ry * ry + 0.02;
       const r = Math.sqrt(r2);
       rx /= r;
       ry /= r;
-      // dipole moment direction (tilted like the brand diamond)
-      const mx = 0.45;
-      const my = -0.89;
+      const mx = 0.34;
+      const my = -0.94;
       const mdotr = mx * rx + my * ry;
       const bx = (3 * mdotr * rx - mx) / (r2 * r);
       const by = (3 * mdotr * ry - my) / (r2 * r);
@@ -90,7 +90,7 @@ export default function FieldFlow() {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
 
-      // fade previous frame -> trails (erase, works on any page ground)
+      // barely-there erase — the engraving accumulates, then breathes
       ctx!.globalCompositeOperation = "destination-out";
       ctx!.fillStyle = `rgba(0,0,0,${TRAIL_FADE})`;
       ctx!.fillRect(0, 0, w, h);
@@ -105,11 +105,12 @@ export default function FieldFlow() {
         const nx = p.x + fx * SPEED * dt;
         const ny = p.y + fy * SPEED * dt;
 
-        // ink-engraving style: fine dark field lines, a few in the blue
-        const d = Math.hypot(p.x - w * 0.66, p.y - h * 0.44) / Math.min(w, h);
-        const a = Math.max(0.04, 0.26 - d * 0.2);
-        ctx!.strokeStyle =
-          p.hue === 0 ? `rgba(11, 15, 26, ${a * 0.5})` : `rgba(11, 95, 255, ${a * 0.85})`;
+        // fine ink hairlines, fainter far from the centre
+        const d = Math.hypot(p.x - w * 0.5, p.y - h * 0.56) / Math.min(w, h);
+        const a = Math.max(0.015, 0.085 - d * 0.06);
+        ctx!.strokeStyle = p.blue
+          ? `rgba(11, 95, 255, ${a * 1.6})`
+          : `rgba(11, 15, 26, ${a})`;
         ctx!.lineWidth = 1;
         ctx!.beginPath();
         ctx!.moveTo(p.x, p.y);
@@ -142,7 +143,6 @@ export default function FieldFlow() {
     };
     document.addEventListener("visibilitychange", onVis);
 
-    // pause when the hero scrolls out of view
     const io = new IntersectionObserver(
       ([e]) => {
         if (!e.isIntersecting && running) {
@@ -173,12 +173,12 @@ export default function FieldFlow() {
       aria-hidden
       className="absolute inset-0 h-full w-full"
       style={{
-        // soft containment: fade the field toward the edges and the text column
+        // fade toward the edges; the drawing stays a backdrop
         WebkitMaskImage:
-          "radial-gradient(120% 90% at 62% 42%, #000 0%, rgba(0,0,0,0.75) 45%, transparent 78%)",
+          "radial-gradient(110% 95% at 50% 52%, #000 0%, rgba(0,0,0,0.8) 50%, transparent 82%)",
         maskImage:
-          "radial-gradient(120% 90% at 62% 42%, #000 0%, rgba(0,0,0,0.75) 45%, transparent 78%)",
-        opacity: 0.55,
+          "radial-gradient(110% 95% at 50% 52%, #000 0%, rgba(0,0,0,0.8) 50%, transparent 82%)",
+        animation: "fade-in-slow 2.6s ease-out both",
       }}
     />
   );

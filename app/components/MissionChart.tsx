@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * MissionChart — the company's core claim as a living element.
- * An animated SVG: inertial drift grows unbounded (red) while the
- * magnetically-aided track stays bounded (cyan sawtooth). Draws itself
- * when scrolled into view. Axes are deliberately qualitative — no
- * public quantitative specs (see REDESIGN_BRIEF).
+ * MissionChart — the living mission curve, the company's core claim
+ * drawn as an instrument trace inside a cinema moment. Inertial drift
+ * grows without bound (warm, failing); the magnetically-aided track
+ * stays bounded (the one blue). Draws itself when scrolled into view.
+ * Axes are deliberately qualitative — no public quantitative specs.
  */
 
 import { motion, useInView } from "framer-motion";
@@ -15,6 +15,9 @@ import { useRef } from "react";
 const X0 = 50;
 const Y0 = 270;
 const W = 650;
+
+const INERTIAL = "#D08770"; // warm, muted — the failure mode
+const AIDED = "#6FA1FF"; // the cinema blue — the product
 
 function driftPath(): string {
   // error ~ t^1.4, growing to near top
@@ -63,15 +66,26 @@ export default function MissionChart() {
         <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
           Position error over a GNSS-denied mission
         </p>
-        <p className="font-mono text-[11px] tracking-widest uppercase" style={{ color: "var(--muted)" }}>
-          Digital twin · model-derived
-        </p>
+        <p className="figure-label">Digital twin · model-derived</p>
       </div>
 
-      <svg viewBox="0 0 720 300" className="w-full h-auto" role="img" aria-label="Inertial-only position error grows without bound; magnetically aided navigation stays bounded.">
+      <svg
+        viewBox="0 0 720 300"
+        className="w-full h-auto"
+        role="img"
+        aria-label="Inertial-only position error grows without bound; magnetically aided navigation stays bounded."
+      >
         {/* gridlines */}
         {[0.25, 0.5, 0.75].map((f) => (
-          <line key={f} x1={X0} x2={X0 + W} y1={Y0 - f * 240} y2={Y0 - f * 240} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+          <line
+            key={f}
+            x1={X0}
+            x2={X0 + W}
+            y1={Y0 - f * 240}
+            y2={Y0 - f * 240}
+            stroke="rgba(255,255,255,0.05)"
+            strokeWidth="1"
+          />
         ))}
         {/* axes */}
         <line x1={X0} x2={X0 + W} y1={Y0} y2={Y0} stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
@@ -83,7 +97,7 @@ export default function MissionChart() {
           y={Y0 - 95}
           width={W}
           height={30}
-          fill="rgba(46,230,168,0.07)"
+          fill="rgba(111,161,255,0.08)"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 2.0, duration: 0.8 }}
@@ -93,7 +107,7 @@ export default function MissionChart() {
         <motion.path
           d={DRIFT}
           fill="none"
-          stroke="#f87171"
+          stroke={INERTIAL}
           strokeWidth="2.5"
           strokeLinecap="round"
           initial={{ pathLength: 0 }}
@@ -104,7 +118,7 @@ export default function MissionChart() {
         <motion.path
           d={BOUNDED}
           fill="none"
-          stroke="#2ee6a8"
+          stroke={AIDED}
           strokeWidth="2.5"
           strokeLinecap="round"
           initial={{ pathLength: 0 }}
@@ -114,21 +128,54 @@ export default function MissionChart() {
 
         {/* labels */}
         <motion.g initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 1.4, duration: 0.6 }}>
-          <text x={X0 + W - 8} y={52} textAnchor="end" fontSize="13" fill="#f87171" fontFamily="var(--font-geist-mono)">
+          <text
+            x={X0 + W - 8}
+            y={52}
+            textAnchor="end"
+            fontSize="13"
+            fill={INERTIAL}
+            fontFamily="var(--font-geist-sans)"
+          >
             inertial only — drift grows
           </text>
         </motion.g>
         <motion.g initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 2.4, duration: 0.6 }}>
-          <text x={X0 + W - 8} y={Y0 - 102} textAnchor="end" fontSize="13" fill="#2ee6a8" fontFamily="var(--font-geist-mono)">
+          <text
+            x={X0 + W - 8}
+            y={Y0 - 102}
+            textAnchor="end"
+            fontSize="13"
+            fill={AIDED}
+            fontFamily="var(--font-geist-sans)"
+          >
             magnetically aided — bounded
           </text>
         </motion.g>
 
         {/* axis captions (qualitative by design) */}
-        <text x={X0 + W / 2} y={Y0 + 24} textAnchor="middle" fontSize="11" fill="var(--muted)" fontFamily="var(--font-geist-mono)" letterSpacing="0.15em">
+        <text
+          x={X0 + W / 2}
+          y={Y0 + 24}
+          textAnchor="middle"
+          fontSize="10"
+          fill="var(--muted)"
+          fontFamily="var(--font-geist-sans)"
+          fontWeight="600"
+          letterSpacing="0.15em"
+        >
           MISSION TIME →
         </text>
-        <text x={16} y={Y0 / 2} textAnchor="middle" fontSize="11" fill="var(--muted)" fontFamily="var(--font-geist-mono)" letterSpacing="0.15em" transform={`rotate(-90 16 ${Y0 / 2})`}>
+        <text
+          x={16}
+          y={Y0 / 2}
+          textAnchor="middle"
+          fontSize="10"
+          fill="var(--muted)"
+          fontFamily="var(--font-geist-sans)"
+          fontWeight="600"
+          letterSpacing="0.15em"
+          transform={`rotate(-90 16 ${Y0 / 2})`}
+        >
           POSITION ERROR →
         </text>
       </svg>
