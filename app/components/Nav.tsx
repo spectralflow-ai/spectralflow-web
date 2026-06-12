@@ -20,13 +20,13 @@ export default function Nav() {
     <header
       className="sticky top-0 z-50 backdrop-blur-xl"
       style={{
-        background: "rgba(250, 250, 248, 0.8)",
+        background: "rgba(250, 250, 248, 0.82)",
         borderBottom: "1px solid var(--border)",
       }}
     >
       <nav className="max-w-6xl mx-auto px-6 md:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2.5 group" onClick={() => setOpen(false)}>
+        <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           <span
             className="inline-block h-3.5 w-3.5 rotate-45 rounded-[3px]"
             style={{ background: "var(--text-primary)" }}
@@ -46,7 +46,10 @@ export default function Nav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className="text-sm transition-colors"
-                style={{ color: active ? "var(--text-primary)" : "var(--text-secondary)", fontWeight: active ? 600 : 400 }}
+                style={{
+                  color: active ? "var(--text-primary)" : "var(--text-secondary)",
+                  fontWeight: active ? 600 : 400,
+                }}
               >
                 {l.label}
               </Link>
@@ -54,9 +57,10 @@ export default function Nav() {
           })}
           <a
             href="https://studio.spectralflow.ai"
-            className="btn-ghost text-sm font-medium rounded-lg px-4 py-2"
+            className="btn-ghost"
+            style={{ padding: "0.45rem 1rem" }}
           >
-            Studio →
+            Studio <span>→</span>
           </a>
         </div>
 
@@ -70,25 +74,38 @@ export default function Nav() {
         >
           <span
             className="block h-px w-6 transition-transform duration-300"
-            style={{ background: "var(--text-secondary)", transform: open ? "translateY(3px) rotate(45deg)" : "none" }}
+            style={{
+              background: "var(--text-secondary)",
+              transform: open ? "translateY(3px) rotate(45deg)" : "none",
+            }}
           />
           <span
             className="block h-px w-6 transition-transform duration-300"
-            style={{ background: "var(--text-secondary)", transform: open ? "translateY(-3px) rotate(-45deg)" : "none" }}
+            style={{
+              background: "var(--text-secondary)",
+              transform: open ? "translateY(-3px) rotate(-45deg)" : "none",
+            }}
           />
         </button>
       </nav>
 
       {/* Mobile menu */}
       {open && (
-        <div id="mobile-menu" className="md:hidden px-6 pb-4 flex flex-col gap-1" style={{ borderTop: "1px solid var(--border)" }}>
+        <div
+          id="mobile-menu"
+          className="md:hidden px-6 pb-4 flex flex-col gap-1"
+          style={{ borderTop: "1px solid var(--border)" }}
+        >
           {LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
               className="py-2.5 text-sm"
-              style={{ color: pathname === l.href ? "var(--accent)" : "var(--text-secondary)" }}
+              style={{
+                color: pathname === l.href ? "var(--text-primary)" : "var(--text-secondary)",
+                fontWeight: pathname === l.href ? 600 : 400,
+              }}
             >
               {l.label}
             </Link>

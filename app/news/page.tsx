@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
-import { Section, Eyebrow, H2, Body, PageHeader } from "../components/ui";
+import { Prose, Body, PageHeader } from "../components/kit";
 
 export const metadata: Metadata = {
   title: "News & Insights",
@@ -10,8 +10,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Editorial entries. Keep these qualitative and confirmed — no unverified
- * specs, clients, financials or pipeline names (see REDESIGN_BRIEF.md).
+ * Editorial entries. Keep these qualitative and confirmed — no
+ * unverified specs, clients, financials, pipeline names or grant
+ * submissions (see REBUILD_BRIEF_V4.md).
  */
 const POSTS = [
   {
@@ -19,14 +20,14 @@ const POSTS = [
     date: "June 2026",
     title: "The navigation digital twin is online",
     excerpt:
-      "Before our first device is built, our sensor flies an end-to-end synthetic mission: magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived — and our hardware milestones will be judged against the twin&rsquo;s own predictions. The interactive twin is live; access is granted on request.",
+      "Before our first device is built, our sensor flies an end-to-end synthetic mission: magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived — and our hardware milestones will be judged against the twin’s own predictions. The interactive twin is live; access is granted on request.",
   },
   {
     tag: "Insight",
     date: "June 2026",
     title: "They compensate. We measure.",
     excerpt:
-      "Every magnetometer flying today is a lab instrument strapped onto a vehicle, corrected by external compensation models dating back to 1953. We took the opposite path: design the sensor for the vehicle from the first principle — so the measurement stays true under way, with the platform&rsquo;s own magnetic noise rejected on board.",
+      "Every magnetometer flying today is a lab instrument strapped onto a vehicle, corrected by external compensation models dating back to 1953. We took the opposite path: design the sensor for the vehicle from the first principle — so the measurement stays true under way, with the platform’s own magnetic noise rejected on board.",
   },
   {
     tag: "Research",
@@ -40,7 +41,7 @@ const POSTS = [
     date: "2026",
     title: "SpectralFlow joins NVIDIA Inception",
     excerpt:
-      "We&rsquo;re now a member of NVIDIA Inception, the programme supporting deep-tech startups — a step that strengthens our compute and ecosystem foundation as we scale the SF-QSim engine.",
+      "We’re now a member of NVIDIA Inception, the programme supporting deep-tech startups — a step that strengthens our compute and ecosystem foundation as we scale the SF-QSim engine.",
   },
   {
     tag: "Insight",
@@ -67,22 +68,22 @@ export default function News() {
         intro="Milestones and short notes on building NV-diamond quantum sensors — the same cadence we keep on LinkedIn."
       />
 
-      <Section bordered>
-        <div className="flex flex-col gap-4">
+      <Prose>
+        <div className="flex flex-col">
           {POSTS.map((p, i) => (
-            <Reveal key={p.title} delay={i * 80}>
-              <article className="card p-7 md:p-9 grid grid-cols-1 md:grid-cols-[0.5fr_1.5fr] gap-4 md:gap-12">
-                <div className="flex md:flex-col gap-3 md:gap-2">
+            <Reveal key={p.title} delay={i * 60}>
+              <article className="hairline py-9 grid grid-cols-1 md:grid-cols-[0.45fr_1.55fr] gap-3 md:gap-12">
+                <div className="flex md:flex-col gap-3 md:gap-1.5">
                   <span className="eyebrow">{p.tag}</span>
-                  <span className="font-mono text-xs" style={{ color: "var(--muted)" }}>{p.date}</span>
+                  <span className="figure-label" style={{ letterSpacing: "0.04em", textTransform: "none" }}>
+                    {p.date}
+                  </span>
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold display mb-3" style={{ color: "var(--text-primary)" }}>
                     {p.title}
                   </h2>
-                  <Body>
-                    <span dangerouslySetInnerHTML={{ __html: p.excerpt }} />
-                  </Body>
+                  <Body>{p.excerpt}</Body>
                 </div>
               </article>
             </Reveal>
@@ -90,17 +91,19 @@ export default function News() {
         </div>
 
         <Reveal delay={120}>
-          <div className="card p-8 mt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+          <div className="hairline pt-9 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
             <div>
-              <p className="font-semibold" style={{ color: "var(--text-primary)" }}>Follow the build.</p>
+              <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
+                Follow the build.
+              </p>
               <Body>We share progress and insights regularly. Want the behind-the-scenes?</Body>
             </div>
-            <Link href="/contact" className="btn-ghost inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg shrink-0">
-              Get in touch →
+            <Link href="/contact" className="btn-ghost shrink-0">
+              Get in touch <span>→</span>
             </Link>
           </div>
         </Reveal>
-      </Section>
+      </Prose>
     </main>
   );
 }

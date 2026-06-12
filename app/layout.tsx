@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 const TITLE = "SpectralFlow — Quantum Sensing, Out of the Lab";
 const DESCRIPTION =
-  "NV-diamond magnetometers for resilient navigation where GPS is jammed or denied — room temperature, miniature, un-jammable. Sovereign deep tech. 13 UK patents filed.";
+  "NV-diamond magnetometers for resilient navigation where GPS is jammed or denied — room temperature, chip-scale, designed for the vehicle, not the lab. Sovereign European deep tech. 13 patent families filed.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://spectralflow.ai"),
@@ -51,8 +51,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#05050A",
-  colorScheme: "dark",
+  themeColor: "#FAFAF8",
+  colorScheme: "light",
 };
 
 const ORG_JSONLD = {
@@ -81,9 +81,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
@@ -91,7 +89,7 @@ export default function RootLayout({
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg"
-          style={{ background: "var(--accent)", color: "#05050A" }}
+          style={{ background: "var(--accent)", color: "#FFFFFF" }}
         >
           Skip to content
         </a>

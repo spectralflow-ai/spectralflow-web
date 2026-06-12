@@ -39,27 +39,32 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-sm leading-relaxed mt-4 max-w-xs" style={{ color: "var(--muted)" }}>
-            NV-diamond quantum sensors — taking quantum out of the lab. European, sovereign deep tech.
+            NV-diamond quantum sensors — taking quantum out of the lab. European, sovereign deep
+            tech.
           </p>
-          <p className="font-mono text-xs mt-6" style={{ color: "var(--muted)" }}>
-            Member of NVIDIA Inception
-          </p>
+          <p className="figure-label mt-6">Member of NVIDIA Inception</p>
         </div>
 
         {COLS.map((col) => (
           <div key={col.title}>
-            <p className="eyebrow mb-4" style={{ color: "var(--muted)" }}>
-              {col.title}
-            </p>
+            <p className="eyebrow mb-4">{col.title}</p>
             <ul className="flex flex-col gap-2.5">
               {col.links.map((l) => (
                 <li key={l.label}>
                   {"external" in l && l.external ? (
-                    <a href={l.href} className="text-sm transition-colors hover:text-black" style={{ color: "var(--text-secondary)" }}>
+                    <a
+                      href={l.href}
+                      className="text-sm transition-colors hover:text-black"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       {l.label}
                     </a>
                   ) : (
-                    <Link href={l.href} className="text-sm transition-colors hover:text-black" style={{ color: "var(--text-secondary)" }}>
+                    <Link
+                      href={l.href}
+                      className="text-sm transition-colors hover:text-black"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       {l.label}
                     </Link>
                   )}
@@ -72,11 +77,11 @@ export default function Footer() {
 
       <div className="hairline">
         <div className="max-w-6xl mx-auto px-6 md:px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p className="font-mono text-xs" style={{ color: "var(--muted)" }}>
+          <p className="figure-label" style={{ textTransform: "none", letterSpacing: "0.04em" }}>
             SpectralFlow SAS — France · © {new Date().getFullYear()}
           </p>
-          <p className="font-mono text-xs" style={{ color: "var(--muted)" }}>
-            13 UK patents filed · Quantum sensing for navigation, industry & life sciences
+          <p className="figure-label" style={{ textTransform: "none", letterSpacing: "0.04em" }}>
+            13 patent families filed · Quantum sensing for navigation, industry & life sciences
           </p>
         </div>
       </div>

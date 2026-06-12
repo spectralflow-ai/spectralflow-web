@@ -12,9 +12,7 @@ export default function ContactForm() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const subject = encodeURIComponent(`SpectralFlow enquiry — ${name || "website"}`);
-    const body = encodeURIComponent(
-      `Name: ${name}\nOrganisation: ${org}\n\n${message}`
-    );
+    const body = encodeURIComponent(`Name: ${name}\nOrganisation: ${org}\n\n${message}`);
     window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
   }
 
@@ -50,13 +48,10 @@ export default function ContactForm() {
         onChange={(e) => setMessage(e.target.value)}
         required
       />
-      <button
-        type="submit"
-        className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg self-start"
-      >
+      <button type="submit" className="btn-primary self-start">
         Send message <span>→</span>
       </button>
-      <p className="font-mono text-xs mt-1" style={{ color: "var(--muted)" }}>
+      <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
         Opens your email client. Or write directly to {EMAIL}.
       </p>
     </form>

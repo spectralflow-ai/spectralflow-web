@@ -1,11 +1,12 @@
 @import "tailwindcss";
 
 /* ============================================================
-   SpectralFlow — Design language V3 "Porcelaine"
-   Light-first premium: porcelain ground, deep ink, ONE confident
-   blue used sparingly. The luxury is space and typography — no
-   neon, no grids, no glows. Dark is reserved for cinema moments
-   (.cinema sections) where the product performs.
+   SpectralFlow — V4 "L'instrument"
+   Porcelain ground, deep ink, ONE blue used rarely. Giant sans
+   display. No neon, no glows, no grids, no mono eyebrows.
+   1.5% paper grain. Dark exists only as scoped cinema moments
+   (.cinema) where the product performs.
+   The luxury is what we remove.
    ============================================================ */
 :root {
   /* Ground */
@@ -23,18 +24,16 @@
   --accent: #0B5FFF;
   --accent-deep: #0846C0;
   --accent-soft: rgba(11, 95, 255, 0.07);
-  --accent-2: #0B5FFF;
-  --warm: #B25E09;
 
   /* Lines */
   --border: rgba(11, 15, 26, 0.10);
-  --border-strong: rgba(11, 15, 26, 0.20);
+  --border-strong: rgba(11, 15, 26, 0.22);
 
   --radius: 16px;
 }
 
-/* Cinema moments — scoped dark. Components keep working because they
-   read the same custom properties. */
+/* Cinema moments — scoped dark. Components keep working because
+   they read the same custom properties. */
 .cinema {
   --background: #0B0F1A;
   --surface: #11161F;
@@ -47,7 +46,7 @@
   --accent-deep: #4E84F0;
   --accent-soft: rgba(111, 161, 255, 0.12);
   --border: rgba(255, 255, 255, 0.10);
-  --border-strong: rgba(255, 255, 255, 0.20);
+  --border-strong: rgba(255, 255, 255, 0.22);
   background: #0B0F1A;
   color: var(--text-primary);
 }
@@ -57,7 +56,6 @@
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
-  --color-accent-2: var(--accent-2);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
@@ -78,11 +76,9 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* one breath of cool light at the very top — barely there */
-  background-image: radial-gradient(70rem 36rem at 50% -16rem, rgba(11, 95, 255, 0.045), transparent 70%);
 }
 
-/* Paper grain — 1.5%: gives the porcelain a material feel. */
+/* Paper grain — 1.5%: the porcelain is a material, not a void. */
 body::after {
   content: "";
   position: fixed;
@@ -106,42 +102,29 @@ body::after {
 }
 
 /* ----- Type ------------------------------------------------- */
-.font-mono {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+/* Quiet small caps — sans, never monospace. */
+.eyebrow {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-/* Eyebrow: quiet small caps — no more neon monospace */
-.eyebrow {
-  font-family: var(--font-geist-sans), sans-serif;
-  font-size: 0.8rem;
+/* Figure captions and data labels — same voice, smaller. */
+.figure-label {
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 .display {
   letter-spacing: -0.035em;
-  line-height: 1.04;
+  line-height: 1.03;
   text-wrap: balance;
   font-weight: 600;
-}
-
-/* Solid ink — the gradient era is over. Kept as a class so markup
-   doesn't churn; one word of blue is applied where it earns it. */
-.text-gradient {
-  background: none;
-  -webkit-background-clip: initial;
-  background-clip: initial;
-  color: var(--text-primary);
-}
-
-a[class*="items-center"][class*="gap-2"] > span:last-child {
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  display: inline-block;
-}
-a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
-  transform: translateX(3px);
 }
 
 /* ----- Components ------------------------------------------- */
@@ -153,25 +136,34 @@ a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
   box-shadow:
     0 1px 2px rgba(11, 15, 26, 0.04),
     0 12px 32px -20px rgba(11, 15, 26, 0.12);
-  transition: border-color 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.35s ease;
+  transition: border-color 0.3s ease, box-shadow 0.35s ease;
 }
 .card:hover {
   border-color: var(--border-strong);
-  transform: translateY(-3px);
-  box-shadow:
-    0 1px 2px rgba(11, 15, 26, 0.04),
-    0 24px 48px -24px rgba(11, 15, 26, 0.18);
 }
 .cinema .card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
   box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
 }
 
+/* Plate — an object presented on a quiet ground. */
+.plate {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) + 8px);
+}
+
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   background: var(--accent);
   color: #FFFFFF;
   border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   box-shadow: 0 1px 2px rgba(11, 15, 26, 0.12), 0 8px 20px -10px rgba(11, 95, 255, 0.5);
   transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease,
     background 0.2s ease;
@@ -179,7 +171,6 @@ a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
 .btn-primary:hover {
   background: var(--accent-deep);
   transform: translateY(-1px);
-  box-shadow: 0 1px 2px rgba(11, 15, 26, 0.12), 0 12px 26px -10px rgba(11, 95, 255, 0.55);
 }
 .btn-primary:active {
   transform: translateY(0);
@@ -187,9 +178,16 @@ a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
 }
 
 .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   border: 1px solid var(--border-strong);
   color: var(--text-primary);
   border-radius: 999px;
+  padding: 0.8rem 1.6rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   background: transparent;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
@@ -199,14 +197,28 @@ a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
 }
 .btn-ghost:active { transform: translateY(1px); }
 
+/* Arrow text link — the arrow leans on hover. */
+.textlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+.textlink > span:last-child {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  display: inline-block;
+}
+.textlink:hover > span:last-child {
+  transform: translateX(3px);
+}
+
 .hairline {
   border-top: 1px solid var(--border);
 }
-.hairline-glow { position: relative; }
-.hairline-glow::after { content: none; }
 
 .pill {
-  font-family: var(--font-geist-sans), sans-serif;
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -219,16 +231,13 @@ a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
 }
 
 /* ----- Motion ------------------------------------------------ */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-10px); }
+@keyframes fade-in-slow {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-@keyframes pulse-glow {
+@keyframes pulse-soft {
   0%, 100% { opacity: 0.45; }
   50%      { opacity: 1; }
-}
-@keyframes spin-slow {
-  to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -246,6 +255,3 @@ a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
   background: rgba(11, 95, 255, 0.15);
   color: var(--text-primary);
 }
-
-/* ----- Hero backdrop: nothing. Porcelain breathes. ----------- */
-.grid-backdrop { display: none; }
