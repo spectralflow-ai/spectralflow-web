@@ -18,7 +18,7 @@ export default function Nav() {
 
   return (
     <header
-      className="sticky top-0 z-50 backdrop-blur-xl"
+      className="sticky top-0 z-50 backdrop-blur-xl hairline-glow"
       style={{
         background: "rgba(5, 5, 10, 0.72)",
         borderBottom: "1px solid var(--border)",
@@ -56,7 +56,7 @@ export default function Nav() {
             );
           })}
           <a
-            href="https://spectralflow.streamlit.app"
+            href="https://studio.spectralflow.ai"
             className="btn-ghost text-sm font-medium rounded-lg px-4 py-2"
           >
             Studio →
@@ -96,7 +96,7 @@ export default function Nav() {
               {l.label}
             </Link>
           ))}
-          <a href="https://spectralflow.streamlit.app" className="py-2.5 text-sm" style={{ color: "var(--accent)" }}>
+          <a href="https://studio.spectralflow.ai" className="py-2.5 text-sm" style={{ color: "var(--accent)" }}>
             Open Studio →
           </a>
         </div>

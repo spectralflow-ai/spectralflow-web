@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
 /* ============================================================
-   SpectralFlow — Design tokens (V2, investor-grade)
+   SpectralFlow — Design tokens (V2.1, design-led pass)
    Dark deep-tech family: near-black base, cyan quantum accent,
-   a warm secondary for "out of the lab" / room-temperature cues.
+   violet lattice secondary, warm room-temperature cue.
+   Principles: depth via light (edges, glows, grain) — never via
+   noise of color; restraint > decoration; motion as confirmation.
    ============================================================ */
 :root {
   /* Base surfaces */
@@ -15,7 +17,7 @@
   /* Text */
   --text-primary: #F4F6FB;
   --text-secondary: #A7AEC2;
-  --muted: #6B7280;
+  --muted: #7A8298;
 
   /* Accents */
   --accent: #00E5FF;          /* quantum cyan */
@@ -30,6 +32,9 @@
 
   /* Glow */
   --glow-cyan: 0 0 40px rgba(0, 229, 255, 0.25);
+
+  /* Rhythm */
+  --radius: 14px;
 }
 
 @theme inline {
@@ -58,11 +63,38 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* Subtle atmospheric gradient — keeps the dark base from feeling flat */
+  font-feature-settings: "ss01" on, "cv05" on;
+  /* Atmospheric depth — two soft sources, fixed so scroll feels layered */
   background-image:
     radial-gradient(60rem 60rem at 78% -10%, rgba(0, 229, 255, 0.07), transparent 60%),
-    radial-gradient(50rem 50rem at 8% 6%, rgba(124, 92, 255, 0.06), transparent 55%);
+    radial-gradient(50rem 50rem at 8% 6%, rgba(124, 92, 255, 0.06), transparent 55%),
+    radial-gradient(80rem 50rem at 50% 110%, rgba(0, 148, 179, 0.05), transparent 60%);
   background-attachment: fixed;
+}
+
+/* Photographic grain — the quiet texture that kills the "flat dark" look.
+   Pure SVG noise, ~2% opacity, zero network cost. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* ----- Custom scrollbar (desktop) ---------------------------- */
+@media (pointer: fine) {
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--background); }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    border: 3px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
 }
 
 /* ----- Type helpers ---------------------------------------- */
@@ -79,8 +111,9 @@ body {
 }
 
 .display {
-  letter-spacing: -0.03em;
-  line-height: 1.02;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  text-wrap: balance;
 }
 
 /* Gradient text for hero / section accents */
@@ -91,42 +124,93 @@ body {
   color: transparent;
 }
 
+/* Animated link affordance — used by inline arrow links */
+a[class*="items-center"][class*="gap-2"] > span:last-child {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  display: inline-block;
+}
+a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
+  transform: translateX(3px);
+}
+
 /* ----- Components ------------------------------------------ */
+/* Card: glass surface + a 1px light edge along the top — depth via light. */
 .card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0));
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.008) 38%, rgba(255, 255, 255, 0));
   border: 1px solid var(--border);
-  border-radius: 14px;
-  transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  border-radius: var(--radius);
+  transition: border-color 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 8% auto 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  opacity: 0.5;
+  transition: opacity 0.35s ease;
 }
 .card:hover {
   border-color: var(--border-strong);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow:
+    0 18px 40px -18px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(0, 229, 255, 0.06);
 }
+.card:hover::before { opacity: 1; }
 
 .btn-primary {
-  background: var(--accent);
-  color: #05050A;
-  box-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  background: linear-gradient(180deg, #2BEBFF 0%, var(--accent) 45%, #00C4DE 100%);
+  color: #04161A;
+  box-shadow:
+    0 0 18px rgba(0, 229, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, filter 0.2s ease;
 }
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0 28px rgba(0, 229, 255, 0.55);
+  box-shadow:
+    0 0 30px rgba(0, 229, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  filter: saturate(1.08);
+}
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.35), inset 0 1px 4px rgba(0, 40, 48, 0.35);
 }
 
 .btn-ghost {
   border: 1px solid var(--border-strong);
   color: var(--text-secondary);
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  backdrop-filter: blur(6px);
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 .btn-ghost:hover {
-  border-color: var(--accent);
+  border-color: rgba(0, 229, 255, 0.55);
   color: var(--text-primary);
   background: var(--accent-soft);
 }
+.btn-ghost:active { transform: translateY(1px); }
 
 .hairline {
   border-top: 1px solid var(--border);
+}
+
+/* Gradient hairline — for nav / footer edges that deserve a touch of light */
+.hairline-glow {
+  position: relative;
+}
+.hairline-glow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 229, 255, 0.25) 30%, rgba(124, 92, 255, 0.25) 70%, transparent 100%);
 }
 
 /* Pill / badge */
@@ -140,6 +224,7 @@ body {
   background: var(--accent-soft);
   border-radius: 999px;
   padding: 0.35rem 0.8rem;
+  backdrop-filter: blur(4px);
 }
 
 /* ----- Motion ---------------------------------------------- */

@@ -16,6 +16,27 @@ export const metadata: Metadata = {
 const POSTS = [
   {
     tag: "Milestone",
+    date: "June 2026",
+    title: "The navigation digital twin is online",
+    excerpt:
+      "Before our first device is built, our sensor flies an end-to-end synthetic mission: magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived — and our hardware milestones will be judged against the twin&rsquo;s own predictions. The interactive twin is live; access is granted on request.",
+  },
+  {
+    tag: "Insight",
+    date: "June 2026",
+    title: "They compensate. We measure.",
+    excerpt:
+      "Every magnetometer flying today is a lab instrument strapped onto a vehicle, corrected by external compensation models dating back to 1953. We took the opposite path: design the sensor for the vehicle from the first principle — so the measurement stays true under way, with the platform&rsquo;s own magnetic noise rejected on board.",
+  },
+  {
+    tag: "Research",
+    date: "2026",
+    title: "Eight preprints, in the open",
+    excerpt:
+      "Our modelling work is documented in eight public preprints on Zenodo — timestamped, DOI-referenced and citable. Publishing the reasoning behind the engine is part of how we build credibility: in the open, against the literature.",
+  },
+  {
+    tag: "Milestone",
     date: "2026",
     title: "SpectralFlow joins NVIDIA Inception",
     excerpt:
