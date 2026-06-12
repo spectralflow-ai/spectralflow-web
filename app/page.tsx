@@ -6,6 +6,7 @@ import Steps from "./components/Steps";
 import Counter from "./components/Counter";
 import PartnerStrip from "./components/PartnerStrip";
 import { Prose, Cinema, Eyebrow, H2, Lead, Body, Strong } from "./components/kit";
+import { MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "./lib/contact";
 
 const NAV_STEPS = [
   {
@@ -61,10 +62,7 @@ export default function Home() {
               <Link href="/technology" className="btn-primary">
                 Explore the technology <span>→</span>
               </Link>
-              <a
-                href="mailto:alex@spectralflow.ai?subject=SF-100%20predictive%20datasheet%20request"
-                className="textlink"
-              >
+              <a href={MAILTO_DATASHEET} className="textlink">
                 Request the predictive datasheet <span>→</span>
               </a>
             </div>
@@ -106,10 +104,7 @@ export default function Home() {
           <MissionChart />
         </Reveal>
         <Reveal delay={180}>
-          <a
-            href="mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request"
-            className="btn-primary mt-8"
-          >
+          <a href={MAILTO_TWIN_DEMO} className="btn-primary mt-8">
             Request demo access <span>→</span>
           </a>
         </Reveal>
@@ -278,10 +273,7 @@ export default function Home() {
             <Link href="/contact" className="btn-primary">
               Get in touch <span>→</span>
             </Link>
-            <a
-              href="mailto:alex@spectralflow.ai?subject=SF-100%20predictive%20datasheet%20request"
-              className="btn-ghost"
-            >
+            <a href={MAILTO_DATASHEET} className="btn-ghost">
               Request the predictive datasheet
             </a>
           </div>

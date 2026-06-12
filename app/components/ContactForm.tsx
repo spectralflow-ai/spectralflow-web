@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-const EMAIL = "alex@spectralflow.ai";
+import { CONTACT_EMAIL as EMAIL } from "../lib/contact";
 
 export default function ContactForm() {
   const [name, setName] = useState("");

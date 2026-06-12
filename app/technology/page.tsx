@@ -3,6 +3,7 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import NVDiagram from "../components/NVDiagram";
 import { Prose, Plate, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
+import { MAILTO_TWIN_DEMO } from "../lib/contact";
 
 export const metadata: Metadata = {
   title: "Technology",
@@ -32,7 +33,7 @@ const BRICKS = [
     title: "The sensor flies before it exists",
     body: "An end-to-end navigation digital twin — synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; hardware milestones will be judged against the twin's own predictions. The interactive twin is online, with access granted on request.",
     cta: {
-      href: "mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request",
+      href: MAILTO_TWIN_DEMO,
       label: "Request demo access",
     },
   },

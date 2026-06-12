@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MAILTO_TWIN_DEMO } from "../lib/contact";
 
 const COLS = [
   {
@@ -8,7 +9,7 @@ const COLS = [
       { href: "/applications", label: "Applications" },
       { href: "https://studio.spectralflow.ai", label: "SpectralFlow Studio", external: true },
       {
-        href: "mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request",
+        href: MAILTO_TWIN_DEMO,
         label: "Digital twin — request access",
         external: true,
       },

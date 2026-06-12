@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Reveal from "../components/Reveal";
 import ContactForm from "../components/ContactForm";
 import { Prose, Eyebrow, H2, Body, PageHeader } from "../components/kit";
+import { CONTACT_EMAIL, MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "../lib/contact";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description:
-    "Talk to SpectralFlow about NV-diamond quantum sensors, partnerships and investment. Email alex@spectralflow.ai.",
+  description: `Talk to SpectralFlow about NV-diamond quantum sensors, partnerships and investment. Email ${CONTACT_EMAIL}.`,
 };
 
 export default function Contact() {
@@ -30,8 +30,8 @@ export default function Contact() {
             <div className="flex flex-col gap-7">
               <div className="hairline pt-5">
                 <Eyebrow>Email</Eyebrow>
-                <a href="mailto:alex@spectralflow.ai" className="text-lg" style={{ color: "var(--accent)" }}>
-                  alex@spectralflow.ai
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-lg" style={{ color: "var(--accent)" }}>
+                  {CONTACT_EMAIL}
                 </a>
               </div>
               <div className="hairline pt-5">
@@ -44,7 +44,7 @@ export default function Contact() {
               <div className="hairline pt-5">
                 <Eyebrow>Predictive datasheet</Eyebrow>
                 <a
-                  href="mailto:alex@spectralflow.ai?subject=SF-100%20predictive%20datasheet%20request"
+                  href={MAILTO_DATASHEET}
                   className="text-lg"
                   style={{ color: "var(--accent)" }}
                 >
@@ -58,7 +58,7 @@ export default function Contact() {
               <div className="hairline pt-5">
                 <Eyebrow>Navigation digital twin</Eyebrow>
                 <a
-                  href="mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request"
+                  href={MAILTO_TWIN_DEMO}
                   className="text-lg"
                   style={{ color: "var(--accent)" }}
                 >

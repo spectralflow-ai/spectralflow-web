@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
+import { CONTACT_EMAIL } from "./lib/contact";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,7 +65,7 @@ const ORG_JSONLD = {
   logo: "https://spectralflow.ai/icon.svg",
   description: DESCRIPTION,
   foundingLocation: { "@type": "Country", name: "France" },
-  email: "alex@spectralflow.ai",
+  email: CONTACT_EMAIL,
   knowsAbout: [
     "NV-diamond quantum sensors",
     "Magnetometry",
