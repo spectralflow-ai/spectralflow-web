@@ -1,40 +1,55 @@
 @import "tailwindcss";
 
 /* ============================================================
-   SpectralFlow — Design tokens (V2.1, design-led pass)
-   Dark deep-tech family: near-black base, cyan quantum accent,
-   violet lattice secondary, warm room-temperature cue.
-   Principles: depth via light (edges, glows, grain) — never via
-   noise of color; restraint > decoration; motion as confirmation.
+   SpectralFlow — Design language V3 "Porcelaine"
+   Light-first premium: porcelain ground, deep ink, ONE confident
+   blue used sparingly. The luxury is space and typography — no
+   neon, no grids, no glows. Dark is reserved for cinema moments
+   (.cinema sections) where the product performs.
    ============================================================ */
 :root {
-  /* Base surfaces */
-  --background: #05050A;
-  --surface: #0A0A12;
-  --surface-2: #10101A;
-  --foreground: #FFFFFF;
+  /* Ground */
+  --background: #FAFAF8;
+  --surface: #FFFFFF;
+  --surface-2: #F3F2EE;
+  --foreground: #0B0F1A;
 
-  /* Text */
-  --text-primary: #F4F6FB;
-  --text-secondary: #A7AEC2;
-  --muted: #7A8298;
+  /* Ink */
+  --text-primary: #0B0F1A;
+  --text-secondary: #3F4654;
+  --muted: #6E7585;
 
-  /* Accents */
-  --accent: #00E5FF;          /* quantum cyan */
-  --accent-deep: #0094B3;
-  --accent-soft: rgba(0, 229, 255, 0.12);
-  --accent-2: #7C5CFF;        /* violet — diamond lattice / spin */
-  --warm: #FFB36B;            /* room-temperature warmth cue */
+  /* The one blue */
+  --accent: #0B5FFF;
+  --accent-deep: #0846C0;
+  --accent-soft: rgba(11, 95, 255, 0.07);
+  --accent-2: #0B5FFF;
+  --warm: #B25E09;
 
   /* Lines */
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
+  --border: rgba(11, 15, 26, 0.10);
+  --border-strong: rgba(11, 15, 26, 0.20);
 
-  /* Glow */
-  --glow-cyan: 0 0 40px rgba(0, 229, 255, 0.25);
+  --radius: 16px;
+}
 
-  /* Rhythm */
-  --radius: 14px;
+/* Cinema moments — scoped dark. Components keep working because they
+   read the same custom properties. */
+.cinema {
+  --background: #0B0F1A;
+  --surface: #11161F;
+  --surface-2: #161C28;
+  --foreground: #F4F5F2;
+  --text-primary: #F4F5F2;
+  --text-secondary: #B9BEC9;
+  --muted: #828A9A;
+  --accent: #6FA1FF;
+  --accent-deep: #4E84F0;
+  --accent-soft: rgba(111, 161, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.20);
+  background: #0B0F1A;
+  color: var(--text-primary);
 }
 
 @theme inline {
@@ -63,68 +78,64 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "ss01" on, "cv05" on;
-  /* Atmospheric depth — two soft sources, fixed so scroll feels layered */
-  background-image:
-    radial-gradient(60rem 60rem at 78% -10%, rgba(0, 229, 255, 0.07), transparent 60%),
-    radial-gradient(50rem 50rem at 8% 6%, rgba(124, 92, 255, 0.06), transparent 55%),
-    radial-gradient(80rem 50rem at 50% 110%, rgba(0, 148, 179, 0.05), transparent 60%);
-  background-attachment: fixed;
+  /* one breath of cool light at the very top — barely there */
+  background-image: radial-gradient(70rem 36rem at 50% -16rem, rgba(11, 95, 255, 0.045), transparent 70%);
 }
 
-/* Photographic grain — the quiet texture that kills the "flat dark" look.
-   Pure SVG noise, ~2% opacity, zero network cost. */
+/* Paper grain — 1.5%: gives the porcelain a material feel. */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.022;
+  opacity: 0.015;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 160px 160px;
 }
 
-/* ----- Custom scrollbar (desktop) ---------------------------- */
 @media (pointer: fine) {
   ::-webkit-scrollbar { width: 10px; }
-  ::-webkit-scrollbar-track { background: var(--background); }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(11, 15, 26, 0.18);
     border-radius: 999px;
     border: 3px solid var(--background);
   }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(11, 15, 26, 0.3); }
 }
 
-/* ----- Type helpers ---------------------------------------- */
+/* ----- Type ------------------------------------------------- */
 .font-mono {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
 }
 
+/* Eyebrow: quiet small caps — no more neon monospace */
 .eyebrow {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--muted);
 }
 
 .display {
   letter-spacing: -0.035em;
   line-height: 1.04;
   text-wrap: balance;
+  font-weight: 600;
 }
 
-/* Gradient text for hero / section accents */
+/* Solid ink — the gradient era is over. Kept as a class so markup
+   doesn't churn; one word of blue is applied where it earns it. */
 .text-gradient {
-  background: linear-gradient(120deg, #FFFFFF 0%, #CFEFFF 45%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: var(--text-primary);
 }
 
-/* Animated link affordance — used by inline arrow links */
 a[class*="items-center"][class*="gap-2"] > span:last-child {
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   display: inline-block;
@@ -133,107 +144,87 @@ a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
   transform: translateX(3px);
 }
 
-/* ----- Components ------------------------------------------ */
-/* Card: glass surface + a 1px light edge along the top — depth via light. */
+/* ----- Components ------------------------------------------- */
 .card {
   position: relative;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.008) 38%, rgba(255, 255, 255, 0));
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: border-color 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+  box-shadow:
+    0 1px 2px rgba(11, 15, 26, 0.04),
+    0 12px 32px -20px rgba(11, 15, 26, 0.12);
+  transition: border-color 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s ease;
-}
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0 8% auto 8%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
-  opacity: 0.5;
-  transition: opacity 0.35s ease;
 }
 .card:hover {
   border-color: var(--border-strong);
   transform: translateY(-3px);
   box-shadow:
-    0 18px 40px -18px rgba(0, 0, 0, 0.7),
-    0 0 0 1px rgba(0, 229, 255, 0.06);
+    0 1px 2px rgba(11, 15, 26, 0.04),
+    0 24px 48px -24px rgba(11, 15, 26, 0.18);
 }
-.card:hover::before { opacity: 1; }
+.cinema .card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
+}
 
 .btn-primary {
-  background: linear-gradient(180deg, #2BEBFF 0%, var(--accent) 45%, #00C4DE 100%);
-  color: #04161A;
-  box-shadow:
-    0 0 18px rgba(0, 229, 255, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, filter 0.2s ease;
+  background: var(--accent);
+  color: #FFFFFF;
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(11, 15, 26, 0.12), 0 8px 20px -10px rgba(11, 95, 255, 0.5);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 .btn-primary:hover {
+  background: var(--accent-deep);
   transform: translateY(-1px);
-  box-shadow:
-    0 0 30px rgba(0, 229, 255, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  filter: saturate(1.08);
+  box-shadow: 0 1px 2px rgba(11, 15, 26, 0.12), 0 12px 26px -10px rgba(11, 95, 255, 0.55);
 }
 .btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 0 14px rgba(0, 229, 255, 0.35), inset 0 1px 4px rgba(0, 40, 48, 0.35);
+  box-shadow: 0 1px 2px rgba(11, 15, 26, 0.16);
 }
 
 .btn-ghost {
   border: 1px solid var(--border-strong);
-  color: var(--text-secondary);
-  backdrop-filter: blur(6px);
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  color: var(--text-primary);
+  border-radius: 999px;
+  background: transparent;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 .btn-ghost:hover {
-  border-color: rgba(0, 229, 255, 0.55);
-  color: var(--text-primary);
-  background: var(--accent-soft);
+  border-color: var(--text-primary);
+  background: var(--surface);
 }
 .btn-ghost:active { transform: translateY(1px); }
 
 .hairline {
   border-top: 1px solid var(--border);
 }
+.hairline-glow { position: relative; }
+.hairline-glow::after { content: none; }
 
-/* Gradient hairline — for nav / footer edges that deserve a touch of light */
-.hairline-glow {
-  position: relative;
-}
-.hairline-glow::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(0, 229, 255, 0.25) 30%, rgba(124, 92, 255, 0.25) 70%, transparent 100%);
-}
-
-/* Pill / badge */
 .pill {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid rgba(0, 229, 255, 0.4);
-  background: var(--accent-soft);
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  background: var(--surface);
   border-radius: 999px;
-  padding: 0.35rem 0.8rem;
-  backdrop-filter: blur(4px);
+  padding: 0.4rem 0.9rem;
+  box-shadow: 0 1px 2px rgba(11, 15, 26, 0.04);
 }
 
-/* ----- Motion ---------------------------------------------- */
+/* ----- Motion ------------------------------------------------ */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-10px); }
 }
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.55; }
+  0%, 100% { opacity: 0.45; }
   50%      { opacity: 1; }
 }
 @keyframes spin-slow {
@@ -245,26 +236,16 @@ a[class*="items-center"][class*="gap-2"]:hover > span:last-child {
   html { scroll-behavior: auto; }
 }
 
-/* ----- Accessibility & selection --------------------------- */
+/* ----- Accessibility & selection ----------------------------- */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 4px;
 }
 ::selection {
-  background: rgba(0, 229, 255, 0.25);
-  color: #ffffff;
+  background: rgba(11, 95, 255, 0.15);
+  color: var(--text-primary);
 }
 
-/* ----- Decorative grid backdrop ---------------------------- */
-.grid-backdrop {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 56px 56px;
-  -webkit-mask-image: radial-gradient(70% 60% at 50% 30%, #000 0%, transparent 80%);
-  mask-image: radial-gradient(70% 60% at 50% 30%, #000 0%, transparent 80%);
-}
+/* ----- Hero backdrop: nothing. Porcelain breathes. ----------- */
+.grid-backdrop { display: none; }

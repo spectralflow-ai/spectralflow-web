@@ -32,7 +32,7 @@ export default function Footer() {
           <div className="flex items-center gap-2.5">
             <span
               className="inline-block h-3.5 w-3.5 rotate-45 rounded-[3px]"
-              style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}
+              style={{ background: "var(--text-primary)" }}
             />
             <span className="font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
               SpectralFlow
@@ -55,11 +55,11 @@ export default function Footer() {
               {col.links.map((l) => (
                 <li key={l.label}>
                   {"external" in l && l.external ? (
-                    <a href={l.href} className="text-sm transition-colors hover:text-white" style={{ color: "var(--text-secondary)" }}>
+                    <a href={l.href} className="text-sm transition-colors hover:text-black" style={{ color: "var(--text-secondary)" }}>
                       {l.label}
                     </a>
                   ) : (
-                    <Link href={l.href} className="text-sm transition-colors hover:text-white" style={{ color: "var(--text-secondary)" }}>
+                    <Link href={l.href} className="text-sm transition-colors hover:text-black" style={{ color: "var(--text-secondary)" }}>
                       {l.label}
                     </Link>
                   )}

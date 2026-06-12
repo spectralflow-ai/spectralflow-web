@@ -90,11 +90,11 @@ export default function FieldFlow() {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
 
-      // fade previous frame -> trails
+      // fade previous frame -> trails (erase, works on any page ground)
       ctx!.globalCompositeOperation = "destination-out";
       ctx!.fillStyle = `rgba(0,0,0,${TRAIL_FADE})`;
       ctx!.fillRect(0, 0, w, h);
-      ctx!.globalCompositeOperation = "lighter";
+      ctx!.globalCompositeOperation = "source-over";
 
       for (const p of parts) {
         if (p.life <= 0 || p.x < -20 || p.x > w + 20 || p.y < -20 || p.y > h + 20) {
@@ -105,11 +105,11 @@ export default function FieldFlow() {
         const nx = p.x + fx * SPEED * dt;
         const ny = p.y + fy * SPEED * dt;
 
-        // distance-based brightness: lines glow nearer the core
+        // ink-engraving style: fine dark field lines, a few in the blue
         const d = Math.hypot(p.x - w * 0.66, p.y - h * 0.44) / Math.min(w, h);
-        const a = Math.max(0.05, 0.30 - d * 0.22);
+        const a = Math.max(0.04, 0.26 - d * 0.2);
         ctx!.strokeStyle =
-          p.hue === 0 ? `rgba(0, 229, 255, ${a})` : `rgba(124, 92, 255, ${a * 0.9})`;
+          p.hue === 0 ? `rgba(11, 15, 26, ${a * 0.5})` : `rgba(11, 95, 255, ${a * 0.85})`;
         ctx!.lineWidth = 1;
         ctx!.beginPath();
         ctx!.moveTo(p.x, p.y);
@@ -178,7 +178,7 @@ export default function FieldFlow() {
           "radial-gradient(120% 90% at 62% 42%, #000 0%, rgba(0,0,0,0.75) 45%, transparent 78%)",
         maskImage:
           "radial-gradient(120% 90% at 62% 42%, #000 0%, rgba(0,0,0,0.75) 45%, transparent 78%)",
-        opacity: 0.85,
+        opacity: 0.55,
       }}
     />
   );

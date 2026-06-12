@@ -57,8 +57,10 @@ function Step({
         viewport={{ once: true, margin: "-10% 0px" }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         style={{
-          borderColor: inView ? "rgba(0,229,255,0.35)" : undefined,
-          boxShadow: inView ? "0 0 40px -18px rgba(0,229,255,0.35)" : undefined,
+          borderColor: inView ? "rgba(11,95,255,0.45)" : undefined,
+          boxShadow: inView
+            ? "0 1px 2px rgba(11,15,26,0.04), 0 24px 48px -24px rgba(11,95,255,0.25)"
+            : undefined,
         }}
       >
         <p className="font-mono text-sm mb-3" style={{ color: "var(--accent)" }}>
@@ -100,8 +102,7 @@ export default function StepsScroll() {
               <span
                 className="h-2 w-2 rounded-full transition-all duration-500"
                 style={{
-                  background: i <= active ? "var(--accent)" : "rgba(255,255,255,0.15)",
-                  boxShadow: i === active ? "0 0 12px rgba(0,229,255,0.8)" : "none",
+                  background: i <= active ? "var(--accent)" : "var(--border-strong)",
                   transform: i === active ? "scale(1.4)" : "scale(1)",
                 }}
               />

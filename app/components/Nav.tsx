@@ -18,9 +18,9 @@ export default function Nav() {
 
   return (
     <header
-      className="sticky top-0 z-50 backdrop-blur-xl hairline-glow"
+      className="sticky top-0 z-50 backdrop-blur-xl"
       style={{
-        background: "rgba(5, 5, 10, 0.72)",
+        background: "rgba(250, 250, 248, 0.8)",
         borderBottom: "1px solid var(--border)",
       }}
     >
@@ -29,10 +29,7 @@ export default function Nav() {
         <Link href="/" className="flex items-center gap-2.5 group" onClick={() => setOpen(false)}>
           <span
             className="inline-block h-3.5 w-3.5 rotate-45 rounded-[3px]"
-            style={{
-              background: "linear-gradient(135deg, var(--accent), var(--accent-2))",
-              boxShadow: "0 0 14px rgba(0, 229, 255, 0.6)",
-            }}
+            style={{ background: "var(--text-primary)" }}
           />
           <span className="font-semibold tracking-tight text-[15px]" style={{ color: "var(--text-primary)" }}>
             SpectralFlow
@@ -48,8 +45,8 @@ export default function Nav() {
                 key={l.href}
                 href={l.href}
                 aria-current={active ? "page" : undefined}
-                className="text-sm transition-colors hover:text-white"
-                style={{ color: active ? "var(--accent)" : "var(--text-secondary)" }}
+                className="text-sm transition-colors"
+                style={{ color: active ? "var(--text-primary)" : "var(--text-secondary)", fontWeight: active ? 600 : 400 }}
               >
                 {l.label}
               </Link>

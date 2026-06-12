@@ -25,9 +25,9 @@ export default function Home() {
 
             <Reveal delay={90}>
               <h1 className="display text-5xl md:text-7xl xl:text-[5.4rem] font-semibold tracking-tight mb-7">
-                <span className="text-gradient">Quantum sensing,</span>
+                Quantum sensing,
                 <br />
-                out of the lab.
+                out of the lab<span style={{ color: "var(--accent)" }}>.</span>
               </h1>
             </Reveal>
 
@@ -63,7 +63,13 @@ export default function Home() {
 
           <div className="relative">
             <Reveal delay={160}>
-              <HeroVisualSwitch />
+              {/* product plate — the diamond performs on dark, gallery-style */}
+              <div
+                className="cinema rounded-[28px] p-5 md:p-7"
+                style={{ boxShadow: "0 32px 80px -32px rgba(11, 15, 26, 0.45)" }}
+              >
+                <HeroVisualSwitch />
+              </div>
             </Reveal>
           </div>
         </div>
@@ -221,8 +227,8 @@ export default function Home() {
         </div>
       </Section>
 
-      {/* ===================== DIGITAL TWIN ===================== */}
-      <Section bordered>
+      {/* ===================== DIGITAL TWIN (cinema moment) ===================== */}
+      <Section bordered className="cinema">
         <Reveal>
           <Eyebrow>The digital twin</Eyebrow>
           <H2 className="max-w-3xl mb-6">Our sensor already flies — in software.</H2>
