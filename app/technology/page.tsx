@@ -15,7 +15,7 @@ const BRICKS = [
     tag: "SF-QSim — the engine",
     title: "Design the sensor in software",
     body: "A first-principles physics engine that predicts coherence and magnetic sensitivity across independent decoherence channels, from cryogenic to well above room temperature. It is the design layer that lets a lean team explore the parameter space before committing to the cleanroom.",
-    cta: { href: "https://spectralflow.streamlit.app", label: "Open SpectralFlow Studio →" },
+    cta: { href: "https://studio.spectralflow.ai", label: "Open SpectralFlow Studio →" },
   },
   {
     tag: "SF-CORE — the process",
@@ -24,8 +24,14 @@ const BRICKS = [
   },
   {
     tag: "SF-100 — the sensor family",
-    title: "A sensor head, ready for the field",
-    body: "Diamond, integrated optics and adaptive firmware packaged into a rugged, low-power sensor family. We follow the “NVIDIA model”: sell the design, firmware and calibration; outsource the fab.",
+    title: "A sensor head designed for the vehicle, not the lab",
+    body: "Diamond, integrated optics and adaptive firmware packaged into a rugged, low-power sensor family — with on-board rejection of the host platform's own magnetic interference, so the measurement stays true under way. We follow the “NVIDIA model”: sell the design, firmware and calibration; outsource the fab.",
+  },
+  {
+    tag: "The digital twin",
+    title: "The sensor flies before it exists",
+    body: "An end-to-end navigation digital twin — synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; hardware milestones will be judged against the twin's own predictions. The interactive twin is online, with access granted on request.",
+    cta: { href: "mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request", label: "Request demo access →" },
   },
 ];
 

@@ -6,7 +6,12 @@ const COLS = [
     links: [
       { href: "/technology", label: "Technology" },
       { href: "/applications", label: "Applications" },
-      { href: "https://spectralflow.streamlit.app", label: "SpectralFlow Studio", external: true },
+      { href: "https://studio.spectralflow.ai", label: "SpectralFlow Studio", external: true },
+      {
+        href: "mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request",
+        label: "Digital twin — request access",
+        external: true,
+      },
     ],
   },
   {

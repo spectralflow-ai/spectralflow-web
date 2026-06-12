@@ -36,10 +36,35 @@ export default function Contact() {
               </div>
               <div>
                 <Eyebrow>The engine</Eyebrow>
-                <a href="https://spectralflow.streamlit.app" className="text-lg" style={{ color: "var(--accent)" }}>
-                  spectralflow.streamlit.app
+                <a href="https://studio.spectralflow.ai" className="text-lg" style={{ color: "var(--accent)" }}>
+                  studio.spectralflow.ai
                 </a>
                 <Body className="mt-1">Explore SF-QSim, our simulation engine.</Body>
+              </div>
+              <div>
+                <Eyebrow>Predictive datasheet</Eyebrow>
+                <a
+                  href="mailto:alex@spectralflow.ai?subject=SF-100%20predictive%20datasheet%20request"
+                  className="text-lg"
+                  style={{ color: "var(--accent)" }}
+                >
+                  Request the SF-100 predictive datasheet
+                </a>
+                <Body className="mt-1">
+                  Model-derived target specifications, sent personally on request — please include
+                  your professional affiliation.
+                </Body>
+              </div>
+              <div>
+                <Eyebrow>Navigation digital twin</Eyebrow>
+                <a
+                  href="mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request"
+                  className="text-lg"
+                  style={{ color: "var(--accent)" }}
+                >
+                  Request demo access
+                </a>
+                <Body className="mt-1">The interactive twin is online; access is granted on request.</Body>
               </div>
               <div>
                 <Eyebrow>Company</Eyebrow>

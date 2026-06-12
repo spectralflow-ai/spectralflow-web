@@ -42,7 +42,7 @@ export default function Home() {
               <Link href="/technology" className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg">
                 Explore the technology <span>→</span>
               </Link>
-              <a href="https://spectralflow.streamlit.app" className="btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-lg">
+              <a href="https://studio.spectralflow.ai" className="btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-lg">
                 Open SpectralFlow Studio
               </a>
             </div>
@@ -83,6 +83,12 @@ export default function Home() {
             positioning reference that nobody can switch off — one that emits nothing and cannot be
             jammed.
           </Lead>
+          <Body className="max-w-3xl mt-5">
+            Magnetic navigation exists — but the magnetometers flying today are lab instruments
+            strapped onto vehicles, corrected by external compensation models dating back to 1953.
+            We design the sensor for the vehicle, not the lab.{" "}
+            <strong style={{ color: "var(--text-primary)" }}>They compensate. We measure.</strong>
+          </Body>
         </Reveal>
       </Section>
 
@@ -120,11 +126,12 @@ export default function Home() {
           <Eyebrow>How it works</Eyebrow>
           <H2 className="max-w-3xl mb-12">From the Earth&rsquo;s field to a true heading.</H2>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
             { n: "01", t: "Sense", d: "The NV-diamond reads the Earth's ambient magnetic field — a fixed, global signature that no one can switch off." },
-            { n: "02", t: "Match", d: "Onboard firmware matches the live reading against a magnetic map to resolve position and heading in real time." },
-            { n: "03", t: "Navigate", d: "It continuously corrects inertial drift — holding a true course with no satellites, no emissions, nothing to jam." },
+            { n: "02", t: "Reject", d: "The vehicle carries its own magnetic noise — motors, currents, ferrous masses. Our sensing architecture identifies and removes it on board, in real time." },
+            { n: "03", t: "Match", d: "Onboard firmware matches the cleaned reading against a magnetic map to resolve position and heading in real time." },
+            { n: "04", t: "Navigate", d: "It continuously corrects inertial drift — holding a true course with no satellites, no emissions, nothing to jam." },
           ].map((c, i) => (
             <Reveal key={c.t} delay={i * 90}>
               <div className="card p-6 h-full">
@@ -180,7 +187,7 @@ export default function Home() {
               across independent decoherence channels — the design layer that lets a lean team move
               at deep-tech speed.
             </Body>
-            <a href="https://spectralflow.streamlit.app" className="inline-flex items-center gap-2 text-sm font-medium mt-2" style={{ color: "var(--accent)" }}>
+            <a href="https://studio.spectralflow.ai" className="inline-flex items-center gap-2 text-sm font-medium mt-2" style={{ color: "var(--accent)" }}>
               Open SpectralFlow Studio <span>→</span>
             </a>
           </Reveal>
@@ -200,6 +207,31 @@ export default function Home() {
             </div>
           </Reveal>
         </div>
+      </Section>
+
+      {/* ===================== DIGITAL TWIN ===================== */}
+      <Section bordered>
+        <Reveal>
+          <Eyebrow>The digital twin</Eyebrow>
+          <H2 className="max-w-3xl mb-6">Our sensor already flies — in software.</H2>
+          <Lead className="max-w-3xl mb-5">
+            Before the first device is built, an end-to-end navigation digital twin flies the
+            mission: a synthetic magnetic map, a vehicle with its own interference, the full
+            sensor model and the navigation filter — every figure honestly labelled as
+            model-derived.
+          </Lead>
+          <Body className="max-w-3xl mb-8">
+            It is how we engineer, and how we intend to be measured: the twin&rsquo;s predictions
+            are the targets our hardware milestones will be judged against. The interactive twin
+            is online — access is granted on request.
+          </Body>
+          <a
+            href="mailto:alex@spectralflow.ai?subject=Navigation%20digital%20twin%20%E2%80%94%20demo%20access%20request"
+            className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg"
+          >
+            Request demo access <span>→</span>
+          </a>
+        </Reveal>
       </Section>
 
       {/* ===================== ECOSYSTEM ===================== */}
@@ -239,9 +271,12 @@ export default function Home() {
             <Link href="/contact" className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg">
               Get in touch <span>→</span>
             </Link>
-            <Link href="/company" className="btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-lg">
-              About the company
-            </Link>
+            <a
+              href="mailto:alex@spectralflow.ai?subject=SF-100%20predictive%20datasheet%20request"
+              className="btn-ghost inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-lg"
+            >
+              Request the predictive datasheet
+            </a>
           </div>
         </Reveal>
       </Section>
