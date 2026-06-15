@@ -46,12 +46,16 @@ export default function Legal() {
           <Row label="Legal form">
             Société par actions simplifiée (SAS) — French private limited company
           </Row>
-          <Row label="Share capital">{TBC("capital social en €")}</Row>
+          <Row label="Share capital">€10,000</Row>
           <Row label="Registered office">
             14 avenue de Grande Bretagne, 06230 Villefranche-sur-Mer, France
           </Row>
-          <Row label="RCS / SIREN">{TBC("n° RCS + ville d'immatriculation, ou SIREN")}</Row>
-          <Row label="VAT number">{TBC("n° TVA intracommunautaire (ou « non assujetti »)")}</Row>
+          <Row label="RCS / SIREN">
+            RCS Nice 103 022 588 — registered 27 March 2026
+          </Row>
+          <Row label="VAT number">
+            FR&nbsp;71&nbsp;103&nbsp;022&nbsp;588 {TBC("confirmer : assujetti, ou franchise en base TVA art. 293 B CGI")}
+          </Row>
           <Row label="Publication director">Alexandre Papa, Président</Row>
           <Row label="Contact">
             <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: "var(--accent)" }}>
