@@ -22,12 +22,6 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-/* TODO LEGAL — placeholders to confirm with the founder / legal counsel
-   before this page is pushed live. Format kept unmistakable on purpose. */
-const TBC = (what: string) => (
-  <span style={{ color: "var(--accent)", fontWeight: 600 }}>[À COMPLÉTER : {what}]</span>
-);
-
 export default function Legal() {
   return (
     <main>
@@ -53,9 +47,7 @@ export default function Legal() {
           <Row label="RCS / SIREN">
             RCS Nice 103 022 588 — registered 27 March 2026
           </Row>
-          <Row label="VAT number">
-            FR&nbsp;71&nbsp;103&nbsp;022&nbsp;588 {TBC("confirmer : assujetti, ou franchise en base TVA art. 293 B CGI")}
-          </Row>
+          <Row label="VAT number">FR&nbsp;71&nbsp;103&nbsp;022&nbsp;588 (VAT-registered)</Row>
           <Row label="Publication director">Alexandre Papa, Président</Row>
           <Row label="Contact">
             <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: "var(--accent)" }}>
@@ -70,9 +62,20 @@ export default function Legal() {
         <Eyebrow>Hosting · Hébergeur</Eyebrow>
         <H2 className="mb-8">Where this site is hosted</H2>
         <dl>
-          <Row label="Host">{TBC("nom de l'hébergeur — p.ex. Vercel Inc.")}</Row>
-          <Row label="Address">{TBC("adresse de l'hébergeur")}</Row>
-          <Row label="Contact">{TBC("site / téléphone de l'hébergeur")}</Row>
+          <Row label="Host">Vercel Inc.</Row>
+          <Row label="Address">340 S Lemon Ave #4133, Walnut, CA 91789, United States</Row>
+          <Row label="Website">
+            <a href="https://vercel.com" style={{ color: "var(--accent)" }} target="_blank" rel="noopener noreferrer">
+              vercel.com
+            </a>
+          </Row>
+          <Row label="Interactive sub-applications">
+            The computational sub-applications (studio.spectralflow.ai,
+            twin.spectralflow.ai) are hosted by Railway Corp. (United States) —{" "}
+            <a href="https://railway.com" style={{ color: "var(--accent)" }} target="_blank" rel="noopener noreferrer">
+              railway.com
+            </a>
+          </Row>
         </dl>
       </Prose>
 

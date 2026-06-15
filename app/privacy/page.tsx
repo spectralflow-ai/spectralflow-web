@@ -9,10 +9,6 @@ export const metadata: Metadata = {
     "Privacy policy (politique de confidentialité) for spectralflow.ai — how Spectral Flow SAS handles personal data under the GDPR.",
 };
 
-const TBC = (what: string) => (
-  <span style={{ color: "var(--accent)", fontWeight: 600 }}>[À COMPLÉTER : {what}]</span>
-);
-
 export default function Privacy() {
   return (
     <main>
@@ -56,7 +52,11 @@ export default function Privacy() {
         </Body>
         <Body className="max-w-3xl">
           <strong style={{ color: "var(--text-primary)" }}>Cookies &amp; analytics.</strong>{" "}
-          {TBC("confirmer : ce site n'utilise pas de cookies de suivi / d'analytics — sinon décrire l'outil et la base légale (consentement)")}
+          This site uses no advertising or third-party tracking cookies and does not profile
+          visitors. Only strictly necessary cookies required for the site to function and be
+          served securely may be set by our host. No consent banner is therefore required for
+          tracking; should we add analytics in future, this policy will be updated and consent
+          requested where the law requires it.
         </Body>
       </Prose>
 
