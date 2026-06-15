@@ -165,6 +165,38 @@ export default function Company() {
           </Reveal>
         </div>
       </Prose>
+
+      {/* Registered entity — credibility */}
+      <Prose>
+        <Reveal>
+          <Eyebrow>Registered company</Eyebrow>
+          <H2 className="max-w-3xl mb-8">The company on paper.</H2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-5 max-w-3xl">
+            {[
+              { k: "Legal entity", v: "Spectral Flow SAS — French société par actions simplifiée" },
+              { k: "Registered office", v: "14 avenue de Grande Bretagne, 06230 Villefranche-sur-Mer, France" },
+              { k: "Incorporated", v: "2026" },
+              { k: "President", v: "Alexandre Papa" },
+            ].map((r) => (
+              <div key={r.k} className="hairline pt-4">
+                <p className="figure-label" style={{ textTransform: "none", letterSpacing: "0.04em" }}>
+                  {r.k}
+                </p>
+                <p className="text-[15px] leading-7 mt-1" style={{ color: "var(--text-secondary)" }}>
+                  {r.v}
+                </p>
+              </div>
+            ))}
+          </div>
+          <Body className="mt-8">
+            Full company and hosting details are in our{" "}
+            <Link href="/legal" style={{ color: "var(--accent)" }}>
+              legal notice
+            </Link>
+            .
+          </Body>
+        </Reveal>
+      </Prose>
     </main>
   );
 }

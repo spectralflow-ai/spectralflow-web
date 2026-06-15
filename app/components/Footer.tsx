@@ -23,12 +23,19 @@ const COLS = [
       { href: "/contact", label: "Contact" },
     ],
   },
+  {
+    title: "Legal",
+    links: [
+      { href: "/legal", label: "Legal notice" },
+      { href: "/privacy", label: "Privacy policy" },
+    ],
+  },
 ];
 
 export default function Footer() {
   return (
     <footer className="hairline mt-24">
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-14 grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr] gap-10">
+      <div className="max-w-6xl mx-auto px-6 md:px-8 py-14 grid grid-cols-1 md:grid-cols-[1.6fr_1fr_1fr_1fr] gap-10">
         <div>
           <div className="flex items-center gap-2.5">
             <span
@@ -42,6 +49,11 @@ export default function Footer() {
           <p className="text-sm leading-relaxed mt-4 max-w-xs" style={{ color: "var(--muted)" }}>
             NV-diamond quantum sensors — taking quantum out of the lab. European, sovereign deep
             tech.
+          </p>
+          <p className="text-sm leading-relaxed mt-4 max-w-xs" style={{ color: "var(--muted)" }}>
+            Spectral Flow SAS<br />
+            14 avenue de Grande Bretagne<br />
+            06230 Villefranche-sur-Mer, France
           </p>
           <p className="figure-label mt-6">Member of NVIDIA Inception</p>
         </div>
