@@ -110,7 +110,18 @@ export default function News() {
               <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
                 Follow the build.
               </p>
-              <Body>We share progress and insights regularly. Want the behind-the-scenes?</Body>
+              <Body>
+                We share progress and insights regularly, keeping the same cadence we keep on{" "}
+                <a
+                  href="https://www.linkedin.com/company/spectralflow"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-black transition-colors"
+                >
+                  LinkedIn
+                </a>
+                . Want the behind-the-scenes?
+              </Body>
             </div>
             <Link href="/contact" className="btn-ghost shrink-0">
               Get in touch <span>→</span>

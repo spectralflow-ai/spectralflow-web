@@ -21,6 +21,11 @@ const COLS = [
     links: [
       { href: "/company", label: "About & vision" },
       { href: "/news", label: "News & insights" },
+      {
+        href: "https://www.linkedin.com/company/spectralflow",
+        label: "LinkedIn",
+        external: true,
+      },
       { href: "/contact", label: "Contact" },
     ],
   },

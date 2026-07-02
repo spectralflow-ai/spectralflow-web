@@ -73,6 +73,9 @@ const ORG_JSONLD = {
     "Quantum sensing",
   ],
   memberOf: { "@type": "Organization", name: "NVIDIA Inception" },
+  sameAs: [
+    "https://www.linkedin.com/company/spectralflow"
+  ],
 };
 
 export default function RootLayout({
