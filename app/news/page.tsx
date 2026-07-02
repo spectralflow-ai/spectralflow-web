@@ -17,10 +17,10 @@ export const metadata: Metadata = {
 const POSTS = [
   {
     tag: "Milestone",
-    date: "June 2026",
-    title: "Patent family fourteen is filed",
+    date: "July 2026",
+    title: "The patent portfolio grows to fifteen families",
     excerpt:
-      "Our fourteenth patent family was filed at the end of June. It protects a core piece of the navigation stack: how the sensing architecture rejects the host platform's own magnetic interference on board. As with the previous thirteen, it was filed before any public disclosure; the details stay confidential until publication.",
+      "Two more patent families were filed at the turn of June and July, bringing the portfolio to fifteen. One protects how the sensing architecture rejects the host platform's own magnetic interference on board; the other covers the onboard inference layer that turns the cleaned signal into navigation data the system can vouch for. Both were filed before any public disclosure, and the details stay confidential until publication.",
   },
   {
     tag: "Research",
@@ -79,7 +79,7 @@ export default function News() {
       <PageHeader
         eyebrow="News & Insights"
         title="From the bench."
-        intro="Milestones and short notes on building NV-diamond quantum sensors, the same cadence we keep on LinkedIn."
+        intro="Milestones and short notes on building NV-diamond quantum sensors."
       />
 
       <Prose>
