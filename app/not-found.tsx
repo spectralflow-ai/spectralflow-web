@@ -9,7 +9,7 @@ export default function NotFound() {
           404<span style={{ color: "var(--accent)" }}>.</span>
         </h1>
         <p className="text-lg leading-relaxed max-w-md mb-9" style={{ color: "var(--text-secondary)" }}>
-          This page is off the map — like GPS in contested airspace. Let&rsquo;s get you back on a
+          This page is off the map, like GPS in contested airspace. Let&rsquo;s get you back on a
           known heading.
         </p>
         <div className="flex flex-col sm:flex-row gap-3.5">

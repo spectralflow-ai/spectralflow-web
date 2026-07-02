@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const THEATRES = [
   {
     t: "Air",
-    d: "Matchbox-sized and a handful of watts, riding on tactical UAVs. It corrects inertial drift by matching the Earth's magnetic map — so the platform keeps its heading the moment GPS is jammed or denied.",
+    d: "Matchbox-sized and a handful of watts, riding on tactical UAVs. It corrects inertial drift by matching the Earth's magnetic map, so the platform keeps its heading the moment GPS is jammed or denied.",
   },
   {
     t: "Sea",
@@ -31,11 +31,11 @@ const FUTURE = [
   },
   {
     t: "Chip-scale NMR / pharma",
-    d: "Miniature magnetic resonance for molecular analysis and quality control — bringing NMR out of the room and onto the bench.",
+    d: "Miniature magnetic resonance for molecular analysis and quality control, bringing NMR out of the room and onto the bench.",
   },
   {
     t: "ROS biosensing",
-    d: "Quantum-grade magnetic sensing for reactive-oxygen-species and biological signals — a path toward tomorrow's diagnostics.",
+    d: "Quantum-grade magnetic sensing for reactive-oxygen-species and biological signals: a path toward tomorrow's diagnostics.",
   },
   {
     t: "Ambient quantum computing",
@@ -60,11 +60,11 @@ export default function Applications() {
       {/* Primary vertical */}
       <Prose>
         <Reveal>
-          <Eyebrow>Vertical #1 — GPS-denied navigation</Eyebrow>
+          <Eyebrow>Vertical #1 · GPS-denied navigation</Eyebrow>
           <H2 className="max-w-3xl mb-6">One core. Three theatres.</H2>
           <Lead className="max-w-2xl mb-14">
             Inertial navigation drifts the moment satellites disappear. A passive magnetic
-            reference that nobody can switch off closes that gap — in the air, under the sea and in
+            reference that nobody can switch off closes that gap: in the air, under the sea and in
             orbit.
           </Lead>
         </Reveal>
@@ -86,7 +86,7 @@ export default function Applications() {
           <Eyebrow>The platform goes further</Eyebrow>
           <H2 className="max-w-3xl mb-6">The same quantum core, beyond navigation.</H2>
           <Lead className="max-w-2xl mb-14">
-            A single sensing core — engineered diamond, integrated optics, adaptive firmware —
+            A single sensing core (engineered diamond, integrated optics, adaptive firmware)
             unlocks a cascade of applications. Navigation ships first; the rest are patented and
             activate as each market matures.
           </Lead>

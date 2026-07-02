@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { CONTACT_EMAIL } from "./lib/contact";
+import { PATENT_FAMILIES } from "./lib/facts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,9 +16,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "SpectralFlow — Quantum Sensing, Out of the Lab";
-const DESCRIPTION =
-  "NV-diamond magnetometers for resilient navigation where GPS is jammed or denied — room temperature, chip-scale, designed for the vehicle, not the lab. Sovereign European deep tech. 13 patent families filed.";
+const TITLE = "SpectralFlow · Quantum Sensing, Out of the Lab";
+const DESCRIPTION = `NV-diamond magnetometers for resilient navigation where GPS is jammed or denied: room temperature, chip-scale, designed for the vehicle, not the lab. Sovereign European deep tech. ${PATENT_FAMILIES} patent families filed.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://spectralflow.ai"),

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MAILTO_TWIN_DEMO } from "../lib/contact";
+import { PATENT_FAMILIES } from "../lib/facts";
 
 const COLS = [
   {
@@ -10,7 +11,7 @@ const COLS = [
       { href: "https://studio.spectralflow.ai", label: "SpectralFlow Studio", external: true },
       {
         href: MAILTO_TWIN_DEMO,
-        label: "Digital twin — request access",
+        label: "Digital twin · request access",
         external: true,
       },
     ],
@@ -47,7 +48,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-sm leading-relaxed mt-4 max-w-xs" style={{ color: "var(--muted)" }}>
-            NV-diamond quantum sensors — taking quantum out of the lab. European, sovereign deep
+            NV-diamond quantum sensors, taking quantum out of the lab. European, sovereign deep
             tech.
           </p>
           <p className="text-sm leading-relaxed mt-4 max-w-xs" style={{ color: "var(--muted)" }}>
@@ -91,10 +92,10 @@ export default function Footer() {
       <div className="hairline">
         <div className="max-w-6xl mx-auto px-6 md:px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <p className="figure-label" style={{ textTransform: "none", letterSpacing: "0.04em" }}>
-            SpectralFlow SAS — France · © {new Date().getFullYear()}
+            SpectralFlow SAS · France · © {new Date().getFullYear()}
           </p>
           <p className="figure-label" style={{ textTransform: "none", letterSpacing: "0.04em" }}>
-            13 patent families filed · Quantum sensing for navigation, industry & life sciences
+            {PATENT_FAMILIES} patent families filed · Quantum sensing for navigation, industry & life sciences
           </p>
         </div>
       </div>

@@ -136,7 +136,7 @@ export default function MissionChart() {
             fill={INERTIAL}
             fontFamily="var(--font-geist-sans)"
           >
-            inertial only — drift grows
+            inertial only · drift grows
           </text>
         </motion.g>
         <motion.g initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 2.4, duration: 0.6 }}>
@@ -148,7 +148,7 @@ export default function MissionChart() {
             fill={AIDED}
             fontFamily="var(--font-geist-sans)"
           >
-            magnetically aided — bounded
+            magnetically aided · bounded
           </text>
         </motion.g>
 

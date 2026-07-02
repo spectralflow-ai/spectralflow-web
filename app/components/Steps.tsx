@@ -99,7 +99,7 @@ export default function Steps({
                 className="figure-label transition-colors duration-500"
                 style={{ color: i === active ? "var(--text-primary)" : "var(--muted)" }}
               >
-                {s.n} — {s.t}
+                {s.n} · {s.t}
               </span>
             </div>
           ))}

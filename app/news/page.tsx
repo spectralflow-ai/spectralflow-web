@@ -6,7 +6,7 @@ import { Prose, Body, PageHeader } from "../components/kit";
 export const metadata: Metadata = {
   title: "News & Insights",
   description:
-    "Behind the scenes at SpectralFlow — milestones and insights on NV-diamond quantum sensing and GPS-denied navigation.",
+    "Behind the scenes at SpectralFlow: milestones and insights on NV-diamond quantum sensing and GPS-denied navigation.",
 };
 
 /**
@@ -18,37 +18,51 @@ const POSTS = [
   {
     tag: "Milestone",
     date: "June 2026",
+    title: "Patent family fourteen is filed",
+    excerpt:
+      "Our fourteenth patent family was filed at the end of June. It protects a core piece of the navigation stack: how the sensing architecture rejects the host platform's own magnetic interference on board. As with the previous thirteen, it was filed before any public disclosure; the details stay confidential until publication.",
+  },
+  {
+    tag: "Research",
+    date: "June 2026",
+    title: "A hundred anchors keep the engine honest",
+    excerpt:
+      "A physics engine is only as good as its confrontation with the literature. Every coherence prediction the engine makes is benchmarked against a registry of more than 100 published experimental results, curated anchor by anchor and re-checked as the model evolves. When the model and an experiment disagree, the experiment wins and the model changes.",
+  },
+  {
+    tag: "Milestone",
+    date: "June 2026",
     title: "The navigation digital twin is online",
     excerpt:
-      "Before our first device is built, our sensor flies an end-to-end synthetic mission: magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived — and our hardware milestones will be judged against the twin’s own predictions. The interactive twin is live; access is granted on request.",
+      "Before our first device is built, our sensor flies an end-to-end synthetic mission: magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived, and our hardware milestones will be judged against the twin’s own predictions. The interactive twin is live; access is granted on request.",
   },
   {
     tag: "Insight",
     date: "June 2026",
     title: "They compensate. We measure.",
     excerpt:
-      "Every magnetometer flying today is a lab instrument strapped onto a vehicle, corrected by external compensation models dating back to 1953. We took the opposite path: design the sensor for the vehicle from the first principle — so the measurement stays true under way, with the platform’s own magnetic noise rejected on board.",
+      "Every magnetometer flying today is a lab instrument strapped onto a vehicle, corrected by external compensation models dating back to 1953. We took the opposite path: design the sensor for the vehicle from the first principle, so the measurement stays true under way, with the platform’s own magnetic noise rejected on board.",
   },
   {
     tag: "Research",
     date: "2026",
     title: "Eight preprints, in the open",
     excerpt:
-      "Our modelling work is documented in eight public preprints on Zenodo — timestamped, DOI-referenced and citable. Publishing the reasoning behind the engine is part of how we build credibility: in the open, against the literature.",
+      "Our modelling work is documented in eight public preprints on Zenodo: timestamped, DOI-referenced and citable. Publishing the reasoning behind the engine is part of how we build credibility, in the open, against the literature.",
   },
   {
     tag: "Milestone",
     date: "2026",
     title: "SpectralFlow joins NVIDIA Inception",
     excerpt:
-      "We’re now a member of NVIDIA Inception, the programme supporting deep-tech startups — a step that strengthens our compute and ecosystem foundation as we scale the SF-QSim engine.",
+      "We’re now a member of NVIDIA Inception, the programme supporting deep-tech startups. It strengthens our compute and ecosystem foundation as we scale the SF-QSim engine.",
   },
   {
     tag: "Insight",
     date: "2026",
     title: "Why GPS-denied navigation is the right first vertical",
     excerpt:
-      "Satellite navigation is increasingly jammed, spoofed and denied. A passive magnetic reference that emits nothing and cannot be switched off is the missing layer — and it is exactly what NV-diamond is good at.",
+      "Satellite navigation is increasingly jammed, spoofed and denied. A passive magnetic reference that emits nothing and cannot be switched off is the missing layer, and it is exactly what NV-diamond is good at.",
   },
   {
     tag: "Insight",
@@ -65,7 +79,7 @@ export default function News() {
       <PageHeader
         eyebrow="News & Insights"
         title="From the bench."
-        intro="Milestones and short notes on building NV-diamond quantum sensors — the same cadence we keep on LinkedIn."
+        intro="Milestones and short notes on building NV-diamond quantum sensors, the same cadence we keep on LinkedIn."
       />
 
       <Prose>

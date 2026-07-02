@@ -10,7 +10,7 @@ export default function ContactForm() {
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    const subject = encodeURIComponent(`SpectralFlow enquiry — ${name || "website"}`);
+    const subject = encodeURIComponent(`SpectralFlow enquiry: ${name || "website"}`);
     const body = encodeURIComponent(`Name: ${name}\nOrganisation: ${org}\n\n${message}`);
     window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
   }

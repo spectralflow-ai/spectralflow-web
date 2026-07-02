@@ -17,7 +17,7 @@ export default function Contact() {
         title={<>Let&rsquo;s talk.</>}
         intro={
           <>
-            Investors, partners and prospective collaborators — we&rsquo;d like to hear from you.
+            Investors, partners and prospective collaborators: we&rsquo;d like to hear from you.
             We&rsquo;re courting early backers as we scale NV-diamond quantum sensing.
           </>
         }
@@ -51,7 +51,7 @@ export default function Contact() {
                   Request the SF-100 predictive datasheet
                 </a>
                 <Body className="mt-1">
-                  Model-derived target specifications, sent personally on request — please include
+                  Model-derived target specifications, sent personally on request; please include
                   your professional affiliation.
                 </Body>
               </div>
@@ -68,7 +68,7 @@ export default function Contact() {
               </div>
               <div className="hairline pt-5">
                 <Eyebrow>Company</Eyebrow>
-                <Body>SpectralFlow SAS — France. European, sovereign deep tech.</Body>
+                <Body>SpectralFlow SAS, France. European, sovereign deep tech.</Body>
               </div>
             </div>
           </Reveal>

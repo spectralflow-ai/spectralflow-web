@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
+import { PATENT_FAMILIES } from "./lib/facts";
 
-export const alt = "SpectralFlow — Quantum sensing, out of the lab.";
+export const alt = "SpectralFlow · Quantum sensing, out of the lab.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -86,7 +87,7 @@ export default function Og() {
               lineHeight: 1.35,
             }}
           >
-            NV-diamond magnetometers designed for the vehicle, not the lab — room temperature,
+            NV-diamond magnetometers designed for the vehicle, not the lab: room temperature,
             chip-scale, sovereign.
           </div>
         </div>
@@ -94,7 +95,7 @@ export default function Og() {
         {/* Footer pills */}
         <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 22 }}>
           {pill("Member of NVIDIA Inception")}
-          {pill("13 patent families")}
+          {pill(`${PATENT_FAMILIES} patent families`)}
           {pill("European · sovereign")}
         </div>
       </div>

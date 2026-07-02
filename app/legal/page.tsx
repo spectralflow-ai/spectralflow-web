@@ -6,7 +6,7 @@ import { CONTACT_EMAIL } from "../lib/contact";
 export const metadata: Metadata = {
   title: "Legal notice",
   description:
-    "Legal notice (mentions légales) for spectralflow.ai — Spectral Flow SAS, a French société par actions simplifiée.",
+    "Legal notice (mentions légales) for spectralflow.ai: Spectral Flow SAS, a French société par actions simplifiée.",
 };
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -28,7 +28,7 @@ export default function Legal() {
       <PageHeader
         eyebrow="Legal notice"
         title="Legal notice"
-        intro="Mentions légales — published in accordance with French law (LCEN, art. 6 III)."
+        intro="Mentions légales, published in accordance with French law (LCEN, art. 6 III)."
       />
 
       {/* Publisher */}
@@ -38,14 +38,14 @@ export default function Legal() {
         <dl>
           <Row label="Company name">Spectral Flow</Row>
           <Row label="Legal form">
-            Société par actions simplifiée (SAS) — French private limited company
+            Société par actions simplifiée (SAS), French private limited company
           </Row>
           <Row label="Share capital">€10,000</Row>
           <Row label="Registered office">
             14 avenue de Grande Bretagne, 06230 Villefranche-sur-Mer, France
           </Row>
           <Row label="RCS / SIREN">
-            RCS Nice 103 022 588 — registered 27 March 2026
+            RCS Nice 103 022 588, registered 27 March 2026
           </Row>
           <Row label="VAT number">FR&nbsp;71&nbsp;103&nbsp;022&nbsp;588 (VAT-registered)</Row>
           <Row label="Publication director">Alexandre Papa, Président</Row>
@@ -71,7 +71,7 @@ export default function Legal() {
           </Row>
           <Row label="Interactive sub-applications">
             The computational sub-applications (studio.spectralflow.ai,
-            twin.spectralflow.ai) are hosted by Railway Corp. (United States) —{" "}
+            twin.spectralflow.ai) are hosted by Railway Corp. (United States):{" "}
             <a href="https://railway.com" style={{ color: "var(--accent)" }} target="_blank" rel="noopener noreferrer">
               railway.com
             </a>
@@ -84,7 +84,7 @@ export default function Legal() {
         <Eyebrow>Intellectual property</Eyebrow>
         <H2 className="max-w-3xl mb-6">Content & trademarks</H2>
         <Body className="max-w-3xl mb-4">
-          All content on this site — text, graphics, diagrams, logos and the SpectralFlow name —
+          All content on this site (text, graphics, diagrams, logos and the SpectralFlow name)
           is the property of Spectral Flow SAS or its licensors and is protected under French and
           international intellectual-property law. Reproduction or reuse, in whole or in part,
           requires prior written permission.

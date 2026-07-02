@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
+import { PATENT_FAMILIES, PREPRINTS, VERTICALS } from "../lib/facts";
 
 export const metadata: Metadata = {
   title: "Company",
-  description:
-    "SpectralFlow SAS: European, sovereign deep tech building NV-diamond quantum sensors. Vision, sovereignty thesis, founder Alexandre Papa, NVIDIA Inception membership and 13 patent families.",
+  description: `SpectralFlow SAS: European, sovereign deep tech designing NV-diamond quantum sensors. Vision, sovereignty thesis, founder Alexandre Papa, NVIDIA Inception membership and ${PATENT_FAMILIES} patent families.`,
 };
 
 export default function Company() {
@@ -20,7 +20,7 @@ export default function Company() {
             <br className="hidden md:block" /> out of the lab.
           </>
         }
-        intro="SpectralFlow SAS is a European deep-tech company designing, patenting and industrialising NV-diamond quantum sensors — room temperature, chip-scale, sovereign."
+        intro="SpectralFlow SAS is a European deep-tech company designing, patenting and industrialising NV-diamond quantum sensors: room temperature, chip-scale, sovereign."
       />
 
       {/* Vision */}
@@ -31,7 +31,7 @@ export default function Company() {
           <Lead className="max-w-3xl mb-4">
             The most powerful quantum sensors today are trapped behind cryostats, shielded rooms
             and optical tables. We believe the technology that wins is the one you can put on a
-            drone, a hull or a satellite — rugged, low-power and ready to ship.
+            drone, a hull or a satellite: rugged, low-power and ready to ship.
           </Lead>
           <Body className="max-w-3xl">
             We follow an &ldquo;NVIDIA model&rdquo;: design the sensor, the firmware and the
@@ -49,8 +49,8 @@ export default function Company() {
           <Lead className="max-w-3xl">
             Positioning and sensing in contested environments are strategic capabilities. They
             should not depend on foreign supply chains or signals anyone can switch off.
-            SpectralFlow builds a sovereign, European alternative — designed, patented and owned on
-            the continent.
+            SpectralFlow is building a sovereign, European alternative: designed, patented and
+            owned on the continent.
           </Lead>
         </Reveal>
       </Prose>
@@ -85,7 +85,7 @@ export default function Company() {
               about the underlying physics.
             </Body>
             <Body>
-              The conviction is simple — Europe has the science to lead in quantum sensing, and
+              The conviction is simple: Europe has the science to lead in quantum sensing, and
               what it needs is a team that turns that science into manufacturable, field-ready
               products.
             </Body>
@@ -138,10 +138,10 @@ export default function Company() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <Reveal>
             <Eyebrow>Intellectual property</Eyebrow>
-            <H2 className="mb-5">Thirteen patent families, filed before any disclosure.</H2>
+            <H2 className="mb-5">{PATENT_FAMILIES} patent families, filed before any disclosure.</H2>
             <Body>
               SpectralFlow&rsquo;s position is protected by a growing portfolio spanning the
-              sensor, the fabrication process and the application verticals — covering the bricks
+              sensor, the fabrication process and the application verticals, covering the bricks
               that matter from physics to product, filed pre-emptively before any public
               disclosure.
             </Body>
@@ -149,10 +149,10 @@ export default function Company() {
           <Reveal delay={120}>
             <div className="grid grid-cols-2 gap-px rounded-xl overflow-hidden" style={{ background: "var(--border)" }}>
               {[
-                { value: "13", label: "Patent families filed" },
-                { value: "5", label: "Verticals covered" },
+                { value: `${PATENT_FAMILIES}`, label: "Patent families filed" },
+                { value: `${VERTICALS}`, label: "Verticals covered" },
                 { value: "3", label: "Proprietary bricks" },
-                { value: "8", label: "Public preprints" },
+                { value: `${PREPRINTS}`, label: "Public preprints" },
               ].map((s) => (
                 <div key={s.label} className="p-7" style={{ background: "var(--surface)" }}>
                   <p className="text-4xl font-semibold display" style={{ color: "var(--accent)" }}>
@@ -173,7 +173,7 @@ export default function Company() {
           <H2 className="max-w-3xl mb-8">The company on paper.</H2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-5 max-w-3xl">
             {[
-              { k: "Legal entity", v: "Spectral Flow SAS — French société par actions simplifiée" },
+              { k: "Legal entity", v: "Spectral Flow SAS, French société par actions simplifiée" },
               { k: "Registered office", v: "14 avenue de Grande Bretagne, 06230 Villefranche-sur-Mer, France" },
               { k: "Incorporated", v: "2026" },
               { k: "President", v: "Alexandre Papa" },

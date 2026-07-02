@@ -13,25 +13,25 @@ export const metadata: Metadata = {
 
 const BRICKS = [
   {
-    tag: "SF-QSim — the engine",
+    tag: "SF-QSim · the engine",
     title: "Design the sensor in software",
     body: "A first-principles physics engine that predicts coherence and magnetic sensitivity across independent decoherence channels, from cryogenic to well above room temperature. It is the design layer that lets a lean team explore the parameter space before committing to the cleanroom.",
     cta: { href: "https://studio.spectralflow.ai", label: "Open SpectralFlow Studio" },
   },
   {
-    tag: "SF-CORE — the process",
+    tag: "SF-CORE · the process",
     title: "Turn physics into a manufacturable part",
-    body: "Our proprietary fabrication and integration process engineers the diamond, the nitrogen-vacancy density and the optical readout into a repeatable, chip-scale sensing core — the bridge from a quantum effect to an industrial component.",
+    body: "We are developing a proprietary fabrication and integration process that engineers the diamond, the nitrogen-vacancy density and the optical readout into a repeatable, chip-scale sensing core: the bridge from a quantum effect to an industrial component.",
   },
   {
-    tag: "SF-100 — the sensor family",
+    tag: "SF-100 · the sensor family",
     title: "A sensor head designed for the vehicle, not the lab",
-    body: "Diamond, integrated optics and adaptive firmware packaged into a rugged, low-power sensor family — with on-board rejection of the host platform's own magnetic interference, so the measurement stays true under way. We follow the “NVIDIA model”: sell the design, firmware and calibration; outsource the fab.",
+    body: "Diamond, integrated optics and adaptive firmware packaged into a rugged, low-power sensor family, with on-board rejection of the host platform's own magnetic interference so the measurement stays true under way. We follow the “NVIDIA model”: sell the design, firmware and calibration; outsource the fab.",
   },
   {
     tag: "The digital twin",
     title: "The sensor flies before it exists",
-    body: "An end-to-end navigation digital twin — synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; hardware milestones will be judged against the twin's own predictions. The interactive twin is online, with access granted on request.",
+    body: "An end-to-end navigation digital twin: synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; hardware milestones will be judged against the twin's own predictions. The interactive twin is online, with access granted on request.",
     cta: {
       href: MAILTO_TWIN_DEMO,
       label: "Request demo access",
@@ -62,7 +62,7 @@ export default function Technology() {
             <Body className="mb-4">
               A nitrogen-vacancy (NV) centre is a single atomic defect in the diamond lattice: a
               nitrogen atom beside a missing carbon. Its electronic spin responds to magnetic
-              fields and can be initialised and read out optically — turning a beam of light into a
+              fields and can be initialised and read out optically, turning a beam of light into a
               precise magnetic measurement.
             </Body>
             <Body>
@@ -72,7 +72,7 @@ export default function Technology() {
             </Body>
           </Reveal>
           <Reveal delay={120}>
-            <Plate caption="The nitrogen-vacancy centre — one nitrogen, one missing carbon.">
+            <Plate caption="The nitrogen-vacancy centre: one nitrogen, one missing carbon.">
               <NVDiagram />
             </Plate>
           </Reveal>
@@ -158,10 +158,10 @@ export default function Technology() {
               </thead>
               <tbody>
                 {[
-                  { c: "Operating conditions", nv: "Room temperature", b: "Cryogenic — liquid helium", d: "Vacuum + laser cooling" },
+                  { c: "Operating conditions", nv: "Room temperature", b: "Cryogenic (liquid helium)", d: "Vacuum + laser cooling" },
                   { c: "Size, weight & power", nv: "Chip-scale, low power", b: "Bulky + cooling plant", d: "Bench-scale apparatus" },
                   { c: "Vibration & shock", nv: "Solid-state, robust", b: "Shielding-sensitive", d: "Vibration-sensitive" },
-                  { c: "Emission", nv: "Passive — no RF", b: "Passive", d: "Active (laser)" },
+                  { c: "Emission", nv: "Passive, no RF", b: "Passive", d: "Active (laser)" },
                   { c: "Field readiness", nv: "Field-ready", b: "Fixed installations", d: "Mostly laboratory" },
                 ].map((row) => (
                   <tr key={row.c}>
@@ -212,7 +212,7 @@ export default function Technology() {
           {[
             {
               t: "No cryogenics",
-              d: "SQUIDs need liquid-helium cooling and magnetic shielding. Diamond needs neither — collapsing size, weight, power and cost.",
+              d: "SQUIDs need liquid-helium cooling and magnetic shielding. Diamond needs neither, collapsing size, weight, power and cost.",
             },
             {
               t: "No fragility",
@@ -220,7 +220,7 @@ export default function Technology() {
             },
             {
               t: "No emission",
-              d: "The sensor reads the ambient field passively. It radiates nothing — so it cannot be detected, jammed or spoofed.",
+              d: "The sensor reads the ambient field passively. It radiates nothing, so it cannot be detected, jammed or spoofed.",
             },
           ].map((c, i) => (
             <Reveal key={c.t} delay={i * 90}>

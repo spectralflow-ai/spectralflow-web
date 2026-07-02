@@ -6,7 +6,7 @@ import { CONTACT_EMAIL } from "../lib/contact";
 export const metadata: Metadata = {
   title: "Privacy policy",
   description:
-    "Privacy policy (politique de confidentialité) for spectralflow.ai — how Spectral Flow SAS handles personal data under the GDPR.",
+    "Privacy policy (politique de confidentialité) for spectralflow.ai: how Spectral Flow SAS handles personal data under the GDPR.",
 };
 
 export default function Privacy() {
@@ -15,7 +15,7 @@ export default function Privacy() {
       <PageHeader
         eyebrow="Privacy policy"
         title="Privacy policy"
-        intro="Politique de confidentialité — how we collect and handle personal data, in accordance with the EU General Data Protection Regulation (GDPR)."
+        intro="Politique de confidentialité: how we collect and handle personal data, in accordance with the EU General Data Protection Regulation (GDPR)."
       />
 
       <Prose>
@@ -38,8 +38,8 @@ export default function Privacy() {
         <Body className="max-w-3xl mb-4">
           <strong style={{ color: "var(--text-primary)" }}>Contact &amp; access requests.</strong>{" "}
           When you email us or use a form on this site (general contact, predictive-datasheet or
-          digital-twin access requests), we process the data you provide — typically your name,
-          email address, professional affiliation and your message — for the sole purpose of
+          digital-twin access requests), we process the data you provide (typically your name,
+          email address, professional affiliation and your message) for the sole purpose of
           responding to your request and managing the relationship that follows. Legal basis:
           our legitimate interest in answering inbound enquiries, and the steps taken at your
           request prior to any agreement.

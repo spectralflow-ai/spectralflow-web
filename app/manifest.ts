@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "SpectralFlow",
     short_name: "SpectralFlow",
     description:
-      "NV-diamond quantum sensors — quantum sensing, out of the lab. Resilient navigation where GPS is jammed or denied.",
+      "NV-diamond quantum sensors: quantum sensing, out of the lab. Resilient navigation where GPS is jammed or denied.",
     start_url: "/",
     display: "standalone",
     background_color: "#FAFAF8",
