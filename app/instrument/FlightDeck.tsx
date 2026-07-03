@@ -1,16 +1,17 @@
 "use client";
 
 /**
- * FlightDeck (V3 MVP) — the SF100 story, computed live on the Railway twin
- * backend and played back in the browser. One mission, real-time playback,
- * a scrubbable timeline, a mission log, and an event console where the user
- * perturbs the instrument and the mission is recomputed on the server.
+ * FlightDeck V2: the SF100 story computed live on the Railway twin backend.
+ * One mission on one screen: map + error chart side by side, live inertial
+ * vs aided readouts, an event console, a compact mission log, a debrief
+ * overlay, and the two-depth science layer one click away on every panel.
  * All figures model-derived.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { fetchWorld, type World, type Attack } from "../lib/twin";
 import { PROFILES, type ProfileKey } from "./profiles";
+import { getTopic, type TopicKey } from "./science";
 
 const SPEED = 12; // mission seconds per wall second
 const T_END = 600;
@@ -34,15 +35,34 @@ function fmtClock(t: number): string {
   return `T+${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+function fmtM(v: number): string {
+  return v >= 950 ? `${(v / 1000).toFixed(1)} km` : `${Math.round(v)} m`;
+}
+
+/** Linear interpolation of a sampled curve at mission time t. */
+function valAt(ts: number[], es: number[], t: number): number {
+  if (!ts.length) return 0;
+  if (t <= ts[0]) return es[0];
+  for (let i = 1; i < ts.length; i++) {
+    if (ts[i] >= t) {
+      const f = (t - ts[i - 1]) / (ts[i] - ts[i - 1] || 1);
+      return es[i - 1] + f * (es[i] - es[i - 1]);
+    }
+  }
+  return es[es.length - 1];
+}
+
 export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   const P = PROFILES[profile];
-  const [seed, setSeed] = useState(1);
+  const [seed, setSeed] = useState(10);
   const [attacks, setAttacks] = useState<Attack[]>([]);
   const [world, setWorld] = useState<World | null>(null);
   const [loading, setLoading] = useState(true);
   const [t, setT] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [lastAttack, setLastAttack] = useState<"gain" | "burst" | null>(null);
+  const [reviewing, setReviewing] = useState(false);
+  const [topic, setTopic] = useState<TopicKey | null>(null);
   const raf = useRef<number>(0);
   const last = useRef<number>(0);
 
@@ -64,24 +84,21 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   }, [seed, attacks]);
 
   // playback clock
-  const tick = useCallback(
-    (now: number) => {
-      if (last.current) {
-        const dt = (now - last.current) / 1000;
-        setT((prev) => {
-          const next = prev + dt * SPEED;
-          if (next >= T_END) {
-            setPlaying(false);
-            return T_END;
-          }
-          return next;
-        });
-      }
-      last.current = now;
-      raf.current = requestAnimationFrame(tick);
-    },
-    []
-  );
+  const tick = useCallback((now: number) => {
+    if (last.current) {
+      const dt = (now - last.current) / 1000;
+      setT((prev) => {
+        const next = prev + dt * SPEED;
+        if (next >= T_END) {
+          setPlaying(false);
+          return T_END;
+        }
+        return next;
+      });
+    }
+    last.current = now;
+    raf.current = requestAnimationFrame(tick);
+  }, []);
   useEffect(() => {
     if (playing) {
       last.current = 0;
@@ -94,11 +111,13 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
     if (attacks.length >= 3 || t > T_END - 150) return;
     setAttacks((a) => [...a, [kind, Math.round(t * 10) / 10]]);
     setLastAttack(kind);
+    setReviewing(false);
   };
 
   const reset = () => {
     setAttacks([]);
     setLastAttack(null);
+    setReviewing(false);
     setT(0.001);
     setPlaying(true);
   };
@@ -112,59 +131,78 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
     () => [...P.phases].reverse().find(([p0]) => t >= p0)?.[1] ?? "",
     [t, P]
   );
+  const landed = t >= T_END && !!world;
 
   return (
-    <div className="cinema" style={{ borderRadius: 20, overflow: "hidden" }}>
-      <div style={{ padding: "clamp(1rem,3vw,2rem)" }}>
-        {/* top bar: clock, timeline, transport */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 1fr auto",
-            gap: "1rem",
-            alignItems: "center",
-            marginBottom: "1.25rem",
-          }}
-        >
-          <div>
-            <div
-              style={{
-                fontFamily: "var(--font-geist-mono)",
-                fontSize: "1.4rem",
-                color: TXT,
-                lineHeight: 1,
-              }}
-            >
-              {fmtClock(t)}
-            </div>
-            <div className="figure-label" style={{ marginTop: 4, color: BLUE }}>
-              {phase}
-            </div>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={T_END}
-            step={5}
-            value={t}
-            onChange={(e) => {
-              setPlaying(false);
-              setT(Number(e.target.value));
+    <div
+      className="cinema deck-shell"
+      style={{
+        borderRadius: 20,
+        overflow: "hidden",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        padding: "clamp(0.8rem,1.6vw,1.4rem)",
+        gap: "0.8rem",
+      }}
+    >
+      {/* top bar: clock, timeline, transport */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "auto 1fr auto",
+          gap: "1rem",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ minWidth: 130 }}>
+          <div
+            style={{
+              fontFamily: "var(--font-geist-mono)",
+              fontSize: "1.3rem",
+              color: TXT,
+              lineHeight: 1,
             }}
-            style={{ width: "100%", accentColor: BLUE }}
-            aria-label="mission timeline"
-          />
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+          >
+            {fmtClock(t)}
+          </div>
+          <div className="figure-label" style={{ marginTop: 4, color: BLUE }}>
+            {phase}
+          </div>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={T_END}
+          step={5}
+          value={t}
+          onChange={(e) => {
+            setPlaying(false);
+            setT(Number(e.target.value));
+          }}
+          style={{ width: "100%", accentColor: BLUE }}
+          aria-label="mission timeline"
+        />
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <button
+            className="btn-ghost"
+            style={{ padding: "0.45rem 0.9rem" }}
+            onClick={() => setPlaying((p) => !p)}
+          >
+            {playing ? "Pause" : t >= T_END ? "Replay" : "Play"}
+          </button>
+          {landed && reviewing ? (
             <button
               className="btn-ghost"
-              style={{ padding: "0.5rem 1rem" }}
-              onClick={() => setPlaying((p) => !p)}
+              style={{ padding: "0.45rem 0.9rem" }}
+              onClick={() => setReviewing(false)}
             >
-              {playing ? "Pause" : t >= T_END ? "Replay" : "Play"}
+              Debrief
             </button>
+          ) : (
             <button
               className="btn-ghost"
-              style={{ padding: "0.5rem 1rem" }}
+              style={{ padding: "0.45rem 0.9rem" }}
               onClick={() => {
                 setPlaying(false);
                 setT(T_END);
@@ -172,138 +210,394 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             >
               Skip
             </button>
+          )}
+        </div>
+      </div>
+
+      {/* the two living panels */}
+      <div className="deck-panels" style={{ flex: 1, minHeight: 0 }}>
+        <MapPanel
+          world={world}
+          t={t}
+          title={P.mapTitle}
+          loading={loading}
+          profile={profile}
+          onTopic={setTopic}
+        />
+        <ErrorPanel world={world} t={t} profile={profile} onTopic={setTopic} />
+      </div>
+
+      {/* bottom strip: console | mission log */}
+      <div className="deck-bottom">
+        <div
+          className="card"
+          style={{
+            padding: "0.7rem 0.9rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+            minHeight: 0,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              gap: "0.6rem",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <button
+              className="btn-ghost"
+              style={{ padding: "0.45rem 0.9rem", borderColor: "#5A3328" }}
+              disabled={attacks.length >= 3 || t > T_END - 150}
+              onClick={() => attack("gain")}
+            >
+              {P.atk1}
+            </button>
+            <button
+              className="btn-ghost"
+              style={{ padding: "0.45rem 0.9rem", borderColor: "#5A3328" }}
+              disabled={attacks.length >= 3 || t > T_END - 150}
+              onClick={() => attack("burst")}
+            >
+              {P.atk2}
+            </button>
+            <Chip k="attack_gain" profile={profile} onOpen={setTopic} />
+            <Chip k="attack_burst" profile={profile} onOpen={setTopic} />
+          </div>
+          {lastAttack ? (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ minHeight: 0, overflow: "hidden" }}
+            >
+              <span className="figure-label" style={{ color: BLUE }}>
+                {P.impactKicker} ·{" "}
+              </span>
+              <span
+                style={{ color: TXT, fontWeight: 500, fontSize: "0.85rem" }}
+              >
+                {P.impact[lastAttack].title}.
+              </span>{" "}
+              <span style={{ color: "#9AA2B1", fontSize: "0.82rem" }}>
+                {P.impact[lastAttack].body}
+              </span>
+            </motion.div>
+          ) : (
+            <span className="figure-label" style={{ color: MUTED }}>
+              {attacks.length === 0
+                ? P.consoleIdle
+                : `${attacks.length} event${
+                    attacks.length > 1 ? "s" : ""
+                  } live · ${3 - attacks.length} remaining · watch the self-check`}
+            </span>
+          )}
+        </div>
+
+        <div
+          className="card"
+          style={{
+            padding: "0.7rem 0.9rem",
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              marginBottom: "0.4rem",
+            }}
+          >
+            <span className="figure-label">Mission log</span>
+            <Chip k="contact" profile={profile} onOpen={setTopic} />
+            <Chip k="calibration" profile={profile} onOpen={setTopic} />
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              overflowY: "auto",
+              minHeight: 0,
+              flex: 1,
+              maxHeight: 120,
+            }}
+          >
+            {log
+              .filter((r) => r.t <= t)
+              .reverse()
+              .map((r, i) => (
+                <LogLine key={i} row={r} />
+              ))}
           </div>
         </div>
+      </div>
 
-        {/* the two living panels */}
-        <div
+      {/* debrief overlay */}
+      {t >= T_END && world && !reviewing && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) minmax(0,1.25fr)",
-            gap: "1rem",
-          }}
-          className="deck-grid"
-        >
-          <MapPanel world={world} t={t} title={P.mapTitle} loading={loading} />
-          <ErrorPanel world={world} t={t} />
-        </div>
-
-        {/* event console */}
-        <div
-          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 30,
+            background: "rgba(9,12,21,0.88)",
+            backdropFilter: "blur(6px)",
             display: "flex",
-            gap: "0.75rem",
             alignItems: "center",
-            flexWrap: "wrap",
-            marginTop: "1rem",
+            justifyContent: "center",
+            padding: "1.5rem",
           }}
         >
-          <button
-            className="btn-ghost"
-            style={{ padding: "0.55rem 1.1rem", borderColor: "#5A3328" }}
-            disabled={attacks.length >= 3 || t > T_END - 150}
-            onClick={() => attack("gain")}
-          >
-            {P.atk1}
-          </button>
-          <button
-            className="btn-ghost"
-            style={{ padding: "0.55rem 1.1rem", borderColor: "#5A3328" }}
-            disabled={attacks.length >= 3 || t > T_END - 150}
-            onClick={() => attack("burst")}
-          >
-            {P.atk2}
-          </button>
-          <span className="figure-label" style={{ color: MUTED }}>
-            {attacks.length === 0
-              ? P.consoleIdle
-              : `${attacks.length} event${
-                  attacks.length > 1 ? "s" : ""
-                } live · ${3 - attacks.length} remaining · watch the self-check`}
-          </span>
-        </div>
-
-        {/* impact card */}
-        {lastAttack && (
-          <motion.div
-            className="card"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            style={{ padding: "1rem 1.2rem", marginTop: "0.9rem" }}
-          >
+          <div style={{ maxWidth: 720, width: "100%" }}>
             <div className="figure-label" style={{ color: BLUE }}>
-              {P.impactKicker}
+              Mission debrief · every figure model-derived
             </div>
-            <p
-              style={{
-                color: TXT,
-                fontWeight: 500,
-                margin: "0.3rem 0 0.35rem",
-              }}
-            >
-              {P.impact[lastAttack].title}
-            </p>
-            <p style={{ color: "#9AA2B1", fontSize: "0.9rem", margin: 0 }}>
-              {P.impact[lastAttack].body}
-            </p>
-          </motion.div>
-        )}
-
-        {/* mission log */}
-        <div className="figure-label" style={{ margin: "1.1rem 0 0.4rem" }}>
-          Mission log
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {log
-            .filter((r) => r.t <= t)
-            .slice(-6)
-            .reverse()
-            .map((r, i) => (
-              <LogLine key={i} row={r} />
-            ))}
-        </div>
-
-        {/* debrief actions when landed */}
-        {t >= T_END && world && (
-          <div style={{ marginTop: "1.4rem" }}>
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))",
                 gap: "0.75rem",
-                marginBottom: "1rem",
+                margin: "1rem 0 1.2rem",
               }}
             >
               <Metric
                 label="Bounded error, back half"
-                value={`${world.metrics.bounded_back_half_m.toFixed(0)} m`}
+                value={fmtM(world.metrics.bounded_back_half_m)}
               />
               <Metric
                 label="Inertial alone would be"
-                value={`${world.metrics.dr_end_m.toFixed(0)} m`}
+                value={fmtM(world.metrics.dr_end_m)}
+                tone={RED}
+              />
+              <Metric
+                label="Median fix error"
+                value={fmtM(world.metrics.fix_median_m)}
               />
               <Metric
                 label="Fixes accepted / withheld"
                 value={`${world.metrics.fixes_accepted} / ${world.metrics.fixes_withheld}`}
               />
             </div>
-            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "0.6rem",
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
               <button className="btn-primary" onClick={reset}>
                 Replay this world
               </button>
               <button className="btn-ghost" onClick={newWorld}>
                 New world
               </button>
+              <button
+                className="btn-ghost"
+                onClick={() => setReviewing(true)}
+              >
+                Review the flight
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </motion.div>
+      )}
+
+      {/* science modal */}
+      {topic && (
+        <ScienceModal
+          k={topic}
+          profile={profile}
+          onClose={() => setTopic(null)}
+        />
+      )}
 
       <style>{`
-        @media (max-width: 820px) {
-          .deck-grid { grid-template-columns: 1fr !important; }
+        .deck-panels {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr);
+          gap: 0.8rem;
+        }
+        .deck-bottom {
+          display: grid;
+          grid-template-columns: 1.15fr 1fr;
+          gap: 0.8rem;
+        }
+        @media (min-width: 900px) {
+          .deck-shell {
+            height: clamp(520px, calc(100dvh - 235px), 860px);
+          }
+        }
+        @media (max-width: 899px) {
+          .deck-panels { grid-template-columns: 1fr; }
+          .deck-bottom { grid-template-columns: 1fr; }
+          .map-box { width: 100% !important; height: auto !important; }
         }
       `}</style>
+    </div>
+  );
+}
+
+/* ── science chips + modal ──────────────────────────────────────────── */
+
+function Chip({
+  k,
+  profile,
+  onOpen,
+}: {
+  k: TopicKey;
+  profile: ProfileKey;
+  onOpen: (k: TopicKey) => void;
+}) {
+  const t = getTopic(k, profile);
+  return (
+    <button
+      onClick={() => onOpen(k)}
+      style={{
+        border: "1px solid rgba(255,255,255,0.16)",
+        borderRadius: 999,
+        padding: "0.1rem 0.6rem",
+        fontSize: "0.7rem",
+        letterSpacing: "0.04em",
+        color: MUTED,
+        background: "rgba(255,255,255,0.03)",
+        cursor: "pointer",
+        whiteSpace: "nowrap",
+      }}
+    >
+      &#9432; {t.short}
+    </button>
+  );
+}
+
+function ScienceModal({
+  k,
+  profile,
+  onClose,
+}: {
+  k: TopicKey;
+  profile: ProfileKey;
+  onClose: () => void;
+}) {
+  const t = getTopic(k, profile);
+  const [deep, setDeep] = useState(false);
+  useEffect(() => setDeep(false), [k]);
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 100,
+        background: "rgba(5,8,15,0.7)",
+        backdropFilter: "blur(4px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1.2rem",
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        onClick={(e) => e.stopPropagation()}
+        className="card"
+        style={{
+          maxWidth: 620,
+          width: "100%",
+          maxHeight: "82dvh",
+          overflowY: "auto",
+          padding: "1.4rem 1.6rem",
+          background: "#0E1420",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "1rem",
+            alignItems: "baseline",
+          }}
+        >
+          <p
+            style={{
+              color: TXT,
+              fontWeight: 600,
+              fontSize: "1.05rem",
+              margin: 0,
+            }}
+          >
+            {t.title}
+          </p>
+          <button
+            onClick={onClose}
+            aria-label="close"
+            style={{
+              background: "none",
+              border: "none",
+              color: MUTED,
+              cursor: "pointer",
+              fontSize: "1rem",
+            }}
+          >
+            ✕
+          </button>
+        </div>
+        <p
+          style={{
+            color: "#C7CCD6",
+            fontSize: "0.92rem",
+            lineHeight: 1.6,
+            margin: "0.7rem 0 0.9rem",
+          }}
+        >
+          {t.simple}
+        </p>
+        {deep ? (
+          <div>
+            <div className="figure-label" style={{ color: BLUE }}>
+              The actual science
+            </div>
+            {t.deep.split("\n\n").map((par, i) => (
+              <p
+                key={i}
+                style={{
+                  color: "#9AA2B1",
+                  fontSize: "0.86rem",
+                  lineHeight: 1.6,
+                  margin: "0.6rem 0",
+                }}
+              >
+                {par}
+              </p>
+            ))}
+            <p
+              style={{
+                color: MUTED,
+                fontSize: "0.76rem",
+                marginTop: "0.8rem",
+              }}
+            >
+              References: {t.refs}
+            </p>
+          </div>
+        ) : (
+          <button className="btn-ghost" onClick={() => setDeep(true)}>
+            Go deeper · the actual science
+          </button>
+        )}
+      </motion.div>
     </div>
   );
 }
@@ -315,20 +609,52 @@ function MapPanel({
   t,
   title,
   loading,
+  profile,
+  onTopic,
 }: {
   world: World | null;
   t: number;
   title: string;
   loading: boolean;
+  profile: ProfileKey;
+  onTopic: (k: TopicKey) => void;
 }) {
   const ext = world?.map.extent_m ?? 1;
   const nShow = world ? Math.max(0.01, Math.min(t / T_END, 1)) : 0;
   return (
-    <div className="card" style={{ padding: "0.9rem", position: "relative" }}>
-      <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
-        {title}
+    <div
+      className="card"
+      style={{
+        padding: "0.7rem 0.9rem",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          marginBottom: "0.45rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <span className="figure-label">{title}</span>
+        <Chip k="map" profile={profile} onOpen={onTopic} />
+        <Chip k="tensor" profile={profile} onOpen={onTopic} />
       </div>
-      <div style={{ position: "relative", aspectRatio: "1 / 1" }}>
+      <div
+        className="map-box"
+        style={{
+          position: "relative",
+          flex: 1,
+          minHeight: 0,
+          aspectRatio: "1 / 1",
+          margin: "0 auto",
+          maxWidth: "100%",
+        }}
+      >
         {world && (
           <img
             src={`data:image/png;base64,${world.map.png_b64}`}
@@ -340,6 +666,7 @@ function MapPanel({
               borderRadius: 8,
               opacity: loading ? 0.5 : 1,
               transition: "opacity 0.3s",
+              display: "block",
             }}
           />
         )}
@@ -364,7 +691,8 @@ function MapPanel({
                   points={pts.map((p) => `${p[0]},${ext - p[1]}`).join(" ")}
                   fill="none"
                   stroke={TXT}
-                  strokeWidth={ext / 260}
+                  strokeWidth={1.6}
+                  vectorEffect="non-scaling-stroke"
                   opacity={0.85}
                 />
               );
@@ -389,91 +717,250 @@ function MapPanel({
   );
 }
 
-function ErrorPanel({ world, t }: { world: World | null; t: number }) {
+function ErrorPanel({
+  world,
+  t,
+  profile,
+  onTopic,
+}: {
+  world: World | null;
+  t: number;
+  profile: ProfileKey;
+  onTopic: (k: TopicKey) => void;
+}) {
   const W = 720;
   const H = 300;
-  const X0 = 54;
-  const Y0 = 268;
-  const plotW = W - X0 - 16;
-  const plotH = Y0 - 24;
+  const X0 = 10;
+  const Y0 = 292;
+  const YT = 8;
+  const plotW = W - X0 - 10;
   const yMax = useMemo(() => {
     if (!world) return 300;
-    const m = Math.max(...world.dr.e, ...world.aided.e, 100);
-    return m * 1.1;
+    return Math.max(150, Math.max(...world.aided.e) * 1.3);
   }, [world]);
 
   const px = (tt: number) => X0 + (tt / T_END) * plotW;
-  const py = (e: number) => Y0 - (e / yMax) * plotH;
+  const py = (e: number) => Math.max(Y0 - (e / yMax) * (Y0 - YT), YT);
 
   const path = (ts: number[], es: number[]) => {
     const pts: string[] = [];
     for (let i = 0; i < ts.length; i++) {
       if (ts[i] > t) break;
-      pts.push(`${i === 0 ? "M" : "L"}${px(ts[i]).toFixed(1)},${py(es[i]).toFixed(1)}`);
+      pts.push(
+        `${i === 0 ? "M" : "L"}${px(ts[i]).toFixed(1)},${py(es[i]).toFixed(1)}`
+      );
     }
     return pts.join(" ");
   };
 
+  const eDr = world ? valAt(world.dr.t, world.dr.e, t) : 0;
+  const eAid = world ? valAt(world.aided.t, world.aided.e, t) : 0;
+
   return (
-    <div className="card" style={{ padding: "0.9rem" }}>
-      <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
-        Position error
+    <div
+      className="card"
+      style={{
+        padding: "0.7rem 0.9rem",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.9rem",
+          marginBottom: "0.45rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <span className="figure-label">Position error</span>
+        <Readout color={RED} label="inertial only" value={fmtM(eDr)} />
+        <Readout color={BLUE} label="with magnetic fixes" value={fmtM(eAid)} />
+        <span style={{ flex: 1 }} />
+        <Chip k="drift" profile={profile} onOpen={onTopic} />
+        <Chip k="selfcheck" profile={profile} onOpen={onTopic} />
+        <Chip k="recursive" profile={profile} onOpen={onTopic} />
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto" }}>
-        <line x1={X0} x2={X0 + plotW} y1={Y0} y2={Y0} stroke="rgba(255,255,255,0.18)" />
-        <line x1={X0} x2={X0} y1={Y0} y2={20} stroke="rgba(255,255,255,0.18)" />
-        {world?.faults.map((f, i) => (
-          <rect
-            key={i}
-            x={px(f.t0)}
-            y={20}
-            width={px(f.t1) - px(f.t0)}
-            height={Y0 - 20}
-            fill={RED}
-            opacity={0.08}
+      <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          preserveAspectRatio="none"
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "block",
+            position: "absolute",
+            inset: 0,
+          }}
+        >
+          {/* frame + quarter gridlines */}
+          <line
+            x1={X0}
+            x2={X0 + plotW}
+            y1={Y0}
+            y2={Y0}
+            stroke="rgba(255,255,255,0.18)"
+            vectorEffect="non-scaling-stroke"
           />
-        ))}
-        {world && (
-          <>
-            <path d={path(world.dr.t, world.dr.e)} fill="none" stroke={RED} strokeWidth={2.2} strokeLinecap="round" />
-            <path d={path(world.aided.t, world.aided.e)} fill="none" stroke={BLUE} strokeWidth={2.6} strokeLinecap="round" />
-            {world.fixes
-              .filter((f) => f.t <= t)
-              .map((f, i) => (
-                <g key={i}>
-                  {!f.withheld && (
-                    <line
-                      x1={px(f.t)}
-                      x2={px(f.t)}
-                      y1={py(f.err_m)}
-                      y2={py(f.bound_m)}
-                      stroke="#2E4470"
-                      strokeWidth={3}
-                    />
-                  )}
-                  {f.withheld ? (
-                    <g stroke={RED} strokeWidth={2}>
-                      <line x1={px(f.t) - 4} x2={px(f.t) + 4} y1={py(f.err_m) - 4} y2={py(f.err_m) + 4} />
-                      <line x1={px(f.t) - 4} x2={px(f.t) + 4} y1={py(f.err_m) + 4} y2={py(f.err_m) - 4} />
-                    </g>
-                  ) : (
-                    <circle cx={px(f.t)} cy={py(f.err_m)} r={3.5} fill={BLUE} />
-                  )}
-                </g>
-              ))}
-          </>
-        )}
-        <text x={X0 + 8} y={38} fontSize={12} fill={RED} fontFamily="var(--font-geist-sans)">
-          inertial only · drift grows
-        </text>
-        <text x={X0 + 8} y={54} fontSize={12} fill={BLUE} fontFamily="var(--font-geist-sans)">
-          with magnetic fixes · bounded
-        </text>
-        <text x={X0 + plotW / 2} y={Y0 + 24} textAnchor="middle" fontSize={10} fill={MUTED} letterSpacing="0.15em">
-          MISSION TIME →
-        </text>
-      </svg>
+          {[0.25, 0.5, 0.75].map((f) => (
+            <line
+              key={f}
+              x1={X0}
+              x2={X0 + plotW}
+              y1={Y0 - f * (Y0 - YT)}
+              y2={Y0 - f * (Y0 - YT)}
+              stroke="rgba(255,255,255,0.06)"
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+          {world?.faults.map((f, i) => (
+            <rect
+              key={i}
+              x={px(f.t0)}
+              y={YT}
+              width={px(Math.min(f.t1, T_END)) - px(f.t0)}
+              height={Y0 - YT}
+              fill={RED}
+              opacity={0.08}
+            />
+          ))}
+          {world && (
+            <>
+              <path
+                d={path(world.dr.t, world.dr.e)}
+                fill="none"
+                stroke={RED}
+                strokeWidth={2}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                opacity={0.95}
+              />
+              <path
+                d={path(world.aided.t, world.aided.e)}
+                fill="none"
+                stroke={BLUE}
+                strokeWidth={2.4}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+              />
+              {world.fixes
+                .filter((f) => f.t <= t)
+                .map((f, i) => (
+                  <g key={i}>
+                    {!f.withheld && (
+                      <line
+                        x1={px(f.t)}
+                        x2={px(f.t)}
+                        y1={py(f.err_m)}
+                        y2={py(f.bound_m)}
+                        stroke="#2E4470"
+                        strokeWidth={3}
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    )}
+                    {f.withheld ? (
+                      <g
+                        stroke={RED}
+                        strokeWidth={2}
+                        vectorEffect="non-scaling-stroke"
+                      >
+                        <line
+                          x1={px(f.t) - 5}
+                          x2={px(f.t) + 5}
+                          y1={py(f.err_m) - 5}
+                          y2={py(f.err_m) + 5}
+                          vectorEffect="non-scaling-stroke"
+                        />
+                        <line
+                          x1={px(f.t) - 5}
+                          x2={px(f.t) + 5}
+                          y1={py(f.err_m) + 5}
+                          y2={py(f.err_m) - 5}
+                          vectorEffect="non-scaling-stroke"
+                        />
+                      </g>
+                    ) : (
+                      <line
+                        x1={px(f.t)}
+                        x2={px(f.t)}
+                        y1={py(f.err_m)}
+                        y2={py(f.err_m) + 0.01}
+                        stroke={BLUE}
+                        strokeWidth={7}
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    )}
+                  </g>
+                ))}
+            </>
+          )}
+        </svg>
+      </div>
+      <div
+        className="figure-label"
+        style={{
+          color: MUTED,
+          marginTop: "0.35rem",
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "1rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <span>mission time →</span>
+        <span>
+          gridline every {fmtM(yMax / 4)} · red curve continues off scale
+          {world ? ` to ${fmtM(world.metrics.dr_end_m)}` : ""}
+        </span>
+      </div>
     </div>
+  );
+}
+
+function Readout({
+  color,
+  label,
+  value,
+}: {
+  color: string;
+  label: string;
+  value: string;
+}) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "baseline",
+        gap: "0.4rem",
+        whiteSpace: "nowrap",
+      }}
+    >
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: 99,
+          background: color,
+          display: "inline-block",
+          alignSelf: "center",
+        }}
+      />
+      <span className="figure-label" style={{ color: MUTED }}>
+        {label}
+      </span>
+      <span
+        style={{
+          fontFamily: "var(--font-geist-mono)",
+          color,
+          fontSize: "0.95rem",
+        }}
+      >
+        {value}
+      </span>
+    </span>
   );
 }
 
@@ -488,15 +975,16 @@ function LogLine({ row }: { row: LogRow }) {
     <div
       style={{
         fontFamily: "var(--font-geist-mono)",
-        fontSize: "0.78rem",
-        padding: "0.32rem 0.7rem",
+        fontSize: "0.72rem",
+        padding: "0.26rem 0.6rem",
         borderLeft: `2px solid ${bar}`,
         borderRadius: "0 8px 8px 0",
         background: bg,
         color,
+        flexShrink: 0,
       }}
     >
-      <span style={{ color: MUTED, marginRight: "0.7rem" }}>
+      <span style={{ color: MUTED, marginRight: "0.6rem" }}>
         {fmtClock(row.t)}
       </span>
       {row.text}
@@ -504,15 +992,23 @@ function LogLine({ row }: { row: LogRow }) {
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: string;
+}) {
   return (
     <div className="card" style={{ padding: "0.8rem 1rem" }}>
       <div className="figure-label">{label}</div>
       <div
         style={{
           fontFamily: "var(--font-geist-mono)",
-          fontSize: "1.4rem",
-          color: TXT,
+          fontSize: "1.35rem",
+          color: tone ?? TXT,
           marginTop: 4,
         }}
       >
@@ -529,10 +1025,15 @@ function buildLog(
 ): LogRow[] {
   const rows: LogRow[] = [
     { t: 0, kind: "ok", text: P.evTakeoff },
+    { t: 90, kind: "info", text: "FILTER · first window: acquiring map lock" },
     { t: 150, kind: "info", text: P.evInterf },
   ];
   for (const f of world.faults) {
-    rows.push({ t: f.t0, kind: "bad", text: `EVENT · ${P.atkNames[f.kind]} injected` });
+    rows.push({
+      t: f.t0,
+      kind: "bad",
+      text: `EVENT · ${P.atkNames[f.kind]} injected`,
+    });
   }
   for (const f of world.fixes) {
     rows.push(

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { PageHeader, Prose, Body } from "../components/kit";
 import Instrument from "./Instrument";
 import type { ProfileKey } from "./profiles";
 
@@ -16,31 +15,66 @@ export default async function InstrumentPage({
 }) {
   const sp = await searchParams;
   const initial: ProfileKey | null =
-    sp.profile === "defence" || sp.profile === "space"
-      ? sp.profile
-      : null;
+    sp.profile === "defence" || sp.profile === "space" ? sp.profile : null;
 
   return (
     <>
-      <PageHeader
-        eyebrow="The Instrument · live digital twin"
-        title={<>Fly the sensor. In software.</>}
-        intro="One diamond quantum sensor and one estimation chain, flying a full mission where satellites cannot help. Self-calibrating, source-separating, and honest about its own confidence. Every figure is model-derived, computed live on our digital twin."
-      />
-      <section className="hairline">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 py-12 md:py-16">
+      <section>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 pt-5 pb-1">
+          <div className="flex items-baseline justify-between flex-wrap gap-2">
+            <div className="flex items-baseline gap-4 flex-wrap">
+              <h1
+                style={{
+                  fontSize: "clamp(1.3rem, 2.4vw, 1.7rem)",
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                }}
+              >
+                Fly the sensor. In software.
+              </h1>
+              <p
+                className="figure-label"
+                style={{ color: "var(--accent)", margin: 0 }}
+              >
+                The Instrument · live digital twin
+              </p>
+            </div>
+            <p
+              style={{
+                color: "var(--muted)",
+                fontSize: "0.8rem",
+                margin: 0,
+              }}
+            >
+              Every figure model-derived, computed live. No hardware exists at
+              this stage.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
           <Instrument initial={initial} />
         </div>
       </section>
-      <Prose>
-        <Body className="max-w-2xl">
-          This is the public layer of our engineering digital twin. The design
-          engine, the device design rules and the full estimation stack are
-          proprietary; the architecture and methods shown here are covered by
-          patent applications filed in 2026. All figures are model-derived
-          design targets. No hardware exists at this stage.
-        </Body>
-      </Prose>
+      <section className="hairline">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+          <p
+            style={{
+              color: "var(--muted)",
+              fontSize: "0.85rem",
+              maxWidth: "42rem",
+              lineHeight: 1.6,
+            }}
+          >
+            This is the public layer of our engineering digital twin. The
+            design engine, the device design rules and the full estimation
+            stack are proprietary; the architecture and methods shown here are
+            covered by patent applications filed in 2026. All figures are
+            model-derived design targets. No hardware exists at this stage.
+          </p>
+        </div>
+      </section>
     </>
   );
 }

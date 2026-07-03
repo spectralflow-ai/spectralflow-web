@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Instrument — the mission chooser plus the flight deck. Reads ?profile=
+ * Instrument: the mission chooser plus the flight deck. Reads ?profile=
  * for deep-linked audience sends; otherwise shows the neutral chooser.
  */
 import { useState } from "react";
@@ -83,12 +83,12 @@ export default function Instrument({ initial }: { initial: ProfileKey | null }) 
           display: "flex",
           justifyContent: "space-between",
           alignItems: "baseline",
-          marginBottom: "1rem",
+          marginBottom: "0.5rem",
           flexWrap: "wrap",
           gap: "0.5rem",
         }}
       >
-        <p className="figure-label" style={{ color: "var(--muted)" }}>
+        <p className="figure-label" style={{ color: "var(--muted)", margin: 0 }}>
           {PROFILES[profile].chooserTitle} · live on the digital twin
         </p>
         <button
