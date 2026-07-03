@@ -70,6 +70,16 @@ export interface CalibResult {
   rms_after: number;
 }
 
+export interface AblationLevel {
+  key: "inertial" | "raw_mag" | "ai_chain" | "full";
+  median_back_m: number;
+  end_m: number;
+}
+
+export interface AblationResult {
+  levels: AblationLevel[];
+}
+
 function attacksParam(attacks: Attack[]): string {
   return attacks.map(([k, t]) => `${k}:${t}`).join(",");
 }
@@ -91,6 +101,17 @@ export function fetchWorld(
 
 export function fetchContact(seed: number): Promise<ContactResult> {
   return getJSON<ContactResult>(`/api/contact?seed=${seed}`);
+}
+
+export function fetchAblation(
+  seed: number,
+  slow = 20,
+  attacks: Attack[] = []
+): Promise<AblationResult> {
+  const a = attacks.length ? `&attacks=${attacksParam(attacks)}` : "";
+  return getJSON<AblationResult>(
+    `/api/ablation?seed=${seed}&slow=${slow}${a}`
+  );
 }
 
 export function fetchCalib(eps: number, seed: number): Promise<CalibResult> {

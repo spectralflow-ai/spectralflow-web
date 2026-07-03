@@ -9,7 +9,13 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { fetchWorld, type World, type Attack } from "../lib/twin";
+import {
+  fetchAblation,
+  fetchWorld,
+  type AblationResult,
+  type Attack,
+  type World,
+} from "../lib/twin";
 import { PROFILES, type ProfileKey } from "./profiles";
 import { getTopic, type TopicKey } from "./science";
 
@@ -63,8 +69,23 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   const [lastAttack, setLastAttack] = useState<"gain" | "burst" | null>(null);
   const [reviewing, setReviewing] = useState(false);
   const [topic, setTopic] = useState<TopicKey | null>(null);
+  const [abl, setAbl] = useState<AblationResult | null>(null);
   const raf = useRef<number>(0);
   const last = useRef<number>(0);
+
+  // level-by-level breakdown, fetched once the mission is over
+  const landedNow = t >= T_END && !!world;
+  useEffect(() => {
+    if (!landedNow) return;
+    let live = true;
+    setAbl(null);
+    fetchAblation(seed, 20, attacks)
+      .then((a) => live && setAbl(a))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [landedNow, seed, attacks]);
 
   // fetch world whenever seed or attacks change
   useEffect(() => {
@@ -387,6 +408,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 value={`${world.metrics.fixes_accepted} / ${world.metrics.fixes_withheld}`}
               />
             </div>
+            <Waterfall abl={abl} />
             <div
               style={{
                 display: "flex",
@@ -443,6 +465,103 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           .map-box { width: 100% !important; height: auto !important; }
         }
       `}</style>
+    </div>
+  );
+}
+
+/* ── the product waterfall ──────────────────────────────────────────── */
+
+const LEVEL_META: Record<
+  string,
+  { label: string; color: string }
+> = {
+  inertial: { label: "IMU alone · gyro + accelerometer drift", color: RED },
+  raw_mag: {
+    label: "+ magnetic matching on a raw magnetometer",
+    color: "#C89B6B",
+  },
+  ai_chain: {
+    label: "+ SF100 source separation & self-check",
+    color: BLUE,
+  },
+  full: { label: "+ fusion observers · the product", color: TEAL },
+};
+
+function Waterfall({ abl }: { abl: AblationResult | null }) {
+  if (!abl) {
+    return (
+      <p
+        className="figure-label"
+        style={{ color: MUTED, margin: "0 0 1.1rem" }}
+      >
+        computing the level-by-level breakdown, four full recomputations of
+        this exact world...
+      </p>
+    );
+  }
+  const ref = Math.max(...abl.levels.map((l) => l.median_back_m), 1);
+  return (
+    <div style={{ margin: "0 0 1.2rem" }}>
+      <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
+        Where the performance comes from
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {abl.levels.map((l) => {
+          const meta = LEVEL_META[l.key];
+          const w = Math.max((l.median_back_m / ref) * 100, 1.2);
+          return (
+            <div
+              key={l.key}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(180px,290px) 1fr 70px",
+                gap: "0.7rem",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ color: "#9AA2B1", fontSize: "0.78rem" }}>
+                {meta.label}
+              </span>
+              <div
+                style={{
+                  height: 8,
+                  borderRadius: 99,
+                  background: "rgba(255,255,255,0.06)",
+                  overflow: "hidden",
+                }}
+              >
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${w}%` }}
+                  transition={{ duration: 0.7 }}
+                  style={{
+                    height: "100%",
+                    borderRadius: 99,
+                    background: meta.color,
+                  }}
+                />
+              </div>
+              <span
+                style={{
+                  fontFamily: "var(--font-geist-mono)",
+                  color: meta.color,
+                  fontSize: "0.82rem",
+                  textAlign: "right",
+                }}
+              >
+                {fmtM(l.median_back_m)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <p
+        className="figure-label"
+        style={{ color: MUTED, marginTop: "0.45rem" }}
+      >
+        median position error, back half of the flight · same world, each
+        level fully recomputed
+      </p>
     </div>
   );
 }
