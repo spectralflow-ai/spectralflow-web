@@ -43,6 +43,7 @@ export interface World {
     dr_end_m: number;
     fix_median_m: number;
     bounded_back_half_m: number;
+    drift_removed_pct: number;
     fixes_accepted: number;
     fixes_withheld: number;
   };

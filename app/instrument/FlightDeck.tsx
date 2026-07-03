@@ -54,7 +54,7 @@ function valAt(ts: number[], es: number[], t: number): number {
 
 export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   const P = PROFILES[profile];
-  const [seed, setSeed] = useState(10);
+  const [seed, setSeed] = useState(2);
   const [attacks, setAttacks] = useState<Attack[]>([]);
   const [world, setWorld] = useState<World | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,8 +107,10 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
     }
   }, [playing, tick]);
 
+  // attacks open after the 60 s calibration prefix (server clamps too)
+  const canAttack = attacks.length < 3 && t >= 70 && t <= T_END - 150;
   const attack = (kind: "gain" | "burst") => {
-    if (attacks.length >= 3 || t > T_END - 150) return;
+    if (!canAttack) return;
     setAttacks((a) => [...a, [kind, Math.round(t * 10) / 10]]);
     setLastAttack(kind);
     setReviewing(false);
@@ -250,7 +252,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             <button
               className="btn-ghost"
               style={{ padding: "0.45rem 0.9rem", borderColor: "#5A3328" }}
-              disabled={attacks.length >= 3 || t > T_END - 150}
+              disabled={!canAttack}
               onClick={() => attack("gain")}
             >
               {P.atk1}
@@ -258,7 +260,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             <button
               className="btn-ghost"
               style={{ padding: "0.45rem 0.9rem", borderColor: "#5A3328" }}
-              disabled={attacks.length >= 3 || t > T_END - 150}
+              disabled={!canAttack}
               onClick={() => attack("burst")}
             >
               {P.atk2}
@@ -367,6 +369,11 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
               }}
             >
               <Metric
+                label="Inertial drift removed"
+                value={`${world.metrics.drift_removed_pct.toFixed(0)}%`}
+                tone={TEAL}
+              />
+              <Metric
                 label="Bounded error, back half"
                 value={fmtM(world.metrics.bounded_back_half_m)}
               />
@@ -374,10 +381,6 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 label="Inertial alone would be"
                 value={fmtM(world.metrics.dr_end_m)}
                 tone={RED}
-              />
-              <Metric
-                label="Median fix error"
-                value={fmtM(world.metrics.fix_median_m)}
               />
               <Metric
                 label="Fixes accepted / withheld"
@@ -829,21 +832,24 @@ function ErrorPanel({
           {world && (
             <>
               <path
-                d={path(world.dr.t, world.dr.e)}
-                fill="none"
-                stroke={RED}
-                strokeWidth={2}
-                strokeLinecap="round"
-                vectorEffect="non-scaling-stroke"
-                opacity={0.95}
-              />
-              <path
                 d={path(world.aided.t, world.aided.e)}
                 fill="none"
                 stroke={BLUE}
                 strokeWidth={2.4}
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
+              />
+              {/* dashed reference drawn on top: still visible when the
+                  aided track falls back onto pure inertial */}
+              <path
+                d={path(world.dr.t, world.dr.e)}
+                fill="none"
+                stroke={RED}
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeDasharray="7 5"
+                vectorEffect="non-scaling-stroke"
+                opacity={0.95}
               />
               {world.fixes
                 .filter((f) => f.t <= t)
