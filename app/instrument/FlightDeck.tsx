@@ -477,11 +477,11 @@ const LEVEL_META: Record<
 > = {
   inertial: { label: "IMU alone · gyro + accelerometer drift", color: RED },
   raw_mag: {
-    label: "+ magnetic matching on a raw magnetometer",
+    label: "+ a bare magnetometer · classical MagNav",
     color: "#C89B6B",
   },
   ai_chain: {
-    label: "+ SF100 source separation & self-check",
+    label: "+ SF100 tensor array · separation & self-check",
     color: BLUE,
   },
   full: { label: "+ fusion observers · the product", color: TEAL },
@@ -560,7 +560,8 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
         style={{ color: MUTED, marginTop: "0.45rem" }}
       >
         median position error, back half of the flight · same world, each
-        level fully recomputed
+        level fully recomputed · the array is also what creates the
+        integrity signal the observers rely on, and the detection channel
       </p>
     </div>
   );
