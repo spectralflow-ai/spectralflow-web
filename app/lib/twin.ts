@@ -6,7 +6,7 @@
 export const TWIN_API =
   process.env.NEXT_PUBLIC_TWIN_API ?? "http://127.0.0.1:8611";
 
-export type Attack = ["gain" | "burst", number];
+export type Attack = ["gain" | "burst" | "spoof", number];
 
 export interface Fix {
   t: number;
@@ -19,14 +19,21 @@ export interface Fix {
 }
 
 export interface Fault {
-  kind: "gain" | "burst";
+  kind: "gain" | "burst" | "spoof";
   t0: number;
   t1: number;
   mag: number;
   /** UK17 network attribution: seen by the wingman too (environmental)
-   *  or ownship-only (instrument-local). Present when faults exist. */
+   *  or ownship-only (instrument-local). Present on gain/burst faults. */
   fleet?: "coincident" | "local";
   wing_scale?: number;
+  /** spoof faults: truth-free passage-profile detection of the emitter */
+  detected?: boolean;
+  det?: number;
+  range_m?: number;
+  loc_err_m?: number;
+  t_cpa?: number;
+  ring?: { x: number; y: number; r: number };
 }
 
 export interface World {

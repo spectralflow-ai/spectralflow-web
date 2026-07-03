@@ -65,8 +65,11 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   const [world, setWorld] = useState<World | null>(null);
   const [loading, setLoading] = useState(true);
   const [t, setT] = useState(0);
-  const [playing, setPlaying] = useState(true);
-  const [lastAttack, setLastAttack] = useState<"gain" | "burst" | null>(null);
+  const [started, setStarted] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [lastAttack, setLastAttack] = useState<
+    "gain" | "burst" | "spoof" | null
+  >(null);
   const [reviewing, setReviewing] = useState(false);
   const [topic, setTopic] = useState<TopicKey | null>(null);
   const [abl, setAbl] = useState<AblationResult | null>(null);
@@ -130,7 +133,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
 
   // attacks open after the 60 s calibration prefix (server clamps too)
   const canAttack = attacks.length < 3 && t >= 70 && t <= T_END - 150;
-  const attack = (kind: "gain" | "burst") => {
+  const attack = (kind: "gain" | "burst" | "spoof") => {
     if (!canAttack) return;
     setAttacks((a) => [...a, [kind, Math.round(t * 10) / 10]]);
     setLastAttack(kind);
@@ -286,8 +289,17 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             >
               {P.atk2}
             </button>
+            <button
+              className="btn-ghost"
+              style={{ padding: "0.45rem 0.9rem", borderColor: "#2E4A3F" }}
+              disabled={!canAttack}
+              onClick={() => attack("spoof")}
+            >
+              {P.atk3}
+            </button>
             <Chip k="attack_gain" profile={profile} onOpen={setTopic} />
             <Chip k="attack_burst" profile={profile} onOpen={setTopic} />
+            <Chip k="spoofing" profile={profile} onOpen={setTopic} />
             <Chip k="fleet" profile={profile} onOpen={setTopic} />
           </div>
           {lastAttack ? (
@@ -361,6 +373,56 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
         </div>
       </div>
 
+      {/* cold open */}
+      {!started && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 40,
+            background: "rgba(8,11,19,0.9)",
+            backdropFilter: "blur(5px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.5rem",
+          }}
+        >
+          <div style={{ maxWidth: 560, textAlign: "center" }}>
+            <h2
+              style={{
+                fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
+                fontWeight: 650,
+                color: TXT,
+                margin: "0 0 0.7rem",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {P.coldTitle}
+            </h2>
+            <p
+              style={{
+                color: "#AEB4C0",
+                fontSize: "0.95rem",
+                lineHeight: 1.65,
+                margin: "0 0 1.4rem",
+              }}
+            >
+              {P.coldSub}
+            </p>
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setStarted(true);
+                setPlaying(true);
+              }}
+            >
+              {P.coldCta}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* debrief overlay */}
       {t >= T_END && world && !reviewing && (
         <motion.div
@@ -389,6 +451,20 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             <div className="figure-label" style={{ color: BLUE }}>
               Mission debrief · every figure model-derived
             </div>
+            <p
+              style={{
+                color: TXT,
+                fontSize: "clamp(1.05rem, 2vw, 1.3rem)",
+                fontWeight: 600,
+                lineHeight: 1.45,
+                margin: "0.7rem 0 0",
+              }}
+            >
+              {P.headline.replace(
+                "{pct}",
+                world.metrics.drift_removed_pct.toFixed(0)
+              )}
+            </p>
             <div
               style={{
                 display: "grid",
@@ -920,6 +996,36 @@ function MapPanel({
                   strokeWidth={ext / 600}
                 />
               ))}
+            {world.faults
+              .filter(
+                (f) =>
+                  f.kind === "spoof" &&
+                  f.detected &&
+                  f.ring &&
+                  f.t_cpa !== undefined &&
+                  t >= f.t_cpa + 20
+              )
+              .map((f, i) => (
+                <g key={`ring${i}`}>
+                  <circle
+                    cx={f.ring!.x}
+                    cy={ext - f.ring!.y}
+                    r={f.ring!.r}
+                    fill={TEAL}
+                    fillOpacity={0.07}
+                    stroke={TEAL}
+                    strokeWidth={1.4}
+                    strokeDasharray="6 5"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                  <circle
+                    cx={f.ring!.x}
+                    cy={ext - f.ring!.y}
+                    r={ext / 140}
+                    fill={TEAL}
+                  />
+                </g>
+              ))}
           </svg>
         )}
       </div>
@@ -1032,8 +1138,8 @@ function ErrorPanel({
               y={YT}
               width={px(Math.min(f.t1, T_END)) - px(f.t0)}
               height={Y0 - YT}
-              fill={RED}
-              opacity={0.08}
+              fill={f.kind === "spoof" ? TEAL : RED}
+              opacity={0.07}
             />
           ))}
           {world && (
@@ -1252,6 +1358,16 @@ function buildLog(
         t: f.t0 + 45,
         kind: f.fleet === "coincident" ? "contact" : "info",
         text: f.fleet === "coincident" ? P.fleetCoincident : P.fleetLocal,
+      });
+    }
+    if (f.kind === "spoof" && f.detected && f.t_cpa) {
+      rows.push({ t: f.t_cpa - 12, kind: "info", text: P.spoofSearching });
+      rows.push({
+        t: f.t_cpa + 20,
+        kind: "contact",
+        text: P.spoofDetected
+          .replace("{det}", (f.det ?? 0).toFixed(0))
+          .replace("{range}", (f.range_m ?? 0).toFixed(0)),
       });
     }
   }

@@ -14,7 +14,8 @@ export type TopicKey =
   | "contact"
   | "calibration"
   | "recursive"
-  | "fleet";
+  | "fleet"
+  | "spoofing";
 
 export interface ScienceTopic {
   short: string;
@@ -102,6 +103,16 @@ export const TOPICS: Record<TopicKey, ScienceTopic> = {
     refs:
       "Hager, Bryne, Jukić, arXiv:2605.04951 (the bottleneck); patent pending GB2615376.7 (the removal).",
   },
+  spoofing: {
+    short: "Jamming",
+    title: "Why you cannot jam the Earth",
+    simple:
+      "A GPS jammer wins by shouting over a whisper from space. There is no shouting over the Earth's crust: magnetic fields die off with the cube of distance, so faking the map at range takes physically enormous machines. And anything strong enough to try becomes a bright, localisable object. Press the emitter button and watch: the attack turns into a target.",
+    deep:
+      "A dipole field falls as 1/r³. Creating a 100 nT deception at 1 km range needs a moment of order 10⁹ A·m², a thousand warship signatures; even at 200 m it takes millions of A·m², an industrial installation. Wide-area magnetic jamming is therefore energetically prohibitive, and denial is local: a pocket of a few hundred metres around a fixed site, which a bounded-drift inertial crosses in seconds. This demo's emitter is a 5×10⁷ A·m² field-aligned coil, fifty warship signatures, and it still only writes ~200 nT at closest approach.\n\nThe judo is that every emitter is a source, and this chain is built to attribute sources. The map-subtracted residual along the estimated track carries the emitter's 1/r³ passage signature; a matched-profile fit detects it (significance ×5 to ×14 across worlds here) and localises it in range and along-track position. A single pass leaves the bearing side ambiguous; a wingman or a second pass resolves it, which is one more thing the fleet layer buys. Smarter spoofing, recreating another place's anomaly pattern coherently over a 3 km correlation window against a moving target, would need synchronised megastructures, and the recursive filter's belief plus the fleet's ledger (an anomaly that was not there last week is a CHANGE, not a map feature) close that door. What remains for an adversary is exactly what the self-check already handles: local denial, answered by widened bounds, a short inertial coast, and a fresh contact report on their installation. Model-derived.",
+    refs:
+      "Patents pending GB2615376.7 (concurrent detection) and GB2615437.7 (network attribution); classical MAD passage geometry (Anderson functions).",
+  },
   fleet: {
     short: "Fleet",
     title: "The network as a sensor: who else saw it?",
@@ -164,6 +175,16 @@ export const SPACE_OVERRIDES: Partial<
     deep:
       "Space-weather disturbances multiply the slow interference amplitude inside the event window. Because the canceller learns spatial signatures, the post-cleaning residual barely moves: the classic silent-miss condition. The shift-sensitive features that do move are the pre-canceller high-frequency power and the canceller correction magnitude. They feed the monotone novelty scale, the bound widens, affected fixes are withheld, and navigation coasts on inertial until the signatures return to the calibrated domain. With a twenty light-minute radio delay, this decision cannot wait for a human: the instrument must distrust itself, alone, in real time.\n\nModel-derived: all in-window fixes flagged under this event. In nominal flight false flags are rare, and the asymmetry is deliberate: the self-check would rather withhold a good fix than trust a bad one.",
     refs: "Patent pending GB2615376.7 (pre-cancellation features).",
+  },
+  spoofing: {
+    short: "Survey",
+    title: "The instrument that cannot be surprised, only enriched",
+    simple:
+      "On Mars nobody jams you, but the crust hides structures no orbiter has resolved. When the scout sweeps past a strongly magnetised body, its signature swells out of the fossil field with a telltale shape, and the same estimator that guards navigation catalogues it: position, range, significance. The unexpected is not a threat to this instrument; it is science return.",
+    deep:
+      "A buried magnetised body is a dipole-like source: its field falls as 1/r³ and its passage signature along the flight line has a characteristic width set by the closest-approach distance. The map-subtracted residual along the estimated track isolates that signature from the charted fossil field; a matched-profile fit detects it (significance ×5 to ×14 across worlds here) and localises it in range and along-track position, with the bearing side ambiguous on a single pass, resolved by a sister scout or a follow-up line, which is one more thing the swarm buys.\n\nThe deeper point is architectural: a chain built to attribute every source it removes turns anomalies into catalogue entries instead of navigation errors. Navigation quality is preserved through the encounter because the fix bounds inflate honestly where the residual is disturbed, and the detection ships with the same calibrated confidence as the fixes. On Mars, at intrusion or lava-tube scale, the navigation instrument doubles as a magnetometry survey instrument at zero extra mass. Model-derived.",
+    refs:
+      "Patents pending GB2615376.7 (concurrent detection) and GB2615437.7 (network attribution); Langlais et al. 2019 (Mars crustal field).",
   },
   fleet: {
     title: "The swarm as a sensor: who else saw it?",

@@ -15,14 +15,24 @@ export interface Profile {
   evContact: string;
   atk1: string;
   atk2: string;
-  atkNames: { gain: string; burst: string };
+  atk3: string;
+  atkNames: { gain: string; burst: string; spoof: string };
   fleetCoincident: string;
   fleetLocal: string;
+  /** placeholders {det} and {range} are filled at render time */
+  spoofDetected: string;
+  spoofSearching: string;
+  coldTitle: string;
+  coldSub: string;
+  coldCta: string;
+  /** placeholder {pct} filled with drift_removed_pct */
+  headline: string;
   consoleIdle: string;
   impactKicker: string;
   impact: {
     gain: { title: string; body: string };
     burst: { title: string; body: string };
+    spoof: { title: string; body: string };
   };
 }
 
@@ -46,11 +56,26 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     evContact: "CONTACT HELD · vessel class · navigation unaffected",
     atk1: "⚡ Inject gain fault",
     atk2: "⚡ Inject noise burst",
-    atkNames: { gain: "channel gain fault", burst: "interference burst" },
+    atk3: "📡 Ground emitter",
+    atkNames: {
+      gain: "channel gain fault",
+      burst: "interference burst",
+      spoof: "adversary emitter · spoof attempt",
+    },
     fleetCoincident:
       "FLEET · wingman reports the same signature · classified environmental",
     fleetLocal:
       "FLEET · wingman clean · fault isolated to this aircraft, quarantined",
+    spoofDetected:
+      "SOURCE DETECTED · artificial emitter · significance ×{det} · range ~{range} m · navigation continues",
+    spoofSearching:
+      "MAD · unexpected signature building on the swept profile · resolving",
+    coldTitle: "GPS is jammed.",
+    coldSub:
+      "You still get home. Fly a 30 km leg on the Earth's magnetic fingerprint, attack your own instrument three different ways, and watch it refuse to be fooled. Computed live on our digital twin; every figure model-derived.",
+    coldCta: "Fly the mission",
+    headline:
+      "{pct}% of inertial drift removed. No GPS, no emissions, every attack named and survived.",
     consoleIdle:
       "you are the adversary: attack the instrument whenever you like",
     impactKicker: "What your attack does",
@@ -62,6 +87,10 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       burst: {
         title: "A magnetic storm nearby",
         body: "A strong disturbance lights up near the aircraft. The canceller absorbs most of it, so the cleaned signal still looks fine. The trap is to trust it; the chain watches the raw input instead and widens its budget before any damage is done.",
+      },
+      spoof: {
+        title: "An industrial jammer switches on ahead",
+        body: "A ground installation with fifty times the magnetic signature of a warship starts emitting near your route. The inverse-cube law is your armour: at a 200 m pass it writes barely 200 nT on the sensor, and its own passage signature gives it away. Watch the log: the attack becomes a target.",
       },
     },
   },
@@ -84,14 +113,26 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     evContact: "SCIENCE TARGET CATALOGUED · buried magnetised body · navigation unaffected",
     atk1: "☢ Radiation hit",
     atk2: "☀ Solar storm",
+    atk3: "⛰ Uncharted anomaly",
     atkNames: {
       gain: "radiation-induced channel fault",
       burst: "solar-storm disturbance",
+      spoof: "uncharted magnetised body",
     },
     fleetCoincident:
       "SWARM · sister scout reports the same signature · classified space weather",
     fleetLocal:
       "SWARM · sister scout clean · fault isolated to this scout, quarantined",
+    spoofDetected:
+      "SCIENCE TARGET · uncharted magnetised body · significance ×{det} · range ~{range} m · catalogued",
+    spoofSearching:
+      "SURVEY · unexpected signature building on the swept profile · resolving",
+    coldTitle: "Mars has no GPS.",
+    coldSub:
+      "Help is twenty light-minutes away. Fly a scout on the fossil field of a dead dynamo, weather the Sun, and watch an instrument that doubts itself so the mission never has to. Computed live on our digital twin; every figure model-derived.",
+    coldCta: "Fly the sortie",
+    headline:
+      "{pct}% of inertial drift removed. No GNSS, no ground contact, every event named and survived.",
     consoleIdle:
       "you are the environment: unleash radiation and space weather whenever you like",
     impactKicker: "What just hit the scout",
@@ -103,6 +144,10 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       burst: {
         title: "The Sun erupts",
         body: "Space weather drives strong field disturbances for a couple of minutes. The canceller hides most of it, so the cleaned signal still looks fine. With help twenty light-minutes away, the instrument must distrust itself, alone, in real time.",
+      },
+      spoof: {
+        title: "The crust hides a surprise",
+        body: "A strongly magnetised buried structure lies just off the track. As the scout sweeps past, its inverse-cube signature swells out of the fossil field, and the same guarded estimator that protects navigation catalogues it: position, range, significance. Every navigation pass is a survey pass.",
       },
     },
   },
