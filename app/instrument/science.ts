@@ -13,7 +13,8 @@ export type TopicKey =
   | "attack_burst"
   | "contact"
   | "calibration"
-  | "recursive";
+  | "recursive"
+  | "fleet";
 
 export interface ScienceTopic {
   short: string;
@@ -101,6 +102,16 @@ export const TOPICS: Record<TopicKey, ScienceTopic> = {
     refs:
       "Hager, Bryne, Jukić, arXiv:2605.04951 (the bottleneck); patent pending GB2615376.7 (the removal).",
   },
+  fleet: {
+    short: "Fleet",
+    title: "The network as a sensor: who else saw it?",
+    simple:
+      "One aircraft alone cannot always tell a sick instrument from an angry environment: both just look wrong. A wingman settles it. A real disturbance in the world is seen by both aircraft at the same time; a hardware fault lives on one aircraft only. In this demo, watch the mission log after your attacks: the fleet names what happened.",
+    deep:
+      "Each station runs the full single-platform attribution chain, then shares only its attributed events: sparse, timestamped detections of a few hundred bytes, not raw data. Coincidence between stations is the classifier: environment-scale disturbances (space weather, regional interference) raise the shift-sensitive novelty scale on every platform in the region, while a channel fault raises it on one platform only and is quarantined there. Richer deployments classify coincident transients by apparent propagation velocity across the network and weight each station's veto by its signal-to-noise ratio, with the false-alarm rate calibrated at FLEET level, the same conformal guarantee as the single-platform bound, extended to N nodes.\n\nBecause attribution happens at the edge and only events travel, the network runs on bytes per hour: any link qualifies (satellite short-burst, HF, acoustic), coincidence tolerates latency by design (event timestamps, not synchronised streams), and under total radio silence each platform falls back to its own calibrated self-check. Nothing breaks, it only degrades gracefully. In this demo the wingman flies the same region: your interference bursts are classified environmental by coincidence, your channel faults are isolated to your own aircraft.",
+    refs:
+      "Patent pending GB2615437.7 (distributed attribution); CTBTO IMS and lightning TDOA networks (precedents at planetary scale).",
+  },
   recursive: {
     short: "Filter",
     title: "A filter that remembers, with learning kept on a leash",
@@ -153,6 +164,15 @@ export const SPACE_OVERRIDES: Partial<
     deep:
       "Space-weather disturbances multiply the slow interference amplitude inside the event window. Because the canceller learns spatial signatures, the post-cleaning residual barely moves: the classic silent-miss condition. The shift-sensitive features that do move are the pre-canceller high-frequency power and the canceller correction magnitude. They feed the monotone novelty scale, the bound widens, affected fixes are withheld, and navigation coasts on inertial until the signatures return to the calibrated domain. With a twenty light-minute radio delay, this decision cannot wait for a human: the instrument must distrust itself, alone, in real time.\n\nModel-derived: all in-window fixes flagged under this event. In nominal flight false flags are rare, and the asymmetry is deliberate: the self-check would rather withhold a good fix than trust a bad one.",
     refs: "Patent pending GB2615376.7 (pre-cancellation features).",
+  },
+  fleet: {
+    title: "The swarm as a sensor: who else saw it?",
+    simple:
+      "One scout alone cannot always tell a sick instrument from an angry Sun: both just look wrong. A sister scout settles it. Space weather washes over the whole swarm at once; a radiation-damaged channel lives on one scout only. In this demo, watch the mission log after your events: the swarm names what happened.",
+    deep:
+      "Each scout runs the full single-platform attribution chain, then shares only its attributed events: sparse, timestamped detections of a few hundred bytes, relayed opportunistically through the orbiter. Coincidence across the swarm is the classifier: a solar storm raises the shift-sensitive novelty scale on every scout in the region, while a radiation-induced channel fault raises it on one scout only and is quarantined there. The false-alarm rate is calibrated at swarm level, the same conformal guarantee as each scout's own bound, extended to N nodes.\n\nThis architecture is built for exactly the constraints of planetary exploration: attribution happens at the edge, only events travel (bytes per hour over any link), coincidence tolerates hours of relay latency by design because it works on event timestamps rather than synchronised streams, and a scout out of contact falls back to its own calibrated self-check. With help twenty light-minutes away, a swarm that can collectively tell instrument from environment multiplies what every scout's data is worth.",
+    refs:
+      "Patent pending GB2615437.7 (distributed attribution); CTBTO IMS and lightning TDOA networks (precedents at planetary scale).",
   },
   selfcheck: {
     title: "Self-trust, twenty light-minutes from help",

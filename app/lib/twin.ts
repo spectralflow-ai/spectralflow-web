@@ -23,6 +23,10 @@ export interface Fault {
   t0: number;
   t1: number;
   mag: number;
+  /** UK17 network attribution: seen by the wingman too (environmental)
+   *  or ownship-only (instrument-local). Present when faults exist. */
+  fleet?: "coincident" | "local";
+  wing_scale?: number;
 }
 
 export interface World {
@@ -78,6 +82,15 @@ export interface AblationLevel {
 
 export interface AblationResult {
   levels: AblationLevel[];
+  envelope: {
+    map_sigma_nT: number;
+    inertial: { median_back_m: number; end_m: number };
+    sf100: { median_back_m: number; end_m: number };
+    conventional: { median_back_m: number; end_m: number };
+    sf100_withheld: number;
+    conventional_withheld: number;
+    n_fixes: number;
+  };
 }
 
 function attacksParam(attacks: Attack[]): string {

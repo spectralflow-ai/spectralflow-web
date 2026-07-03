@@ -16,6 +16,8 @@ export interface Profile {
   atk1: string;
   atk2: string;
   atkNames: { gain: string; burst: string };
+  fleetCoincident: string;
+  fleetLocal: string;
   consoleIdle: string;
   impactKicker: string;
   impact: {
@@ -45,6 +47,10 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     atk1: "⚡ Inject gain fault",
     atk2: "⚡ Inject noise burst",
     atkNames: { gain: "channel gain fault", burst: "interference burst" },
+    fleetCoincident:
+      "FLEET · wingman reports the same signature · classified environmental",
+    fleetLocal:
+      "FLEET · wingman clean · fault isolated to this aircraft, quarantined",
     consoleIdle:
       "you are the adversary: attack the instrument whenever you like",
     impactKicker: "What your attack does",
@@ -82,6 +88,10 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       gain: "radiation-induced channel fault",
       burst: "solar-storm disturbance",
     },
+    fleetCoincident:
+      "SWARM · sister scout reports the same signature · classified space weather",
+    fleetLocal:
+      "SWARM · sister scout clean · fault isolated to this scout, quarantined",
     consoleIdle:
       "you are the environment: unleash radiation and space weather whenever you like",
     impactKicker: "What just hit the scout",

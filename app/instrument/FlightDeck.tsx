@@ -288,6 +288,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             </button>
             <Chip k="attack_gain" profile={profile} onOpen={setTopic} />
             <Chip k="attack_burst" profile={profile} onOpen={setTopic} />
+            <Chip k="fleet" profile={profile} onOpen={setTopic} />
           </div>
           {lastAttack ? (
             <motion.div
@@ -377,7 +378,14 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             padding: "1.5rem",
           }}
         >
-          <div style={{ maxWidth: 720, width: "100%" }}>
+          <div
+            style={{
+              maxWidth: 720,
+              width: "100%",
+              maxHeight: "100%",
+              overflowY: "auto",
+            }}
+          >
             <div className="figure-label" style={{ color: BLUE }}>
               Mission debrief · every figure model-derived
             </div>
@@ -563,6 +571,85 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
         level fully recomputed · the array is also what creates the
         integrity signal the observers rely on, and the detection channel
       </p>
+
+      <div className="figure-label" style={{ margin: "0.9rem 0 0.5rem" }}>
+        And swap only the sensor · same corridor, nominal leg
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <SwapBar
+          label="conventional vector array · 200 pT/√Hz, thermal drift"
+          value={abl.envelope.conventional.median_back_m}
+          reference={abl.envelope.conventional.median_back_m}
+          color="#C89B6B"
+        />
+        <SwapBar
+          label="SF100 diamond array · quantum-stable reference"
+          value={abl.envelope.sf100.median_back_m}
+          reference={abl.envelope.conventional.median_back_m}
+          color={TEAL}
+        />
+      </div>
+      <p
+        className="figure-label"
+        style={{ color: MUTED, marginTop: "0.45rem" }}
+      >
+        the conventional stand-in is generous (premium compact array); its
+        scale-factor and offset drift leak the 47 µT Earth field into the
+        very band the map lives in · the chain withheld{" "}
+        {abl.envelope.conventional_withheld} of {abl.envelope.n_fixes} of
+        its fixes as untrustworthy
+      </p>
+    </div>
+  );
+}
+
+function SwapBar({
+  label,
+  value,
+  reference,
+  color,
+}: {
+  label: string;
+  value: number;
+  reference: number;
+  color: string;
+}) {
+  const w = Math.max((value / Math.max(reference, 1)) * 100, 1.2);
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "minmax(180px,290px) 1fr 70px",
+        gap: "0.7rem",
+        alignItems: "center",
+      }}
+    >
+      <span style={{ color: "#9AA2B1", fontSize: "0.78rem" }}>{label}</span>
+      <div
+        style={{
+          height: 8,
+          borderRadius: 99,
+          background: "rgba(255,255,255,0.06)",
+          overflow: "hidden",
+        }}
+      >
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${w}%` }}
+          transition={{ duration: 0.7 }}
+          style={{ height: "100%", borderRadius: 99, background: color }}
+        />
+      </div>
+      <span
+        style={{
+          fontFamily: "var(--font-geist-mono)",
+          color,
+          fontSize: "0.82rem",
+          textAlign: "right",
+        }}
+      >
+        {fmtM(value)}
+      </span>
     </div>
   );
 }
@@ -1160,6 +1247,13 @@ function buildLog(
       kind: "bad",
       text: `EVENT · ${P.atkNames[f.kind]} injected`,
     });
+    if (f.fleet) {
+      rows.push({
+        t: f.t0 + 45,
+        kind: f.fleet === "coincident" ? "contact" : "info",
+        text: f.fleet === "coincident" ? P.fleetCoincident : P.fleetLocal,
+      });
+    }
   }
   for (const f of world.fixes) {
     rows.push(
