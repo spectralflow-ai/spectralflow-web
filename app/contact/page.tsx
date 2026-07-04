@@ -62,9 +62,12 @@ export default function Contact() {
                   className="text-lg"
                   style={{ color: "var(--accent)" }}
                 >
-                  Request demo access
+                  Request an expert twin session
                 </a>
-                <Body className="mt-1">The interactive twin is online; access is granted on request.</Body>
+                <Body className="mt-1">
+                  The public layer, The Instrument, is open to everyone in the browser. Expert
+                  sessions go deeper, under agreement, on the full engineering twin.
+                </Body>
               </div>
               <div className="hairline pt-5">
                 <Eyebrow>Company</Eyebrow>

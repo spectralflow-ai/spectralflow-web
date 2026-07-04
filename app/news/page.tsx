@@ -18,9 +18,17 @@ const POSTS = [
   {
     tag: "Milestone",
     date: "July 2026",
+    title: "Fly the sensor: The Instrument is public",
+    excerpt:
+      "The public layer of our digital twin is now open to everyone, in the browser, no account needed. Fly a full mission where satellites cannot help, attack your own instrument three different ways, and watch it refuse to be fooled: every figure recomputed live, every layer's contribution decomposed in the debrief, and the science behind each panel one click away. Every number is honestly labelled model-derived.",
+    cta: { href: "/instrument", label: "Fly the Instrument" },
+  },
+  {
+    tag: "Milestone",
+    date: "July 2026",
     title: "The patent portfolio grows to fifteen families",
     excerpt:
-      "Two more patent families were filed at the turn of June and July, bringing the portfolio to fifteen. One protects how the sensing architecture rejects the host platform's own magnetic interference on board; the other covers the onboard inference layer that turns the cleaned signal into navigation data the system can vouch for. Both were filed before any public disclosure, and the details stay confidential until publication.",
+      "Three patent families were filed in ten days at the turn of June and July, bringing the portfolio to fifteen. One protects how the sensing architecture rejects the host platform's own magnetic interference on board; one covers the onboard inference layer that turns the cleaned signal into navigation data the system can vouch for; and one extends that attribution across networks of sensors. All were filed before any public disclosure, and the details stay confidential until publication.",
   },
   {
     tag: "Research",
@@ -98,6 +106,11 @@ export default function News() {
                     {p.title}
                   </h2>
                   <Body>{p.excerpt}</Body>
+                  {"cta" in p && p.cta && (
+                    <Link href={p.cta.href} className="textlink mt-3">
+                      {p.cta.label} <span>→</span>
+                    </Link>
+                  )}
                 </div>
               </article>
             </Reveal>

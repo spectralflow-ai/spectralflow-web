@@ -97,17 +97,23 @@ export default function Home() {
           </Lead>
           <Body className="max-w-3xl mb-10">
             It is how we engineer, and how we intend to be measured: the twin&rsquo;s predictions
-            are the targets our hardware milestones will be judged against. The interactive twin is
-            online; access is granted on request.
+            are the targets our hardware milestones will be judged against. The public layer is
+            open to everyone, live, in your browser; deeper expert sessions on the full twin are
+            granted on request.
           </Body>
         </Reveal>
         <Reveal delay={120}>
           <MissionChart />
         </Reveal>
         <Reveal delay={180}>
-          <a href={MAILTO_TWIN_DEMO} className="btn-primary mt-8">
-            Request demo access <span>→</span>
-          </a>
+          <div className="flex items-center gap-6 flex-wrap mt-8">
+            <Link href="/instrument" className="btn-primary">
+              Fly the Instrument <span>→</span>
+            </Link>
+            <a href={MAILTO_TWIN_DEMO} className="textlink">
+              Request an expert twin session <span>→</span>
+            </a>
+          </div>
         </Reveal>
       </Cinema>
 

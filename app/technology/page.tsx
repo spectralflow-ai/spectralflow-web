@@ -31,10 +31,10 @@ const BRICKS = [
   {
     tag: "The digital twin",
     title: "The sensor flies before it exists",
-    body: "An end-to-end navigation digital twin: synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; hardware milestones will be judged against the twin's own predictions. The interactive twin is online, with access granted on request.",
+    body: "An end-to-end navigation digital twin: synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; hardware milestones will be judged against the twin's own predictions. The public layer, The Instrument, runs live in your browser; deeper expert sessions are granted on request.",
     cta: {
-      href: MAILTO_TWIN_DEMO,
-      label: "Request demo access",
+      href: "/instrument",
+      label: "Fly the Instrument",
     },
   },
 ];

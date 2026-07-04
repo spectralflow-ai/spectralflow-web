@@ -8,10 +8,11 @@ const COLS = [
     links: [
       { href: "/technology", label: "Technology" },
       { href: "/applications", label: "Applications" },
+      { href: "/instrument", label: "The Instrument · fly the twin" },
       { href: "https://studio.spectralflow.ai", label: "SpectralFlow Studio", external: true },
       {
         href: MAILTO_TWIN_DEMO,
-        label: "Digital twin · request access",
+        label: "Expert twin session · on request",
         external: true,
       },
     ],

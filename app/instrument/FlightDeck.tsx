@@ -91,9 +91,12 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   }, [landedNow, seed, attacks]);
 
   // fetch world whenever seed or attacks change
+  const [fetchError, setFetchError] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
   useEffect(() => {
     let live = true;
     setLoading(true);
+    setFetchError(false);
     fetchWorld(seed, 20, attacks)
       .then((w) => {
         if (live) {
@@ -101,11 +104,16 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           setLoading(false);
         }
       })
-      .catch(() => live && setLoading(false));
+      .catch(() => {
+        if (live) {
+          setLoading(false);
+          setFetchError(true);
+        }
+      });
     return () => {
       live = false;
     };
-  }, [seed, attacks]);
+  }, [seed, attacks, retryNonce]);
 
   // playback clock
   const tick = useCallback((now: number) => {
@@ -174,6 +182,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
     >
       {/* top bar: clock, timeline, transport */}
       <div
+        className="deck-top"
         style={{
           display: "grid",
           gridTemplateColumns: "auto 1fr auto",
@@ -239,6 +248,40 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           )}
         </div>
       </div>
+
+      {/* twin status: first compute or unreachable backend */}
+      {!world && (
+        <div
+          className="card"
+          style={{
+            padding: "0.8rem 1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.8rem",
+            flexWrap: "wrap",
+          }}
+        >
+          {fetchError ? (
+            <>
+              <span style={{ color: "#D8A08C", fontSize: "0.9rem" }}>
+                The twin is unreachable, probably a network hiccup on your
+                side or ours.
+              </span>
+              <button
+                className="btn-ghost"
+                style={{ padding: "0.4rem 0.9rem" }}
+                onClick={() => setRetryNonce((n) => n + 1)}
+              >
+                Retry
+              </button>
+            </>
+          ) : (
+            <span className="figure-label" style={{ color: MUTED }}>
+              computing this world live on the twin, a second or two...
+            </span>
+          )}
+        </div>
+      )}
 
       {/* the two living panels */}
       <div className="deck-panels" style={{ flex: 1, minHeight: 0 }}>
@@ -547,6 +590,13 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           .deck-panels { grid-template-columns: 1fr; }
           .deck-bottom { grid-template-columns: 1fr; }
           .map-box { width: 100% !important; height: auto !important; }
+          .deck-top {
+            grid-template-columns: 1fr auto;
+          }
+          .deck-top input[type="range"] {
+            grid-column: 1 / -1;
+            order: 3;
+          }
         }
       `}</style>
     </div>
