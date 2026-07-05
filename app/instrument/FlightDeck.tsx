@@ -11,9 +11,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   fetchAblation,
+  fetchContact,
   fetchWorld,
   type AblationResult,
   type Attack,
+  type ContactResult,
   type World,
 } from "../lib/twin";
 import { PROFILES, type ProfileKey } from "./profiles";
@@ -89,6 +91,20 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       live = false;
     };
   }, [landedNow, seed, attacks]);
+
+  // detection replay: the swept passage profile, fetched once and cached
+  const [contact, setContact] = useState<ContactResult | null>(null);
+  const [contactFailed, setContactFailed] = useState(false);
+  useEffect(() => {
+    if (!landedNow || contact || contactFailed) return;
+    let live = true;
+    fetchContact(1)
+      .then((c) => live && setContact(c))
+      .catch(() => live && setContactFailed(true));
+    return () => {
+      live = false;
+    };
+  }, [landedNow, contact, contactFailed]);
 
   // fetch world whenever seed or attacks change
   const [fetchError, setFetchError] = useState(false);
@@ -536,6 +552,11 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
               />
             </div>
             <Waterfall abl={abl} />
+            <ContactReplay
+              contact={contact}
+              failed={contactFailed}
+              profile={profile}
+            />
             <div
               style={{
                 display: "flex",
@@ -776,6 +797,123 @@ function SwapBar({
       >
         {fmtM(value)}
       </span>
+    </div>
+  );
+}
+
+/* ── the detection replay ───────────────────────────────────────────── */
+
+function ContactReplay({
+  contact,
+  failed,
+  profile,
+}: {
+  contact: ContactResult | null;
+  failed: boolean;
+  profile: ProfileKey;
+}) {
+  if (failed) return null;
+  const header =
+    profile === "space"
+      ? "The science target, replayed · the passage that gave it away"
+      : "The contact, replayed · the passage that gave it away";
+  if (!contact) {
+    return (
+      <div style={{ margin: "0 0 1.2rem" }}>
+        <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
+          {header}
+        </div>
+        <p className="figure-label" style={{ color: MUTED, margin: 0 }}>
+          replaying the detection...
+        </p>
+      </div>
+    );
+  }
+  const m = Math.min(contact.prof?.length ?? 0, contact.pos_x?.length ?? 0);
+  if (m < 2) return null;
+  const xs = contact.pos_x.slice(0, m);
+  const ys = contact.prof.slice(0, m);
+  const leak = Math.abs(contact.leak_nT ?? 0);
+  const W = 720;
+  const H = 220;
+  const xMin = Math.min(...xs);
+  const xMax = Math.max(...xs);
+  const lo = Math.min(...ys, -leak, 0);
+  const hi = Math.max(...ys, leak, 0);
+  const pad = (hi - lo || 1) * 0.2;
+  const yTop = hi + pad;
+  const yBot = lo - pad;
+  const px = (x: number) => ((x - xMin) / (xMax - xMin || 1)) * W;
+  const py = (y: number) => ((yTop - y) / (yTop - yBot)) * H;
+  const err = Math.round(
+    Math.hypot(
+      (contact.truth?.[0] ?? 0) - (contact.est?.[0] ?? 0),
+      (contact.truth?.[1] ?? 0) - (contact.est?.[1] ?? 0)
+    )
+  );
+  const fmtNT = (v: number) =>
+    v >= 10 ? v.toFixed(0) : v >= 1 ? v.toFixed(1) : v.toFixed(2);
+  const body =
+    profile === "space"
+      ? "A buried magnetised body, thousands of times weaker at the sensor than the scout's own field, catalogued from a single pass while navigation ran uninterrupted."
+      : "A vessel-class source, thousands of times weaker at the sensor than the platform's own field, localised from a single fly-by while navigation ran uninterrupted.";
+  return (
+    <div style={{ margin: "0 0 1.2rem" }}>
+      <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
+        {header}
+      </div>
+      <div className="card" style={{ padding: "0.7rem 0.9rem" }}>
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          preserveAspectRatio="none"
+          style={{ width: "100%", height: 150, display: "block" }}
+        >
+          <rect
+            x={0}
+            y={py(leak)}
+            width={W}
+            height={Math.max(py(-leak) - py(leak), 0)}
+            fill="rgba(255,255,255,0.05)"
+          />
+          <line
+            x1={0}
+            x2={W}
+            y1={py(0)}
+            y2={py(0)}
+            stroke="rgba(255,255,255,0.15)"
+            vectorEffect="non-scaling-stroke"
+          />
+          <polyline
+            points={xs
+              .map((x, i) => `${px(x).toFixed(1)},${py(ys[i]).toFixed(1)}`)
+              .join(" ")}
+            fill="none"
+            stroke={TEAL}
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+      </div>
+      <p
+        className="figure-label"
+        style={{ color: MUTED, margin: "0.45rem 0 0" }}
+      >
+        significance ×{(contact.det ?? 0).toFixed(0)} · localisation error{" "}
+        {err} m · platform leakage floor {fmtNT(leak)} nT · {contact.resolved}
+        /{contact.n} epochs resolved
+      </p>
+      <p
+        style={{
+          color: "#9AA2B1",
+          fontSize: "0.8rem",
+          lineHeight: 1.55,
+          margin: "0.35rem 0 0",
+        }}
+      >
+        {body} All model-derived.
+      </p>
     </div>
   );
 }
