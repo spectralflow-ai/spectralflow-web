@@ -15,7 +15,9 @@ export default async function InstrumentPage({
 }) {
   const sp = await searchParams;
   const initial: ProfileKey | null =
-    sp.profile === "defence" || sp.profile === "space" ? sp.profile : null;
+    sp.profile === "defence" || sp.profile === "space" || sp.profile === "geo"
+      ? sp.profile
+      : null;
 
   return (
     <>

@@ -4,6 +4,8 @@
  *  is model-derived. Space-profile overrides retell the same physics in
  *  the planetary setting. Mirrored from the Python demo. */
 
+import type { ProfileKey } from "./profiles";
+
 export type TopicKey =
   | "map"
   | "tensor"
@@ -214,11 +216,65 @@ export const SPACE_OVERRIDES: Partial<
   },
 };
 
-export function getTopic(
-  key: TopicKey,
-  profile: "defence" | "space"
-): ScienceTopic {
+/** Geo-profile retellings: same physics, exploration-survey setting. */
+export const GEO_OVERRIDES: Partial<
+  Record<TopicKey, Partial<ScienceTopic>>
+> = {
+  map: {
+    title: "Aeromagnetics: the map that built an industry",
+    simple:
+      "Rocks are very slightly magnetic, and the pattern they write in the field above them is a picture of the geology below: intrusions, faults, ore systems. Airborne magnetic surveying has been the workhorse of mineral exploration since the 1940s; many discoveries under cover began as a wiggle on a flight line. Reading that pattern well, in the right place, is the whole game.",
+    deep:
+      "An aeromagnetic survey flies parallel lines at fixed spacing and altitude, with orthogonal tie-lines to control level errors and a ground base station to correct the diurnal variation. The product is a grid of the crustal anomaly field: 10 to 1000 nT of geology on a 25,000 to 65,000 nT background. Beyond the sensor itself, two error sources dominate survey quality: position error, because a mislocated reading smears or displaces the anomaly it carries, and platform interference, because the aircraft's own field can exceed the target signal by orders of magnitude. In this demo the same chain that cleans the data also navigates on it, matching the along-track anomaly profile against the map (60 s correlation windows sliding every 30 s at 50 m/s), so the position is cross-checked by the geology itself, with or without GNSS.\n\nKey numbers here: map roughness 300 nT rms with a 400 m correlation length, search grid ±800 m. Model-derived on a synthetic map with realistic spectrum.",
+    refs: "EMAG2 (NOAA); national aeromagnetic survey programmes; Gnadt et al., arXiv:2007.12158.",
+  },
+  tensor: {
+    title: "Retiring the towed bird",
+    simple:
+      "The aircraft's own field has always been the enemy of airborne magnetics, and the classic escape is distance: a magnetometer bird towed on a cable, or a tail stinger, plus compensation flights. Four tiny diamond chips centimetres apart measure how steeply the field changes, and steepness is the fingerprint of nearby sources: the aircraft is steep, the geology is flat. The platform's field is rejected at the point of measurement. No bird, no cable, no stinger.",
+    deep:
+      "A localised source at range r produces a dipole field, a homogeneous function of degree −3. Euler's identity then gives G·r = −3·B_dip: the field gradient G of a near source is large and structured, while the Earth's field is quasi-uniform (G ≈ 0) across a 3 cm baseline. Four vector chips give 12 measurements for 8 unknowns (uniform field, 3; symmetric trace-free gradient, 5), an over-determined linear system constrained by Maxwell (div B = 0). The aircraft's field collapses into the gradient by construction, while the geology, effectively uniform across centimetres, passes untouched.\n\nWhat this buys a survey operation: no towed bird with its airspeed, weather and terrain-clearance constraints, no stinger installation, and structural rejection in place of a learned compensation model. And it changes survey QC: what was removed is not silently subtracted, it is attributed to a source and archived alongside the data, so a survey block carries its own cleaning provenance into processing and audit. Model-derived at this stage; the architecture is patent-filed (GB2615137.3).",
+    refs:
+      "Patent GB2615137.3 (structural rejection); Dunlop & Eastwood 2008 (curlometer minimum four points).",
+  },
+  attack_burst: {
+    short: "Storm",
+    title: "Attack 2: the geomagnetic storm",
+    simple:
+      "When the Sun disturbs the Earth's field, survey data goes bad in a way that is hard to see in the moment. The industry's answer is to stand down when the base station goes out of tolerance, and refly the lines. Here the chain watches its own raw signals, sees the storm arrive, and marks exactly which readings it can no longer certify.",
+    deep:
+      "A geomagnetic storm multiplies the ambient disturbance inside the event window. Because the canceller learns the spatial signature of platform sources, the post-cleaning residual barely moves: the classic silent-miss condition, and the reason storm contamination has historically been caught after the fact, at the base station or in levelling. The shift-sensitive features that do move are the pre-canceller high-frequency power and the canceller correction magnitude. They feed the monotone novelty scale, the bound widens, and the affected readings are withheld with a named cause rather than silently degraded. The survey keeps flying: what survives the storm is certified, what does not is an honest gap to refly, not a corruption discovered weeks later in processing.\n\nModel-derived: all in-window fixes flagged under this event. In nominal flight false flags are rare, and the asymmetry is deliberate: the chain would rather withhold a good reading than certify a bad one.",
+    refs: "Patent pending GB2615376.7 (pre-cancellation features).",
+  },
+  contact: {
+    short: "Anomaly",
+    title: "The anomaly as the product",
+    simple:
+      "Everything the chain removes is sorted, not thrown away. Sources bolted to the aircraft move with it; a magnetised body in the ground does not. As the aircraft flies past, the body's field swells and fades in a telltale curve that reveals where it lies and how significant it is. The survey does not just record field values; it catalogues anomalies in passing.",
+    deep:
+      "Across a 3 cm array a source hundreds of metres away has no measurable gradient, so it cannot be ranged from one position. What localises it is the aircraft's own passage: the swept field profile follows the 1/r³ dipole law along the line, and a ground-frame-static dipole is fitted to that profile. Classification is by frame behaviour: platform sources ride the body frame, geological sources stay fixed in the world. In this demo a compact magnetised body of about 10⁶ A·m² passing at about 200 m is localised to a few tens of metres, with a significance score and a range estimate, while the aircraft's own field, thousands of times stronger at the sensor, is removed. The report says compact magnetised body, flagged for follow-up: no claim about composition or grade, that is what ground truthing is for. Doing this concurrently with navigation, from one guarded estimator, is what is new: every survey line is also a screening pass.",
+    refs:
+      "Anderson functions (classical passage geometry); patent pending GB2615376.7.",
+  },
+  spoofing: {
+    short: "Uncharted",
+    title: "The instrument that cannot be surprised, only enriched",
+    simple:
+      "In exploration nobody jams you, but the ground hides bodies no chart records. When the aircraft sweeps past a strongly magnetised body, its signature swells out of the regional field with a telltale shape, and the same estimator that guards the position catalogues it: location, range, significance. An uncharted body is not an error source for this instrument; it is the deliverable.",
+    deep:
+      "A compact magnetised body is a dipole-like source: its field falls as 1/r³ and its passage signature along the flight line has a characteristic width set by the closest-approach distance. The map-subtracted residual along the estimated track isolates that signature from the regional field; a matched-profile fit detects it (significance ×5 to ×14 across worlds here) and localises it in range and along-track position, with the side ambiguity of a single pass resolved by the adjacent line or a tie-line, which the survey pattern provides for free.\n\nThe architectural point: a chain built to attribute every source it removes turns surprises into catalogue entries instead of position errors. Navigation quality is preserved through the encounter because the fix bounds inflate honestly where the residual is disturbed, and the detection ships with the same calibrated confidence as the position fixes. The entry reads compact magnetised body, with significance and range; whether it is ore, a pipeline or a wreck is what follow-up is for. Model-derived.",
+    refs:
+      "Patents pending GB2615376.7 (concurrent detection) and GB2615437.7 (network attribution); Anderson functions (classical passage geometry).",
+  },
+};
+
+export function getTopic(key: TopicKey, profile: ProfileKey): ScienceTopic {
   const base = TOPICS[key];
-  const ov = profile === "space" ? SPACE_OVERRIDES[key] : undefined;
+  const ov =
+    profile === "space"
+      ? SPACE_OVERRIDES[key]
+      : profile === "geo"
+        ? GEO_OVERRIDES[key]
+        : undefined;
   return { ...base, ...ov };
 }

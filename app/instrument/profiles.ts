@@ -1,7 +1,7 @@
 /** Mission narrative packs for the instrument, mirrored from the Python
  *  demo. One physics core, audience-specific stories. */
 
-export type ProfileKey = "defence" | "space";
+export type ProfileKey = "defence" | "space" | "geo";
 
 export interface Profile {
   chooserKicker: string;
@@ -148,6 +148,64 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       spoof: {
         title: "The crust hides a surprise",
         body: "A strongly magnetised buried structure lies just off the track. As the scout sweeps past, its inverse-cube signature swells out of the fossil field, and the same guarded estimator that protects navigation catalogues it: position, range, significance. Every navigation pass is a survey pass.",
+      },
+    },
+  },
+  geo: {
+    chooserKicker: "Airborne survey",
+    chooserTitle: "Exploration survey",
+    chooserBody:
+      "Fly an airborne magnetic survey where the position is true, the platform is clean, and the anomaly you find is the product. No towed bird, no storm stand-down, every removed signal attributed.",
+    mapTitle: "Crustal anomaly map · the geology under the flight lines",
+    phases: [
+      [0, "line 1"],
+      [150, "storm watch"],
+      [430, "anomaly window"],
+      [520, "line 2"],
+      [580, "tie-line"],
+    ],
+    evTakeoff: "LINE START · inertial reference aligned, magnetic chain armed",
+    evInterf: "Platform interference rising · tensor rejection active",
+    evContactHint: "SURVEY · faint signature building on the swept profile",
+    evContact:
+      "ANOMALY HELD · compact magnetised body · flagged for ground follow-up · navigation unaffected",
+    atk1: "⚡ Channel drift",
+    atk2: "☀ Geomagnetic storm",
+    atk3: "⛏ Uncharted body",
+    atkNames: {
+      gain: "sensor channel drift",
+      burst: "geomagnetic storm",
+      spoof: "uncharted magnetised body",
+    },
+    fleetCoincident:
+      "SURVEY FLEET · second aircraft reports the same signature · classified regional, geomagnetic",
+    fleetLocal:
+      "SURVEY FLEET · other aircraft clean · fault isolated to this platform, quarantined",
+    spoofDetected:
+      "ANOMALY CATALOGUED · compact magnetised body · significance ×{det} · range ~{range} m · flagged for follow-up",
+    spoofSearching:
+      "SURVEY · unexpected signature building on the swept profile · resolving",
+    coldTitle: "The bird stays home.",
+    coldSub:
+      "For seventy years airborne magnetic surveys have towed the magnetometer on a cable to escape the aircraft's own field. Fly a survey where the rejection happens at the point of measurement, position stays true without GNSS, and every removed signal is attributed. Computed live on our digital twin; every figure model-derived.",
+    coldCta: "Fly the survey",
+    headline:
+      "{pct}% of inertial drift removed. Position-true readings, no towed bird, every anomaly attributed.",
+    consoleIdle:
+      "you are the field campaign: throw drift, storms and geology at the survey whenever you like",
+    impactKicker: "What just hit the survey",
+    impact: {
+      gain: {
+        title: "A channel drifts by 2%",
+        body: "One of the twelve sensing channels quietly amplifies too much. Nothing looks wrong on any screen, yet the Earth's huge field now leaks through the mismatch and writes a false gradient into the data. Levelling would smear it across the whole grid; here the chain catches it at the source and names it.",
+      },
+      burst: {
+        title: "A geomagnetic storm rolls in",
+        body: "Surveys traditionally stand down when the diurnal monitor goes out of tolerance, then refly the lines. Here the chain sees the storm on the raw signals, withholds what it cannot certify, and the survey continues with honest gaps instead of silent corruption discovered weeks later in processing.",
+      },
+      spoof: {
+        title: "The ground hides a surprise",
+        body: "A compact magnetised body lies just off the flight line, absent from every chart. As the aircraft sweeps past, its inverse-cube signature swells out of the regional field, and the same guarded estimator that protects the position catalogues it: location, range, significance. The anomaly is not an error source; it is the deliverable.",
       },
     },
   },

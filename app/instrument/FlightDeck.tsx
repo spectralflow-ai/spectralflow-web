@@ -816,7 +816,9 @@ function ContactReplay({
   const header =
     profile === "space"
       ? "The science target, replayed · the passage that gave it away"
-      : "The contact, replayed · the passage that gave it away";
+      : profile === "geo"
+        ? "The anomaly, replayed · the passage that gave it away"
+        : "The contact, replayed · the passage that gave it away";
   if (!contact) {
     return (
       <div style={{ margin: "0 0 1.2rem" }}>
@@ -856,7 +858,9 @@ function ContactReplay({
   const body =
     profile === "space"
       ? "A buried magnetised body, thousands of times weaker at the sensor than the scout's own field, catalogued from a single pass while navigation ran uninterrupted."
-      : "A vessel-class source, thousands of times weaker at the sensor than the platform's own field, localised from a single fly-by while navigation ran uninterrupted.";
+      : profile === "geo"
+        ? "A compact magnetised body, thousands of times weaker at the sensor than the aircraft's own field, catalogued from a single pass while navigation ran uninterrupted."
+        : "A vessel-class source, thousands of times weaker at the sensor than the platform's own field, localised from a single fly-by while navigation ran uninterrupted.";
   return (
     <div style={{ margin: "0 0 1.2rem" }}>
       <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
