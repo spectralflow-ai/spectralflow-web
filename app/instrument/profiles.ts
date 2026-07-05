@@ -27,6 +27,8 @@ export interface Profile {
   coldCta: string;
   /** placeholder {pct} filled with drift_removed_pct */
   headline: string;
+  /** attacked-mission variant: {k} = events injected, {n} = fixes withheld */
+  headlineAttacked: string;
   consoleIdle: string;
   impactKicker: string;
   impact: {
@@ -76,6 +78,8 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     coldCta: "Fly the mission",
     headline:
       "{pct}% of inertial drift removed. No GPS, no emissions, every attack named and survived.",
+    headlineAttacked:
+      "You attacked {k} times. It refused {n} fixes rather than be fooled, kept the error bounded, and told you the truth the whole way down.",
     consoleIdle:
       "you are the adversary: attack the instrument whenever you like",
     impactKicker: "What your attack does",
@@ -133,6 +137,8 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     coldCta: "Fly the sortie",
     headline:
       "{pct}% of inertial drift removed. No GNSS, no ground contact, every event named and survived.",
+    headlineAttacked:
+      "The environment struck {k} times. It refused {n} fixes rather than guess, kept the error bounded, and never lied to the mission.",
     consoleIdle:
       "you are the environment: unleash radiation and space weather whenever you like",
     impactKicker: "What just hit the scout",
@@ -191,6 +197,8 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     coldCta: "Fly the survey",
     headline:
       "{pct}% of inertial drift removed. Position-true readings, no towed bird, every anomaly attributed.",
+    headlineAttacked:
+      "The survey took {k} hits. It refused {n} readings rather than certify them, kept the line bounded, and every gap is honest and refliable.",
     consoleIdle:
       "you are the field campaign: throw drift, storms and geology at the survey whenever you like",
     impactKicker: "What just hit the survey",

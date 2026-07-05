@@ -78,19 +78,23 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   const raf = useRef<number>(0);
   const last = useRef<number>(0);
 
-  // level-by-level breakdown, fetched once the mission is over
+  // level-by-level breakdown, fetched once the mission is over.
+  // Computed on the NOMINAL leg of this world, never on the attacked one:
+  // the waterfall is an architecture statement, and under attack the
+  // unguarded levels accept corrupted fixes, which makes their median
+  // look deceptively good while being uncertified.
   const landedNow = t >= T_END && !!world;
   useEffect(() => {
     if (!landedNow) return;
     let live = true;
     setAbl(null);
-    fetchAblation(seed, 20, attacks)
+    fetchAblation(seed, 20, [])
       .then((a) => live && setAbl(a))
       .catch(() => {});
     return () => {
       live = false;
     };
-  }, [landedNow, seed, attacks]);
+  }, [landedNow, seed]);
 
   // detection replay: the swept passage profile, fetched once and cached
   const [contact, setContact] = useState<ContactResult | null>(null);
@@ -519,10 +523,14 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 margin: "0.7rem 0 0",
               }}
             >
-              {P.headline.replace(
-                "{pct}",
-                world.metrics.drift_removed_pct.toFixed(0)
-              )}
+              {attacks.length > 0 && world.metrics.fixes_withheld >= 2
+                ? P.headlineAttacked
+                    .replace("{k}", String(attacks.length))
+                    .replace("{n}", String(world.metrics.fixes_withheld))
+                : P.headline.replace(
+                    "{pct}",
+                    world.metrics.drift_removed_pct.toFixed(0)
+                  )}
             </p>
             <div
               style={{
@@ -535,6 +543,15 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
               <Metric
                 label="Inertial drift removed"
                 value={`${world.metrics.drift_removed_pct.toFixed(0)}%`}
+                tone={TEAL}
+              />
+              <Metric
+                label="Accepted fixes within their bound"
+                value={(() => {
+                  const acc = world.fixes.filter((f) => !f.withheld);
+                  const ok = acc.filter((f) => f.err_m <= f.bound_m);
+                  return `${ok.length} / ${acc.length}`;
+                })()}
                 tone={TEAL}
               />
               <Metric
@@ -714,9 +731,10 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
         className="figure-label"
         style={{ color: MUTED, marginTop: "0.45rem" }}
       >
-        median position error, back half of the flight · same world, each
-        level fully recomputed · the array is also what creates the
-        integrity signal the observers rely on, and the detection channel
+        median position error, back half of the flight · the nominal leg of
+        this same world, each level fully recomputed · your injected events
+        are scored in the mission metrics above, where only the full
+        product can certify what it accepts
       </p>
 
       <div className="figure-label" style={{ margin: "0.9rem 0 0.5rem" }}>
