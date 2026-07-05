@@ -5,7 +5,7 @@ import { VERTICAL_SLUGS } from "./lib/verticals";
 const BASE = "https://www.spectralflow.ai";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const core = ["", "/technology", "/applications", "/company", "/news", "/contact", "/legal", "/privacy"];
+  const core = ["", "/technology", "/applications", "/tools", "/company", "/news", "/contact", "/legal", "/privacy"];
   const verticals = VERTICAL_SLUGS.map((slug) => `/applications/${slug}`);
 
   const entry = (path: string): MetadataRoute.Sitemap[number] => ({

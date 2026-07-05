@@ -8,6 +8,7 @@ import PartnerStrip from "./components/PartnerStrip";
 import { Prose, Cinema, Eyebrow, H2, Lead, Body, Strong } from "./components/kit";
 import { MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "./lib/contact";
 import { PATENT_FAMILIES, PREPRINTS, VERTICALS } from "./lib/facts";
+import { VERTICALS_ORDERED } from "./lib/verticals";
 
 const NAV_STEPS = [
   {
@@ -192,42 +193,41 @@ export default function Home() {
         </div>
       </Prose>
 
-      {/* ===================== VERTICAL TEASER ===================== */}
+      {/* ===================== VERTICAL CHOOSER ===================== */}
       <Prose>
         <Reveal>
-          <Eyebrow>Vertical #1 · Navigation</Eyebrow>
-          <H2 className="max-w-3xl mb-6">One core. Three theatres.</H2>
+          <Eyebrow>One core, many worlds</Eyebrow>
+          <H2 className="max-w-3xl mb-6">Find the world you came for.</H2>
           <Lead className="max-w-2xl mb-14">
-            Navigation ships first. The same sensing core corrects inertial drift across air, sea
-            and space, wherever satellites fail to reach.
+            Navigation ships first. The same sensing core reaches into life sciences, industry and
+            quantum information. Each vertical starts with the science of its domain, then our
+            approach.
           </Lead>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8">
-          {[
-            {
-              t: "Air",
-              d: "Matchbox-sized, a handful of watts. Rides on tactical UAVs and holds heading by matching the Earth's magnetic map the moment GPS drops.",
-            },
-            {
-              t: "Sea",
-              d: "Fully passive underwater navigation and magnetic-anomaly detection for submarines and AUVs, where satellite signals never reach.",
-            },
-            {
-              t: "Space",
-              d: "Diamond is intrinsically radiation-hard: attitude and orbital navigation that keeps working under cosmic radiation.",
-            },
-          ].map((c, i) => (
-            <Reveal key={c.t} delay={i * 90}>
-              <div className="hairline pt-6 h-full">
-                <p className="eyebrow mb-3">{c.t}</p>
-                <Body>{c.d}</Body>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {VERTICALS_ORDERED.map((v, i) => (
+            <Reveal key={v.slug} delay={i * 80}>
+              <Link
+                href={`/applications/${v.slug}`}
+                className="card p-6 md:p-7 h-full flex flex-col gap-2.5 group"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="eyebrow">{v.navLabel}</p>
+                  {v.flagship && <span className="pill">Ships first</span>}
+                </div>
+                <p className="font-semibold text-lg" style={{ color: "var(--text-primary)" }}>
+                  {v.tagline}
+                </p>
+                <span className="textlink mt-auto pt-3">
+                  Explore <span>→</span>
+                </span>
+              </Link>
             </Reveal>
           ))}
         </div>
         <Reveal delay={120}>
           <Link href="/applications" className="textlink mt-12">
-            See all applications <span>→</span>
+            All applications <span>→</span>
           </Link>
         </Reveal>
       </Prose>

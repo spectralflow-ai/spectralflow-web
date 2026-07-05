@@ -7,7 +7,6 @@ import { useState } from "react";
 const LINKS = [
   { href: "/technology", label: "Technology" },
   { href: "/applications", label: "Applications" },
-  { href: "/instrument", label: "The Instrument" },
   { href: "/company", label: "Company" },
   { href: "/news", label: "News" },
   { href: "/contact", label: "Contact" },
@@ -56,13 +55,13 @@ export default function Nav() {
               </Link>
             );
           })}
-          <a
-            href="https://studio.spectralflow.ai"
+          <Link
+            href="/instrument"
             className="btn-ghost"
             style={{ padding: "0.45rem 1rem" }}
           >
-            Studio <span>→</span>
-          </a>
+            Try the Instrument <span>→</span>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -111,9 +110,14 @@ export default function Nav() {
               {l.label}
             </Link>
           ))}
-          <a href="https://studio.spectralflow.ai" className="py-2.5 text-sm" style={{ color: "var(--accent)" }}>
-            Open Studio →
-          </a>
+          <Link
+            href="/instrument"
+            onClick={() => setOpen(false)}
+            className="py-2.5 text-sm"
+            style={{ color: "var(--accent)" }}
+          >
+            Try the Instrument →
+          </Link>
         </div>
       )}
     </header>

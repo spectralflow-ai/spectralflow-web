@@ -8,6 +8,7 @@ const COLS = [
     links: [
       { href: "/technology", label: "Technology" },
       { href: "/applications", label: "Applications" },
+      { href: "/tools", label: "Tools" },
       { href: "/instrument", label: "The Instrument · fly the twin" },
       { href: "https://studio.spectralflow.ai", label: "SpectralFlow Studio", external: true },
       {
