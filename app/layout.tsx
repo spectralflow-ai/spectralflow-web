@@ -29,6 +29,7 @@ export const metadata: Metadata = {
   },
   description: DESCRIPTION,
   applicationName: "SpectralFlow",
+  verification: { google: "oyPBoJQ-UcuzTdlAquK44i-meA0AANU_CIDZ7uHeIDw" },
   keywords: [
     "NV-diamond",
     "quantum sensing",
