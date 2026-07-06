@@ -4,6 +4,7 @@ import Reveal from "../components/Reveal";
 import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
 import { VERTICALS_ORDERED } from "../lib/verticals";
 import { VERTICALS } from "../lib/facts";
+import VerticalIcon from "../components/VerticalIcon";
 
 export const metadata: Metadata = {
   title: "Applications",
@@ -36,7 +37,10 @@ export default function Applications() {
           >
             <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-8 items-end">
               <div>
-                <p className="eyebrow mb-3">{flagship.eyebrow}</p>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <VerticalIcon slug={flagship.slug} />
+                  <p className="eyebrow">{flagship.eyebrow}</p>
+                </div>
                 <h2
                   className="display text-3xl md:text-[2.4rem] font-semibold tracking-tight mb-4"
                   style={{ color: "var(--text-primary)" }}
@@ -72,7 +76,10 @@ export default function Applications() {
                 href={`/applications/${v.slug}`}
                 className="card p-6 md:p-7 h-full flex flex-col gap-2.5 group"
               >
-                <p className="eyebrow">{v.navLabel}</p>
+                <div className="flex items-center gap-2.5">
+                  <VerticalIcon slug={v.slug} />
+                  <p className="eyebrow">{v.navLabel}</p>
+                </div>
                 <p className="font-semibold text-lg" style={{ color: "var(--text-primary)" }}>
                   {v.tagline}
                 </p>

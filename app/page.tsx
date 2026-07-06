@@ -9,6 +9,7 @@ import { Prose, Cinema, Eyebrow, H2, Lead, Body, Strong } from "./components/kit
 import { MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "./lib/contact";
 import { PATENT_FAMILIES, PREPRINTS, VERTICALS } from "./lib/facts";
 import { VERTICALS_ORDERED } from "./lib/verticals";
+import VerticalIcon from "./components/VerticalIcon";
 
 const NAV_STEPS = [
   {
@@ -212,7 +213,10 @@ export default function Home() {
                 className="card p-6 md:p-7 h-full flex flex-col gap-2.5 group"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <p className="eyebrow">{v.navLabel}</p>
+                  <div className="flex items-center gap-2.5">
+                    <VerticalIcon slug={v.slug} />
+                    <p className="eyebrow">{v.navLabel}</p>
+                  </div>
                   {v.flagship && <span className="pill">Ships first</span>}
                 </div>
                 <p className="font-semibold text-lg" style={{ color: "var(--text-primary)" }}>

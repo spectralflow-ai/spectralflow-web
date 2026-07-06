@@ -2,12 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Reveal from "../../components/Reveal";
-import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../../components/kit";
+import { Prose, Plate, Eyebrow, H2, Lead, Body, PageHeader } from "../../components/kit";
+import VerticalGlyph from "../../components/VerticalGlyph";
 import {
   VERTICAL_SLUGS,
   VERTICALS_ORDERED,
   getVertical,
 } from "../../lib/verticals";
+
+const GLYPH_CAPTION: Record<string, string> = {
+  navigation: "Matching a magnetometer reading to the magnetic map to hold a true heading.",
+  "life-sciences": "One NV sensor, two reads: a molecule at the diamond surface, and radical noise inside a cell.",
+  semiconductors: "An NV sensor images the magnetic field of a buried current path, non-destructively.",
+  "quantum-computing": "An NV electron spin coupled to a neighbouring nuclear spin: a room-temperature register.",
+};
 
 export function generateStaticParams() {
   return VERTICAL_SLUGS.map((vertical) => ({ vertical }));
@@ -64,13 +72,20 @@ export default async function VerticalPage({
 
       <PageHeader eyebrow={v.eyebrow} title={v.title} intro={v.intro} />
 
-      {/* Beat 1 — teach the domain */}
+      {/* Beat 1 — teach the domain, with the signature engraving under it */}
       <Prose>
         <Reveal>
           <Eyebrow>{v.teach.eyebrow}</Eyebrow>
           <H2 className="max-w-3xl mb-6">{v.teach.h}</H2>
           <Lead className="max-w-3xl mb-5">{v.teach.lead}</Lead>
           <Body className="max-w-3xl">{v.teach.body}</Body>
+        </Reveal>
+        <Reveal delay={120}>
+          <div className="mt-12 max-w-3xl">
+            <Plate caption={GLYPH_CAPTION[v.slug]}>
+              <VerticalGlyph slug={v.slug} />
+            </Plate>
+          </div>
         </Reveal>
       </Prose>
 
