@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
@@ -127,6 +128,7 @@ export default function RootLayout({
         <Nav />
         <div id="main">{children}</div>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
