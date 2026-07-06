@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Page transitions — app-router template remounts on each navigation,
+ * Page transitions : app-router template remounts on each navigation,
  * giving every page a quiet, confident entrance: fade + lift + a touch
  * of blur clearing. Honors prefers-reduced-motion (framer-motion reads
  * it natively for transforms; we also shorten to opacity-only).

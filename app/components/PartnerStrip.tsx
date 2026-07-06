@@ -1,7 +1,7 @@
 import { Strip } from "./kit";
 
 /**
- * "In good company" — official logos only, monochrome ink, small and
+ * "In good company" : official logos only, monochrome ink, small and
  * spaced. NVIDIA: 1-colour black for-screen badge (sits directly on
  * porcelain, no white panel), wording "Member of NVIDIA Inception"
  * only. Other entities appear as text until their status is public

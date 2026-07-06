@@ -1,5 +1,5 @@
 /**
- * Vertical application pages — single source of truth for /applications/<slug>.
+ * Vertical application pages : single source of truth for /applications/<slug>.
  *
  * Discipline (see REBUILD_BRIEF_V4.md): pedagogy first, allusive on our approach,
  * NEVER the ruptures (no tensor / 4-chip / inference internals / recipes / perf
@@ -22,15 +22,15 @@ export type Vertical = {
   intro: string; // page intro + meta description seed
   metaTitle: string;
   metaDescription: string;
-  // Beat 1 — teach the domain (neutral, citable)
+  // Beat 1 : teach the domain (neutral, citable)
   teach: { eyebrow: string; h: string; lead: string; body: string };
-  // Beat 2 — why NV-diamond fits here
+  // Beat 2 : why NV-diamond fits here
   whyNV: { eyebrow: string; h: string; points: Beat[] };
-  // Beat 3 — our approach (allusive; mechanism, never recipe)
+  // Beat 3 : our approach (allusive; mechanism, never recipe)
   approach: { eyebrow: string; h: string; body: string };
-  // Beat 4 — proof / tools (optional live tool link)
+  // Beat 4 : proof / tools (optional live tool link)
   proof?: { eyebrow: string; h: string; body: string; cta?: { href: string; label: string } };
-  // Beat 5 — CTA copy
+  // Beat 5 : CTA copy
   cta: { h: string; body: string };
   faq: Faq[];
 };

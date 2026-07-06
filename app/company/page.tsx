@@ -166,7 +166,7 @@ export default function Company() {
         </div>
       </Prose>
 
-      {/* Registered entity — credibility */}
+      {/* Registered entity : credibility */}
       <Prose>
         <Reveal>
           <Eyebrow>Registered company</Eyebrow>

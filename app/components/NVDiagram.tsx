@@ -1,8 +1,8 @@
 /**
- * NVDiagram — a static ink engraving of the nitrogen-vacancy centre:
+ * NVDiagram : a static ink engraving of the nitrogen-vacancy centre:
  * a triangular lattice of carbon sites, one nitrogen substitution
  * (the one blue) beside one missing atom (the vacancy). No 3D, no
- * glow — a drawing, in the engraving language of the site.
+ * glow : a drawing, in the engraving language of the site.
  */
 
 const SPACING = 52;

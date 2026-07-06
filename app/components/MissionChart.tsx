@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * MissionChart — the living mission curve, the company's core claim
+ * MissionChart : the living mission curve, the company's core claim
  * drawn as an instrument trace inside a cinema moment. Inertial drift
  * grows without bound (warm, failing); the magnetically-aided track
  * stays bounded (the one blue). Draws itself when scrolled into view.
- * Axes are deliberately qualitative — no public quantitative specs.
+ * Axes are deliberately qualitative : no public quantitative specs.
  */
 
 import { motion, useInView } from "framer-motion";
@@ -16,8 +16,8 @@ const X0 = 50;
 const Y0 = 270;
 const W = 650;
 
-const INERTIAL = "#D08770"; // warm, muted — the failure mode
-const AIDED = "#6FA1FF"; // the cinema blue — the product
+const INERTIAL = "#D08770"; // warm, muted : the failure mode
+const AIDED = "#6FA1FF"; // the cinema blue : the product
 
 function driftPath(): string {
   // error ~ t^1.4, growing to near top
@@ -31,7 +31,7 @@ function driftPath(): string {
 }
 
 function boundedPath(): string {
-  // follows drift until the first useful fix (~45% — innovation gating:
+  // follows drift until the first useful fix (~45% : innovation gating:
   // a fix is only accepted once it improves on the estimate), then a
   // bounded sawtooth: error re-grows between fixes, resets at each one.
   const pts: string[] = [];

@@ -1,5 +1,5 @@
 /**
- * Public company facts — single source of truth for figures quoted
+ * Public company facts : single source of truth for figures quoted
  * across the site (pages, footer, metadata, OG image).
  *
  * PATENT_FAMILIES: update on each new filing. 15 as of 2026-07-02,

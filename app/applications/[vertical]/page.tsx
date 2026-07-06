@@ -72,7 +72,7 @@ export default async function VerticalPage({
 
       <PageHeader eyebrow={v.eyebrow} title={v.title} intro={v.intro} />
 
-      {/* Beat 1 — teach the domain, with the signature engraving under it */}
+      {/* Beat 1 : teach the domain, with the signature engraving under it */}
       <Prose>
         <Reveal>
           <Eyebrow>{v.teach.eyebrow}</Eyebrow>
@@ -89,7 +89,7 @@ export default async function VerticalPage({
         </Reveal>
       </Prose>
 
-      {/* Beat 2 — why NV-diamond */}
+      {/* Beat 2 : why NV-diamond */}
       <Prose>
         <Reveal>
           <Eyebrow>{v.whyNV.eyebrow}</Eyebrow>
@@ -109,7 +109,7 @@ export default async function VerticalPage({
         </div>
       </Prose>
 
-      {/* Beat 3 — our approach (allusive) */}
+      {/* Beat 3 : our approach (allusive) */}
       <Prose>
         <Reveal>
           <Eyebrow>{v.approach.eyebrow}</Eyebrow>
@@ -118,7 +118,7 @@ export default async function VerticalPage({
         </Reveal>
       </Prose>
 
-      {/* Beat 4 — proof / tools (optional) */}
+      {/* Beat 4 : proof / tools (optional) */}
       {v.proof && (
         <Prose>
           <Reveal>
@@ -134,7 +134,7 @@ export default async function VerticalPage({
         </Prose>
       )}
 
-      {/* FAQ — pedagogy + AI-citability */}
+      {/* FAQ : pedagogy + AI-citability */}
       <Prose>
         <Reveal>
           <Eyebrow>Questions</Eyebrow>
@@ -154,7 +154,7 @@ export default async function VerticalPage({
         </div>
       </Prose>
 
-      {/* Beat 5 — CTA */}
+      {/* Beat 5 : CTA */}
       <Prose>
         <Reveal>
           <H2 className="max-w-2xl mb-6">{v.cta.h}</H2>

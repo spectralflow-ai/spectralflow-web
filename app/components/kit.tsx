@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 
 /**
- * V4 section kit — every page is composed from five section types:
- *   Prose  — wide text on porcelain
- *   Cinema — scoped dark band where the product performs
- *   Plate  — an object presented on a quiet ground
- *   Strip  — logos / stats, hairline-bounded
- *   Steps  — scroll story (see Steps.tsx, client)
+ * V4 section kit : every page is composed from five section types:
+ *   Prose  : wide text on porcelain
+ *   Cinema : scoped dark band where the product performs
+ *   Plate  : an object presented on a quiet ground
+ *   Strip  : logos / stats, hairline-bounded
+ *   Steps  : scroll story (see Steps.tsx, client)
  * plus the type primitives below.
  */
 

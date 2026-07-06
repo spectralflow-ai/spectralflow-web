@@ -1,9 +1,9 @@
 "use client";
 
 /**
- * Steps — the kit's scroll story, stripped to the essentials.
+ * Steps : the kit's scroll story, stripped to the essentials.
  * A pinned narrative column on the left; on the right the steps pass
- * by as quiet numbered blocks separated by hairlines — no cards.
+ * by as quiet numbered blocks separated by hairlines : no cards.
  * Falls back to a simple stacked list on mobile.
  */
 

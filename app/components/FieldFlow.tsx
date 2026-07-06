@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * FieldFlow V4 — the engraving.
+ * FieldFlow V4 : the engraving.
  * The only living matter in the hero: field lines of a magnetic dipole,
  * drawn slowly as a very pale ink engraving across the full width,
- * BEHIND the typography. No object, no glow — a drawing that breathes.
+ * BEHIND the typography. No object, no glow : a drawing that breathes.
  *
  * Engineering notes: plain canvas 2D, devicePixelRatio capped at 2,
  * pauses when offscreen or tab hidden, skipped entirely under
@@ -15,8 +15,8 @@
 import { useEffect, useRef } from "react";
 
 const N_PARTICLES = 750;
-const SPEED = 17; // px/s at DPR 1 — slow, deliberate
-const TRAIL_FADE = 0.006; // per-frame erase — lines persist, the drawing builds
+const SPEED = 17; // px/s at DPR 1 : slow, deliberate
+const TRAIL_FADE = 0.006; // per-frame erase : lines persist, the drawing builds
 
 type P = { x: number; y: number; life: number; blue: boolean };
 
@@ -65,7 +65,7 @@ export default function FieldFlow() {
       parts.push({ x: 0, y: 0, life: 0, blue: false });
     }
 
-    // Dipole centred under the headline, moment tilted — the lines arc
+    // Dipole centred under the headline, moment tilted : the lines arc
     // across the full width of the page.
     function field(x: number, y: number): [number, number] {
       const cx = w * 0.5;
@@ -90,7 +90,7 @@ export default function FieldFlow() {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
 
-      // barely-there erase — the engraving accumulates, then breathes
+      // barely-there erase : the engraving accumulates, then breathes
       ctx!.globalCompositeOperation = "destination-out";
       ctx!.fillStyle = `rgba(0,0,0,${TRAIL_FADE})`;
       ctx!.fillRect(0, 0, w, h);

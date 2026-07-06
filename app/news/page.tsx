@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Editorial entries. Keep these qualitative and confirmed — no
+ * Editorial entries. Keep these qualitative and confirmed : no
  * unverified specs, clients, financials, pipeline names or grant
  * submissions (see REBUILD_BRIEF_V4.md).
  */

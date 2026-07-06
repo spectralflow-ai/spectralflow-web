@@ -1,5 +1,5 @@
 /**
- * VerticalGlyph — one signature ink-engraving per application vertical, in the
+ * VerticalGlyph : one signature ink-engraving per application vertical, in the
  * site's drawing language (see NVDiagram): thin strokes, dashed for the quantum
  * part, one rare blue. The nitrogen-vacancy sensor is drawn identically across
  * verticals (a blue point inside its dashed detection volume) so the four pages

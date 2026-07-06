@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 /**
- * Reveal — scroll-triggered fade + rise via framer-motion. Honours
+ * Reveal : scroll-triggered fade + rise via framer-motion. Honours
  * prefers-reduced-motion (renders statically). Same API as before, so call
  * sites are unchanged.
  */

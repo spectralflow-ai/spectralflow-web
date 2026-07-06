@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================
-   SpectralFlow — V4 "L'instrument"
+   SpectralFlow : V4 "L'instrument"
    Porcelain ground, deep ink, ONE blue used rarely. Giant sans
    display. No neon, no glows, no grids, no mono eyebrows.
    1.5% paper grain. Dark exists only as scoped cinema moments
@@ -32,7 +32,7 @@
   --radius: 16px;
 }
 
-/* Cinema moments — scoped dark. Components keep working because
+/* Cinema moments : scoped dark. Components keep working because
    they read the same custom properties. */
 .cinema {
   --background: #0B0F1A;
@@ -78,7 +78,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Paper grain — 1.5%: the porcelain is a material, not a void. */
+/* Paper grain : 1.5%: the porcelain is a material, not a void. */
 body::after {
   content: "";
   position: fixed;
@@ -102,7 +102,7 @@ body::after {
 }
 
 /* ----- Type ------------------------------------------------- */
-/* Quiet small caps — sans, never monospace. */
+/* Quiet small caps : sans, never monospace. */
 .eyebrow {
   font-size: 0.78rem;
   font-weight: 600;
@@ -111,7 +111,7 @@ body::after {
   color: var(--muted);
 }
 
-/* Figure captions and data labels — same voice, smaller. */
+/* Figure captions and data labels : same voice, smaller. */
 .figure-label {
   font-size: 0.7rem;
   font-weight: 600;
@@ -146,7 +146,7 @@ body::after {
   box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
 }
 
-/* Plate — an object presented on a quiet ground. */
+/* Plate : an object presented on a quiet ground. */
 .plate {
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -197,7 +197,7 @@ body::after {
 }
 .btn-ghost:active { transform: translateY(1px); }
 
-/* Arrow text link — the arrow leans on hover. */
+/* Arrow text link : the arrow leans on hover. */
 .textlink {
   display: inline-flex;
   align-items: center;

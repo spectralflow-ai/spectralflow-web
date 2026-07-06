@@ -1,6 +1,6 @@
 "use client";
 
-/** Animated number — counts up when scrolled into view. */
+/** Animated number : counts up when scrolled into view. */
 
 import { useInView, useMotionValue, useSpring } from "framer-motion";
 import { useEffect, useRef, useState } from "react";

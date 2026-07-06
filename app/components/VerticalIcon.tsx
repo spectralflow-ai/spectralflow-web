@@ -1,5 +1,5 @@
 /**
- * VerticalIcon — a tiny line-mark per vertical for the home chooser and the
+ * VerticalIcon : a tiny line-mark per vertical for the home chooser and the
  * applications hub cards. Same ink language as VerticalGlyph, one rare blue
  * point. A 24x24 frame. Static.
  */

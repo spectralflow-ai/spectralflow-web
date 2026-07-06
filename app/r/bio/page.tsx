@@ -129,7 +129,7 @@ export default function BioLeaveBehind() {
         </Reveal>
       </Prose>
 
-      {/* The opening — cinema band */}
+      {/* The opening : cinema band */}
       <Cinema>
         <Reveal>
           <Eyebrow>The opening</Eyebrow>

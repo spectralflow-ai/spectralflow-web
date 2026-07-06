@@ -37,7 +37,7 @@ const NAV_STEPS = [
 export default function Home() {
   return (
     <main>
-      {/* ===================== HERO — L'instrument =====================
+      {/* ===================== HERO : L'instrument =====================
           A near-nude typographic opening on porcelain. One living
           matter: the field-line engraving, drawing itself slowly
           behind the words. No object. The luxury is what we remove. */}
@@ -85,7 +85,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============== CINEMA — the product performs ==============
+      {/* ============== CINEMA : the product performs ==============
           The first scroll reveals the dark band: the living mission
           curve, where the claim becomes a trace. */}
       <Cinema>
