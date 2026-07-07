@@ -26,9 +26,9 @@ const POSTS = [
   {
     tag: "Milestone",
     date: "July 2026",
-    title: "The patent portfolio grows to fifteen families",
+    title: "The patent portfolio grows to sixteen families",
     excerpt:
-      "Three patent families were filed in ten days at the turn of June and July, bringing the portfolio to fifteen. One protects how the sensing architecture rejects the host platform's own magnetic interference on board; one covers the onboard inference layer that turns the cleaned signal into navigation data the system can vouch for; and one extends that attribution across networks of sensors. All were filed before any public disclosure, and the details stay confidential until publication.",
+      "Three patent families were filed in ten days at the turn of June and July, bringing the portfolio to sixteen. One protects how the sensing architecture rejects the host platform's own magnetic interference on board; one covers the onboard inference layer that turns the cleaned signal into navigation data the system can vouch for; and one extends that attribution across networks of sensors. All were filed before any public disclosure, and the details stay confidential until publication.",
   },
   {
     tag: "Research",
