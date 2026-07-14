@@ -18,6 +18,7 @@ import {
   type ContactResult,
   type World,
 } from "../lib/twin";
+import { MAILTO_TWIN_DEMO } from "../lib/contact";
 import { PROFILES, type ProfileKey } from "./profiles";
 import { getTopic, type TopicKey } from "./science";
 
@@ -595,6 +596,25 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 Review the flight
               </button>
             </div>
+            <p
+              style={{
+                color: "#9AA2B1",
+                fontSize: "0.85rem",
+                lineHeight: 1.55,
+                margin: "1.1rem 0 0",
+                maxWidth: 620,
+              }}
+            >
+              This mission is the public window of the twin. The full
+              engineering twin flies deeper scenarios, on your trajectories,
+              your platforms, your threat models.{" "}
+              <a
+                href={MAILTO_TWIN_DEMO}
+                style={{ color: BLUE, whiteSpace: "nowrap" }}
+              >
+                Request an expert twin session →
+              </a>
+            </p>
           </div>
         </motion.div>
       )}

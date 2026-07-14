@@ -99,9 +99,9 @@ export default function Home() {
           </Lead>
           <Body className="max-w-3xl mb-10">
             It is how we engineer, and how we intend to be measured: the twin&rsquo;s predictions
-            are the targets our hardware milestones will be judged against. The public layer is
-            open to everyone, live, in your browser; deeper expert sessions on the full twin are
-            granted on request.
+            are the targets our hardware milestones will be judged against. The mission demos are
+            its public window, open to everyone, live, in your browser; the full twin is flown in
+            expert sessions, granted on request.
           </Body>
         </Reveal>
         <Reveal delay={120}>

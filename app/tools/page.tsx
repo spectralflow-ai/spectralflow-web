@@ -7,7 +7,7 @@ import { MAILTO_TWIN_DEMO } from "../lib/contact";
 export const metadata: Metadata = {
   title: "Tools",
   description:
-    "SpectralFlow's tools: The Instrument (a free, in-browser navigation digital twin), SpectralFlow Studio (the SF-QSim design engine) and expert twin sessions. All figures model-derived.",
+    "SpectralFlow's tools: The Instrument (free in-browser mission demos on our navigation digital twin), SpectralFlow Studio (the SF-QSim design engine) and expert twin sessions. All figures model-derived.",
   alternates: { canonical: "/tools" },
 };
 
@@ -43,7 +43,7 @@ export default function Tools() {
             <br className="hidden md:block" /> Fly it in the browser.
           </>
         }
-        intro="We validate the sensor in software before it exists. Three ways in, from a free in-browser twin to the full engineering model, each honest about the fact that every figure is model-derived and no hardware exists yet."
+        intro="We validate the sensor in software before it exists. Three ways in, from free in-browser mission demos to the full engineering twin, each honest about the fact that every figure is model-derived and no hardware exists yet."
       />
 
       <Prose>

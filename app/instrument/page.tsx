@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Instrument from "./Instrument";
 import type { ProfileKey } from "./profiles";
+import { MAILTO_TWIN_DEMO } from "../lib/contact";
 
 export const metadata: Metadata = {
-  title: "The Instrument · live digital twin",
+  title: "The Instrument · mission demos",
   description:
-    "Fly the SF100 navigation chain end to end, computed live on our digital twin: self-calibrating, source-separating, honest about its own confidence. All figures model-derived.",
+    "Mission demos computed live by our navigation digital twin: fly the SF100 chain end to end, self-calibrating, source-separating, honest about its own confidence. All figures model-derived.",
 };
 
 export default async function InstrumentPage({
@@ -38,7 +39,7 @@ export default async function InstrumentPage({
                 className="figure-label"
                 style={{ color: "var(--accent)", margin: 0 }}
               >
-                The Instrument · live digital twin
+                The Instrument · mission demos
               </p>
             </div>
             <p
@@ -52,6 +53,22 @@ export default async function InstrumentPage({
               this stage.
             </p>
           </div>
+          <p
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "0.88rem",
+              lineHeight: 1.55,
+              margin: "0.4rem 0 0",
+              maxWidth: "52rem",
+            }}
+          >
+            These missions are the public window of our engineering digital
+            twin. The full twin flies deeper scenarios in{" "}
+            <a href={MAILTO_TWIN_DEMO} className="textlink">
+              expert sessions
+            </a>
+            .
+          </p>
         </div>
       </section>
       <section>
@@ -69,11 +86,19 @@ export default async function InstrumentPage({
               lineHeight: 1.6,
             }}
           >
-            This is the public layer of our engineering digital twin. The
-            design engine, the device design rules and the full estimation
-            stack are proprietary; the architecture and methods shown here are
-            covered by patent applications filed in 2026. All figures are
+            These mission demos are the public window of our engineering
+            digital twin: curated scenarios, computed live by the same engine
+            we design with. Expert sessions open the full twin on request, on
+            your trajectories, your platforms, your threat models. The design
+            engine, the device design rules and the full estimation stack are
+            proprietary; the architecture and methods shown here are covered
+            by patent applications filed in 2026. All figures are
             model-derived design targets. No hardware exists at this stage.
+          </p>
+          <p style={{ marginTop: "0.7rem" }}>
+            <a href={MAILTO_TWIN_DEMO} className="textlink">
+              Request an expert twin session <span>→</span>
+            </a>
           </p>
         </div>
       </section>

@@ -89,7 +89,8 @@ export default function Instrument({ initial }: { initial: ProfileKey | null }) 
         }}
       >
         <p className="figure-label" style={{ color: "var(--muted)", margin: 0 }}>
-          {PROFILES[profile].chooserTitle} · live on the digital twin
+          {PROFILES[profile].chooserTitle} · mission demo · computed live on
+          the twin
         </p>
         <button
           className="textlink"

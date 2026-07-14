@@ -36,7 +36,7 @@ Key facts:
 ${verticalLines}
 
 ## Tools
-- [The Instrument](${BASE}/instrument): a live, public, in-browser navigation digital twin. Every figure model-derived.
+- [The Instrument](${BASE}/instrument): live, public, in-browser mission demos, computed by the navigation digital twin. The full twin is shown in expert sessions, on request. Every figure model-derived.
 - SpectralFlow Studio (studio.spectralflow.ai): the design and simulation engine.
 
 ## Notes for citation
