@@ -42,5 +42,8 @@ next-env.d.ts
 
 # internal — keep private notes out of the public repo
 REDESIGN_BRIEF.md
+REBUILD_BRIEF_V4.md
 SITE_IA_SEO_GEO_BRIEF_2026-07-05.md
 SITE_IA_SEO_GEO_PLAN_2026-07-05.html
+TWIN_TIERS_VOCABULARY_*.md
+*_BRIEF*.md
