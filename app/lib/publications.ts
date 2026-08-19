@@ -6,10 +6,10 @@
  * (open access, CC-BY 4.0). House rule: never add an entry whose DOI
  * has not been checked to resolve.
  *
- * facts.ts derives PREPRINTS from this list, so the count on the site and
- * the DOIs a visitor can click can never disagree. Six records were found
- * publicly on Zenodo under the author's name; the founder previously
- * confirmed eight. Add the two missing DOIs here and the count follows.
+ * Deliberately unlisted elsewhere and never counted: these deposits are
+ * timestamped records of the method, not a publication record. They are
+ * reachable from /company#publications and llms.txt, nowhere louder.
+ * Adding or removing an entry changes nothing else on the site.
  */
 export type Publication = {
   title: string;

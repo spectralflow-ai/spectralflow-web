@@ -102,13 +102,6 @@ export default function Tools() {
           <Lead className="max-w-2xl mb-9">
             Start with the Instrument, then talk to us about an expert session on the full twin.
           </Lead>
-          <Lead className="max-w-2xl mb-9">
-            Our modelling work is public too: the preprints are timestamped and DOI-referenced.{" "}
-            <Link href="/company#publications" style={{ color: "var(--accent)" }}>
-              Read the preprints
-            </Link>
-            .
-          </Lead>
           <Link href="/contact" className="btn-primary">
             Get in touch <span>→</span>
           </Link>

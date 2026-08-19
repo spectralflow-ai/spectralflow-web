@@ -7,7 +7,7 @@ import Counter from "./components/Counter";
 import PartnerStrip from "./components/PartnerStrip";
 import { Prose, Cinema, Eyebrow, H2, Lead, Body } from "./components/kit";
 import { MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "./lib/contact";
-import { PATENT_FAMILIES, PREPRINTS, VERTICALS } from "./lib/facts";
+import { PATENT_FAMILIES, VERTICALS } from "./lib/facts";
 import { VERTICALS_ORDERED } from "./lib/verticals";
 import VerticalIcon from "./components/VerticalIcon";
 
@@ -258,12 +258,11 @@ export default function Home() {
             </a>
           </Reveal>
           <Reveal delay={120}>
-            <div className="grid grid-cols-2 gap-px rounded-xl overflow-hidden" style={{ background: "var(--border)" }}>
+            <div className="grid grid-cols-1 gap-px rounded-xl overflow-hidden" style={{ background: "var(--border)" }}>
               {[
+                { value: 100, suffix: "+", label: "Experimental anchors behind the engine", href: "/technology#registry" },
                 { value: PATENT_FAMILIES, suffix: "", label: "Patent families filed", href: "/company#patents" },
                 { value: VERTICALS, suffix: "", label: "Patented verticals", href: "/applications" },
-                { value: PREPRINTS, suffix: "", label: "Public preprints", href: "/company#publications" },
-                { value: 100, suffix: "+", label: "Experimental anchors behind the engine", href: "/technology#registry" },
               ].map((s) => (
                 <Link key={s.label} href={s.href} className="group">
                   <div className="p-7 h-full" style={{ background: "var(--surface)" }}>

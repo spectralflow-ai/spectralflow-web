@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
-import { PATENT_FAMILIES, PREPRINTS, VERTICALS } from "../lib/facts";
+import { PATENT_FAMILIES, VERTICALS } from "../lib/facts";
 import { PUBLICATIONS, doiUrl } from "../lib/publications";
 
 const DESCRIPTION = `SpectralFlow SAS: European, sovereign deep tech designing NV-diamond quantum sensors. Vision, sovereignty thesis, founder Alexandre Papa, NVIDIA Inception membership and ${PATENT_FAMILIES} patent families.`;
@@ -105,11 +105,12 @@ export default function Company() {
       {/* Publications */}
       <Prose id="publications">
         <Reveal>
-          <Eyebrow>Publications</Eyebrow>
-          <H2 className="max-w-3xl mb-6">Preprints, in the open.</H2>
+          <Eyebrow>The method, in the open</Eyebrow>
+          <H2 className="max-w-3xl mb-6">Read the reasoning.</H2>
           <Lead className="max-w-2xl mb-12">
-            Our modelling work is public before our hardware exists: timestamped, DOI-referenced,
-            citable. Read the reasoning, then check it against the literature.
+            We deposit the modelling work publicly as we go, timestamped and citable, so the
+            reasoning behind the engine can be checked against the literature rather than taken
+            on trust.
           </Lead>
         </Reveal>
         <div className="flex flex-col">
@@ -189,12 +190,11 @@ export default function Company() {
             </Body>
           </Reveal>
           <Reveal delay={120}>
-            <div className="grid grid-cols-2 gap-px rounded-xl overflow-hidden" style={{ background: "var(--border)" }}>
+            <div className="grid grid-cols-1 gap-px rounded-xl overflow-hidden" style={{ background: "var(--border)" }}>
               {[
                 { value: `${PATENT_FAMILIES}`, label: "Patent families filed" },
                 { value: `${VERTICALS}`, label: "Verticals covered" },
                 { value: "100+", label: "Experimental anchors behind the engine" },
-                { value: `${PREPRINTS}`, label: "Public preprints" },
               ].map((s) => (
                 <div key={s.label} className="p-7" style={{ background: "var(--surface)" }}>
                   <p
