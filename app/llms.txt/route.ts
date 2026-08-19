@@ -1,5 +1,6 @@
 import { VERTICALS_ORDERED } from "../lib/verticals";
-import { PATENT_FAMILIES, PREPRINTS, VERTICALS } from "../lib/facts";
+import { PATENT_FAMILIES, VERTICALS } from "../lib/facts";
+import { PUBLICATIONS } from "../lib/publications";
 
 // A curated map for AI crawlers / answer engines (llmstxt.org convention).
 // Served at /llms.txt. Built from the same sources of truth as the site.
@@ -12,16 +13,20 @@ export function GET() {
     (v) => `- [${v.navLabel}](${BASE}/applications/${v.slug}): ${v.tagline}`
   ).join("\n");
 
+  const publicationLines = PUBLICATIONS.map(
+    (p) => `- ${p.title} (${p.year}): https://doi.org/${p.doi}`
+  ).join("\n");
+
   const body = `# SpectralFlow
 
 > SpectralFlow (Spectral Flow SAS) is a European, sovereign deep-tech company designing NV-diamond (nitrogen-vacancy) quantum magnetometers that work out of the lab: room temperature, chip-scale and passive. Its first vertical is GPS-denied (magnetic) navigation.
 
-SpectralFlow designs quantum sensors around nitrogen-vacancy centres in diamond, an atom-scale magnetometer that operates at room temperature, emits nothing, and survives vibration and radiation. The company follows an "NVIDIA model": it designs the sensor, the firmware and the calibration, and outsources fabrication. Its work is validated in software first, through a physics engine benchmarked against a registry of more than 100 published experimental results, and an end-to-end navigation digital twin. Every published figure is model-derived; no hardware exists at this stage (pre-prototype).
+SpectralFlow designs quantum sensors around nitrogen-vacancy centres in diamond, an atom-scale magnetometer that operates at room temperature, emits nothing, and survives vibration and radiation. The company follows a fabless model: we keep the design, the firmware and the calibration, and we contract out fabrication. Its work is validated in software first, through a physics engine benchmarked against a registry of more than 100 published experimental results, and an end-to-end navigation digital twin. Every published figure is model-derived; no hardware exists at this stage (pre-prototype).
 
 Key facts:
 - ${PATENT_FAMILIES} patent families filed (before any public disclosure).
 - ${VERTICALS} patented application verticals.
-- ${PREPRINTS} public preprints on Zenodo (timestamped, DOI-referenced).
+- Public preprints on Zenodo, timestamped and DOI-referenced (listed under Publications below).
 - Member of NVIDIA Inception. Based in Villefranche-sur-Mer, France. Incorporated 2026.
 
 ## Core pages
@@ -35,7 +40,11 @@ Key facts:
 ## Applications (verticals)
 ${verticalLines}
 
+## Publications
+${publicationLines}
+
 ## Tools
+- [Tools](${BASE}/tools): how the three rungs fit together: the Instrument (free), SpectralFlow Studio (the engine) and expert twin sessions (under agreement).
 - [The Instrument](${BASE}/instrument): live, public, in-browser mission demos, computed by the navigation digital twin. The full twin is shown in expert sessions, on request. Every figure model-derived.
 - SpectralFlow Studio (studio.spectralflow.ai): the design and simulation engine.
 

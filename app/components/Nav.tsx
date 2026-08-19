@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 const LINKS = [
   { href: "/technology", label: "Technology" },
@@ -15,13 +16,53 @@ const LINKS = [
 export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [lastPath, setLastPath] = useState(pathname);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+
+  // Close the menu on any route change (covers back/forward navigation).
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    setOpen(false);
+  }
+
+  // Materialise the header once the page scrolls (rAF-throttled).
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setScrolled(window.scrollY > 16);
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // Escape dismisses the menu and returns focus to the toggle.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
     <header
-      className="sticky top-0 z-50 backdrop-blur-xl"
+      className={`sticky top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${scrolled ? "backdrop-blur-md" : ""}`}
       style={{
-        background: "rgba(250, 250, 248, 0.82)",
-        borderBottom: "1px solid var(--border)",
+        background: scrolled ? "rgba(250, 250, 248, 0.92)" : "transparent",
+        borderBottom: scrolled ? "1px solid var(--border)" : "1px solid transparent",
       }}
     >
       <nav className="max-w-6xl mx-auto px-6 md:px-8 h-16 flex items-center justify-between">
@@ -45,13 +86,21 @@ export default function Nav() {
                 key={l.href}
                 href={l.href}
                 aria-current={active ? "page" : undefined}
-                className="text-sm transition-colors"
-                style={{
-                  color: active ? "var(--text-primary)" : "var(--text-secondary)",
-                  fontWeight: active ? 600 : 400,
-                }}
+                className={`relative group text-sm font-medium transition-colors ${active ? "text-[color:var(--text-primary)]" : "text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"}`}
               >
                 {l.label}
+                <span
+                  aria-hidden
+                  className="absolute left-0 right-0 -bottom-1.5 h-px opacity-0 group-hover:opacity-30 transition-opacity"
+                  style={{ background: "var(--text-primary)" }}
+                />
+                {active && (
+                  <motion.span
+                    layoutId="nav-active"
+                    className="absolute left-0 right-0 -bottom-1.5 h-px"
+                    style={{ background: "var(--text-primary)" }}
+                  />
+                )}
               </Link>
             );
           })}
@@ -60,12 +109,13 @@ export default function Nav() {
             className="btn-ghost"
             style={{ padding: "0.45rem 1rem" }}
           >
-            Try the Instrument <span>→</span>
+            Fly the Instrument <span>→</span>
           </Link>
         </div>
 
         {/* Mobile toggle */}
         <button
+          ref={toggleRef}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="mobile-menu"
@@ -94,30 +144,26 @@ export default function Nav() {
         <div
           id="mobile-menu"
           className="md:hidden px-6 pb-4 flex flex-col gap-1"
-          style={{ borderTop: "1px solid var(--border)" }}
+          style={{ borderTop: "1px solid var(--border)", background: "var(--background)" }}
         >
+          <Link
+            href="/instrument"
+            onClick={() => setOpen(false)}
+            className="py-2.5 text-sm font-medium"
+            style={{ color: "var(--accent)" }}
+          >
+            Fly the Instrument →
+          </Link>
           {LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="py-2.5 text-sm"
-              style={{
-                color: pathname === l.href ? "var(--text-primary)" : "var(--text-secondary)",
-                fontWeight: pathname === l.href ? 600 : 400,
-              }}
+              className={`py-2.5 text-sm font-medium transition-colors ${pathname === l.href ? "text-[color:var(--text-primary)]" : "text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"}`}
             >
               {l.label}
             </Link>
           ))}
-          <Link
-            href="/instrument"
-            onClick={() => setOpen(false)}
-            className="py-2.5 text-sm"
-            style={{ color: "var(--accent)" }}
-          >
-            Try the Instrument →
-          </Link>
         </div>
       )}
     </header>

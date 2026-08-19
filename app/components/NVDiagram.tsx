@@ -51,8 +51,12 @@ export default function NVDiagram() {
       viewBox="0 0 410 250"
       className="w-full h-auto"
       role="img"
-      aria-label="A diamond lattice with one nitrogen atom beside one missing carbon: the nitrogen-vacancy centre."
+      aria-labelledby="nv-diagram-title"
     >
+      <title id="nv-diagram-title">
+        A diamond lattice with one nitrogen atom beside one missing carbon: the nitrogen-vacancy
+        centre.
+      </title>
       {/* bonds */}
       {sites.flatMap((s) =>
         neighbours(s).map((t) => (

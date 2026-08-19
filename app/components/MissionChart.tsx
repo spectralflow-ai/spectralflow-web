@@ -8,7 +8,7 @@
  * Axes are deliberately qualitative : no public quantitative specs.
  */
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 
 // Geometry: viewBox 0..720 x 0..300, origin bottom-left at (50, 270)
@@ -19,22 +19,22 @@ const W = 650;
 const INERTIAL = "#D08770"; // warm, muted : the failure mode
 const AIDED = "#6FA1FF"; // the cinema blue : the product
 
-function driftPath(): string {
+function driftPoints(): [number, number][] {
   // error ~ t^1.4, growing to near top
-  const pts: string[] = [];
+  const pts: [number, number][] = [];
   for (let i = 0; i <= 100; i++) {
     const x = X0 + (i / 100) * W;
     const y = Y0 - Math.pow(i / 100, 1.4) * 225;
-    pts.push(`${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`);
+    pts.push([x, y]);
   }
-  return pts.join(" ");
+  return pts;
 }
 
-function boundedPath(): string {
+function boundedPoints(): [number, number][] {
   // follows drift until the first useful fix (~45% : innovation gating:
   // a fix is only accepted once it improves on the estimate), then a
   // bounded sawtooth: error re-grows between fixes, resets at each one.
-  const pts: string[] = [];
+  const pts: [number, number][] = [];
   const fixLevel = Y0 - 72; // bottom of the bounded band
   let lastFix = 0.45;
   for (let i = 0; i <= 100; i++) {
@@ -48,17 +48,28 @@ function boundedPath(): string {
       const since = t - lastFix;
       y = fixLevel - since * 190 + Math.sin(t * 40) * 1.5;
     }
-    pts.push(`${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`);
+    pts.push([x, y]);
   }
-  return pts.join(" ");
+  return pts;
 }
 
-const DRIFT = driftPath();
-const BOUNDED = boundedPath();
+function toPath(pts: [number, number][]): string {
+  return pts
+    .map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`)
+    .join(" ");
+}
+
+const DRIFT_PTS = driftPoints();
+const BOUNDED_PTS = boundedPoints();
+const DRIFT = toPath(DRIFT_PTS);
+const BOUNDED = toPath(BOUNDED_PTS);
+const DRIFT_END = DRIFT_PTS[DRIFT_PTS.length - 1];
+const BOUNDED_END = BOUNDED_PTS[BOUNDED_PTS.length - 1];
 
 export default function MissionChart() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-15% 0px" });
+  const reduced = useReducedMotion();
 
   return (
     <div ref={ref} className="card p-6 md:p-8">
@@ -124,6 +135,42 @@ export default function MissionChart() {
           initial={{ pathLength: 0 }}
           animate={inView ? { pathLength: 1 } : {}}
           transition={{ duration: 2.4, ease: "easeInOut", delay: 0.25 }}
+        />
+
+        {/* endpoints : where each story ends. The drift point sits dim
+            and static; the aided point holds its bound, alive. */}
+        <motion.circle
+          cx={DRIFT_END[0]}
+          cy={DRIFT_END[1]}
+          r={3}
+          fill={INERTIAL}
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 0.5 } : {}}
+          transition={reduced ? { duration: 0 } : { delay: 2.4, duration: 0.6 }}
+        />
+        <motion.circle
+          cx={BOUNDED_END[0]}
+          cy={BOUNDED_END[1]}
+          r={6}
+          fill="none"
+          stroke="rgba(111,161,255,0.25)"
+          strokeWidth="1"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={reduced ? { duration: 0 } : { delay: 2.65, duration: 0.6 }}
+        />
+        <motion.circle
+          cx={BOUNDED_END[0]}
+          cy={BOUNDED_END[1]}
+          r={3}
+          fill={AIDED}
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={reduced ? { duration: 0 } : { delay: 2.65, duration: 0.6 }}
+          style={{
+            animation:
+              inView && !reduced ? "pulse-soft 2.2s ease-in-out 3.4s infinite" : undefined,
+          }}
         />
 
         {/* labels */}

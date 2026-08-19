@@ -5,7 +5,7 @@ import MissionChart from "./components/MissionChart";
 import Steps from "./components/Steps";
 import Counter from "./components/Counter";
 import PartnerStrip from "./components/PartnerStrip";
-import { Prose, Cinema, Eyebrow, H2, Lead, Body, Strong } from "./components/kit";
+import { Prose, Cinema, Eyebrow, H2, Lead, Body } from "./components/kit";
 import { MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "./lib/contact";
 import { PATENT_FAMILIES, PREPRINTS, VERTICALS } from "./lib/facts";
 import { VERTICALS_ORDERED } from "./lib/verticals";
@@ -15,7 +15,7 @@ const NAV_STEPS = [
   {
     n: "01",
     t: "Sense",
-    d: "The NV-diamond reads the Earth's ambient magnetic field: a fixed, global signature that no one can switch off.",
+    d: "The NV-diamond reads the magnetic signature written into the Earth's crust: a reference that varies from place to place and that no one can switch off.",
   },
   {
     n: "02",
@@ -25,12 +25,12 @@ const NAV_STEPS = [
   {
     n: "03",
     t: "Match",
-    d: "Onboard firmware matches the cleaned reading against a magnetic map to resolve position and heading in real time.",
+    d: "Onboard firmware matches the cleaned reading against a magnetic map to resolve position and heading.",
   },
   {
     n: "04",
     t: "Navigate",
-    d: "It continuously corrects inertial drift, holding a true course with no satellites, no emissions, nothing to jam.",
+    d: "It continuously corrects inertial drift, holding a true course with no satellites and no emissions.",
   },
 ];
 
@@ -41,35 +41,36 @@ export default function Home() {
           A near-nude typographic opening on porcelain. One living
           matter: the field-line engraving, drawing itself slowly
           behind the words. No object. The luxury is what we remove. */}
-      <section className="relative overflow-hidden min-h-[92vh] flex items-center">
+      <section className="relative overflow-hidden min-h-[92svh] flex items-center">
         <FieldFlow />
         <div className="relative z-10 w-full max-w-6xl mx-auto px-6 md:px-8 pb-20 text-center">
-          <Reveal>
+          <div className="hero-rise">
             <h1 className="display text-[2.9rem] leading-[1.02] sm:text-7xl lg:text-[6.4rem] font-semibold tracking-tight">
               Quantum sensing,
               <br />
               out of the lab<span style={{ color: "var(--accent)" }}>.</span>
             </h1>
-          </Reveal>
-          <Reveal delay={160}>
+          </div>
+          <div className="hero-rise" style={{ animationDelay: "160ms" }}>
             <p
               className="text-base md:text-lg leading-relaxed max-w-2xl mx-auto mt-8"
               style={{ color: "var(--text-secondary)" }}
             >
-              NV-diamond magnetometers designed for the vehicle, not the lab: room temperature,
-              chip-scale, sovereign.
+              NV-diamond magnetometers designed for the vehicle, not the lab. Room temperature.
+              Chip-scale. Sovereign.
             </p>
-          </Reveal>
-          <Reveal delay={280}>
+          </div>
+          <div className="hero-rise" style={{ animationDelay: "280ms" }}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-10">
-              <Link href="/technology" className="btn-primary">
+              <Link href="/instrument" className="btn-primary">
+                Fly the Instrument <span>→</span>
+              </Link>
+              <Link href="/technology" className="textlink">
                 Explore the technology <span>→</span>
               </Link>
-              <a href={MAILTO_DATASHEET} className="textlink">
-                Request the predictive datasheet <span>→</span>
-              </a>
             </div>
-          </Reveal>
+            <p className="figure-label mt-6">Live mission demos · every figure model-derived</p>
+          </div>
         </div>
 
         {/* Scroll cue */}
@@ -98,10 +99,9 @@ export default function Home() {
             model and the navigation filter. Every figure is honestly labelled as model-derived.
           </Lead>
           <Body className="max-w-3xl mb-10">
-            It is how we engineer, and how we intend to be measured: the twin&rsquo;s predictions
-            are the targets our hardware milestones will be judged against. The mission demos are
-            its public window, open to everyone, live, in your browser; the full twin is flown in
-            expert sessions, granted on request.
+            It is how we engineer: the twin sets the design targets our hardware programme works
+            towards. The mission demos are its public window, open to everyone, live, in your
+            browser; the full twin is flown in expert sessions, granted on request.
           </Body>
         </Reveal>
         <Reveal delay={120}>
@@ -132,10 +132,15 @@ export default function Home() {
           </Lead>
           <Body className="max-w-3xl mt-5">
             Magnetic navigation exists, but the magnetometers flying today are lab instruments
-            strapped onto vehicles, corrected by external compensation models dating back to 1953.
-            We design the sensor for the vehicle, not the lab.{" "}
-            <Strong>They compensate. We measure.</Strong>
+            strapped onto vehicles, corrected by external compensation models dating back to the 1950s.
+            We design the sensor for the vehicle, not the lab.
           </Body>
+          <p
+            className="display text-2xl md:text-3xl font-semibold tracking-tight mt-8"
+            style={{ color: "var(--text-primary)" }}
+          >
+            They compensate. We measure.
+          </p>
         </Reveal>
       </Prose>
 
@@ -150,7 +155,7 @@ export default function Home() {
               to a true heading.
             </>
           }
-          lead="Four stages, one chip-set. The stage in the middle is the one nobody else does on board."
+          lead="Four stages, one chip-set. Stage 02 is the one others leave to compensation models."
           steps={NAV_STEPS}
         />
       </Prose>
@@ -174,8 +179,8 @@ export default function Home() {
               d: "No cryogenics, no shielded room. The sensor runs warm and field-ready, where SQUIDs and cold atoms cannot go.",
             },
             {
-              t: "Vibration-immune",
-              d: "Solid-state diamond holds coherence under shock and motion, built for vehicles, hulls and launch loads.",
+              t: "Vibration-hard",
+              d: "Solid-state diamond holds coherence under shock and motion, ready for vehicles, hulls and launch loads.",
             },
             {
               t: "Passive & silent",
@@ -200,7 +205,7 @@ export default function Home() {
           <Eyebrow>One core, many worlds</Eyebrow>
           <H2 className="max-w-3xl mb-6">Find the world you came for.</H2>
           <Lead className="max-w-2xl mb-14">
-            Navigation ships first. The same sensing core reaches into life sciences, industry and
+            Navigation comes first. The same sensing core reaches into life sciences, industry and
             quantum information. Each vertical starts with the science of its domain, then our
             approach.
           </Lead>
@@ -217,7 +222,7 @@ export default function Home() {
                     <VerticalIcon slug={v.slug} />
                     <p className="eyebrow">{v.navLabel}</p>
                   </div>
-                  {v.flagship && <span className="pill">Ships first</span>}
+                  {v.flagship && <span className="pill">First vertical</span>}
                 </div>
                 <p className="font-semibold text-lg" style={{ color: "var(--text-primary)" }}>
                   {v.tagline}
@@ -255,17 +260,19 @@ export default function Home() {
           <Reveal delay={120}>
             <div className="grid grid-cols-2 gap-px rounded-xl overflow-hidden" style={{ background: "var(--border)" }}>
               {[
-                { value: PATENT_FAMILIES, suffix: "", label: "Patent families filed" },
-                { value: VERTICALS, suffix: "", label: "Patented verticals" },
-                { value: PREPRINTS, suffix: "", label: "Public preprints" },
-                { value: 100, suffix: "+", label: "Experimental anchors behind the engine" },
+                { value: PATENT_FAMILIES, suffix: "", label: "Patent families filed", href: "/company#patents" },
+                { value: VERTICALS, suffix: "", label: "Patented verticals", href: "/applications" },
+                { value: PREPRINTS, suffix: "", label: "Public preprints", href: "/company#publications" },
+                { value: 100, suffix: "+", label: "Experimental anchors behind the engine", href: "/technology#registry" },
               ].map((s) => (
-                <div key={s.label} className="p-7" style={{ background: "var(--surface)" }}>
-                  <p className="text-4xl font-semibold display" style={{ color: "var(--accent)" }}>
-                    <Counter value={s.value} suffix={s.suffix} />
-                  </p>
-                  <p className="figure-label mt-2">{s.label}</p>
-                </div>
+                <Link key={s.label} href={s.href} className="group">
+                  <div className="p-7 h-full" style={{ background: "var(--surface)" }}>
+                    <p className="text-4xl font-semibold display tabular-nums" style={{ color: "var(--text-primary)" }}>
+                      <Counter value={s.value} suffix={s.suffix} />
+                    </p>
+                    <p className="figure-label mt-2 group-hover:underline">{s.label}</p>
+                  </div>
+                </Link>
               ))}
             </div>
           </Reveal>
@@ -278,7 +285,8 @@ export default function Home() {
           <H2 className="max-w-3xl mb-6">European, sovereign deep tech.</H2>
           <Lead className="max-w-2xl mb-9">
             We design the sensor, the firmware and the calibration. And we take quantum out of the
-            lab. We&rsquo;re courting partners and investors who want in early.
+            lab. We&rsquo;re looking for partners and investors who move early, while the design
+            choices are still open.
           </Lead>
           <div className="flex flex-col sm:flex-row gap-3.5">
             <Link href="/contact" className="btn-primary">

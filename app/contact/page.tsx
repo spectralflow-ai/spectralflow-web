@@ -4,9 +4,17 @@ import ContactForm from "../components/ContactForm";
 import { Prose, Eyebrow, H2, Body, PageHeader } from "../components/kit";
 import { CONTACT_EMAIL, MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "../lib/contact";
 
+const DESCRIPTION = `Talk to SpectralFlow about NV-diamond quantum sensors, partnerships and investment. Email ${CONTACT_EMAIL}.`;
+
 export const metadata: Metadata = {
   title: "Contact",
-  description: `Talk to SpectralFlow about NV-diamond quantum sensors, partnerships and investment. Email ${CONTACT_EMAIL}.`,
+  description: DESCRIPTION,
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact · SpectralFlow",
+    description: DESCRIPTION,
+    url: "/contact",
+  },
 };
 
 export default function Contact() {
@@ -18,7 +26,7 @@ export default function Contact() {
         intro={
           <>
             Investors, partners and prospective collaborators: we&rsquo;d like to hear from you.
-            We&rsquo;re courting early backers as we scale NV-diamond quantum sensing.
+            We&rsquo;re opening conversations with early backers as we develop NV-diamond quantum sensing.
           </>
         }
       />

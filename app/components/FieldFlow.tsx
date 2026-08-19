@@ -7,37 +7,58 @@
  * BEHIND the typography. No object, no glow : a drawing that breathes.
  *
  * Engineering notes: plain canvas 2D, devicePixelRatio capped at 2,
- * pauses when offscreen or tab hidden, skipped entirely under
- * prefers-reduced-motion or on small screens (the typography stands
- * alone there).
+ * pauses when offscreen or tab hidden. The drawing is pre-warmed with
+ * synchronous, time-boxed steps so the fade-in reveals an engraving
+ * already in progress. Small screens and prefers-reduced-motion get a
+ * one-shot static engraving : no rAF loop, zero battery cost. On fine
+ * pointers, strokes near the cursor bite a little deeper.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const N_PARTICLES = 750;
 const SPEED = 17; // px/s at DPR 1 : slow, deliberate
 const TRAIL_FADE = 0.006; // per-frame erase : lines persist, the drawing builds
+const PREWARM_STEPS = 400; // animated : the reveal finds a drawing in progress
+const PREWARM_BUDGET_MS = 80; // hard cap : a large DPR-2 canvas stops early
+const STATIC_STEPS = 900; // static : the finished engraving, drawn once
+const STATIC_BUDGET_MS = 200;
+const CURSOR_RADIUS = 140; // px : reach of the cursor's extra ink
 
 type P = { x: number; y: number; life: number; blue: boolean };
 
 export default function FieldFlow() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pointerRef = useRef<{ x: number; y: number } | null>(null);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const small = window.matchMedia("(max-width: 767px)").matches;
-    if (reduced || small) return;
+    // Live media queries : react to a reduced-motion flip or the 768px
+    // boundary without a reload (the change listener re-runs the effect).
+    const reducedMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const smallMq = window.matchMedia("(max-width: 767px)");
+    const onMqChange = () => setTick((t) => t + 1);
+    reducedMq.addEventListener("change", onMqChange);
+    smallMq.addEventListener("change", onMqChange);
+    const removeMqListeners = () => {
+      reducedMq.removeEventListener("change", onMqChange);
+      smallMq.removeEventListener("change", onMqChange);
+    };
 
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: true });
-    if (!ctx) return;
+    const ctx = canvas ? canvas.getContext("2d", { alpha: true }) : null;
+    if (!canvas || !ctx) return removeMqListeners;
+
+    // Static mode : small screens and reduced motion get the engraving
+    // pre-rendered once, then no animation loop at all.
+    const staticMode = reducedMq.matches || smallMq.matches;
 
     let w = 0;
     let h = 0;
     let dpr = 1;
     let raf = 0;
     let running = true;
+    let intersecting = false;
     let last = performance.now();
 
     const parts: P[] = [];
@@ -85,17 +106,16 @@ export default function FieldFlow() {
       return [bx / mag, by / mag];
     }
 
-    function frame(now: number) {
-      if (!running) return;
-      const dt = Math.min((now - last) / 1000, 0.05);
-      last = now;
-
+    // One integration step : erase pass + every particle advances and
+    // leaves its segment. Shared by the live loop and the pre-warm.
+    function advance(dt: number) {
       // barely-there erase : the engraving accumulates, then breathes
       ctx!.globalCompositeOperation = "destination-out";
       ctx!.fillStyle = `rgba(0,0,0,${TRAIL_FADE})`;
       ctx!.fillRect(0, 0, w, h);
       ctx!.globalCompositeOperation = "source-over";
 
+      const ptr = pointerRef.current;
       for (const p of parts) {
         if (p.life <= 0 || p.x < -20 || p.x > w + 20 || p.y < -20 || p.y > h + 20) {
           seed(p);
@@ -107,9 +127,16 @@ export default function FieldFlow() {
 
         // fine ink hairlines, fainter far from the centre
         const d = Math.hypot(p.x - w * 0.5, p.y - h * 0.56) / Math.min(w, h);
-        const a = Math.max(0.015, 0.085 - d * 0.06);
+        let a = Math.max(0.015, 0.085 - d * 0.06);
+        if (ptr) {
+          // strokes near a fine pointer bite a little deeper
+          const pd = Math.hypot(p.x - ptr.x, p.y - ptr.y);
+          if (pd < CURSOR_RADIUS) {
+            a = Math.min(a * (1 + 0.9 * (1 - pd / CURSOR_RADIUS) ** 2), 0.16);
+          }
+        }
         ctx!.strokeStyle = p.blue
-          ? `rgba(11, 95, 255, ${a * 1.6})`
+          ? `rgba(11, 95, 255, ${Math.min(a * 1.6, 0.16)})`
           : `rgba(11, 15, 26, ${a})`;
         ctx!.lineWidth = 1;
         ctx!.beginPath();
@@ -121,21 +148,74 @@ export default function FieldFlow() {
         p.y = ny;
         p.life -= dt;
       }
-      raf = requestAnimationFrame(frame);
+    }
+
+    // Synchronous pre-warm, time-boxed so it can never stall the main
+    // thread visibly : on slow devices or big canvases it simply runs
+    // fewer steps and the drawing finishes maturing live (or stays a
+    // slightly younger engraving in static mode).
+    function prewarm(steps: number, budgetMs: number) {
+      const t0 = performance.now();
+      for (let i = 0; i < steps; i++) {
+        advance(0.016);
+        if (performance.now() - t0 > budgetMs) break;
+      }
     }
 
     resize();
     parts.forEach(seed);
+
+    if (staticMode) {
+      prewarm(STATIC_STEPS, STATIC_BUDGET_MS);
+      const onStaticResize = () => {
+        resize();
+        parts.forEach(seed);
+        prewarm(STATIC_STEPS, STATIC_BUDGET_MS);
+      };
+      window.addEventListener("resize", onStaticResize);
+      return () => {
+        window.removeEventListener("resize", onStaticResize);
+        removeMqListeners();
+      };
+    }
+
+    prewarm(PREWARM_STEPS, PREWARM_BUDGET_MS);
+
+    function frame(now: number) {
+      if (!running) return;
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      advance(dt);
+      raf = requestAnimationFrame(frame);
+    }
+
+    last = performance.now();
     raf = requestAnimationFrame(frame);
 
     const onResize = () => resize();
     window.addEventListener("resize", onResize);
 
+    // Cursor proximity : fine pointers only (reduced motion never gets
+    // here), position kept in a ref, no re-renders.
+    const parent = canvas.parentElement;
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
+    const onPointerMove = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      pointerRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+    const onPointerLeave = () => {
+      pointerRef.current = null;
+    };
+    if (parent && finePointer) {
+      parent.addEventListener("pointermove", onPointerMove);
+      parent.addEventListener("pointerleave", onPointerLeave);
+    }
+
     const onVis = () => {
       if (document.hidden) {
         running = false;
         cancelAnimationFrame(raf);
-      } else if (!running) {
+      } else if (!running && intersecting) {
         running = true;
         last = performance.now();
         raf = requestAnimationFrame(frame);
@@ -145,6 +225,7 @@ export default function FieldFlow() {
 
     const io = new IntersectionObserver(
       ([e]) => {
+        intersecting = e.isIntersecting;
         if (!e.isIntersecting && running) {
           running = false;
           cancelAnimationFrame(raf);
@@ -162,10 +243,16 @@ export default function FieldFlow() {
       running = false;
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
+      if (parent && finePointer) {
+        parent.removeEventListener("pointermove", onPointerMove);
+        parent.removeEventListener("pointerleave", onPointerLeave);
+      }
+      pointerRef.current = null;
       document.removeEventListener("visibilitychange", onVis);
       io.disconnect();
+      removeMqListeners();
     };
-  }, []);
+  }, [tick]);
 
   return (
     <canvas

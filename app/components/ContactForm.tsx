@@ -27,6 +27,7 @@ export default function ContactForm() {
       <input
         className={field}
         style={fieldStyle}
+        aria-label="Name"
         placeholder="Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
@@ -35,6 +36,7 @@ export default function ContactForm() {
       <input
         className={field}
         style={fieldStyle}
+        aria-label="Organisation"
         placeholder="Organisation"
         value={org}
         onChange={(e) => setOrg(e.target.value)}
@@ -42,6 +44,7 @@ export default function ContactForm() {
       <textarea
         className={field}
         style={{ ...fieldStyle, resize: "vertical", minHeight: 120 }}
+        aria-label="Message"
         placeholder="How can we help?"
         value={message}
         onChange={(e) => setMessage(e.target.value)}

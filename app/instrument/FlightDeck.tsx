@@ -8,11 +8,12 @@
  * All figures model-derived.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, MotionConfig } from "framer-motion";
 import {
   fetchAblation,
   fetchContact,
   fetchWorld,
+  TWIN_OFFLINE,
   type AblationResult,
   type Attack,
   type ContactResult,
@@ -46,6 +47,40 @@ function fmtClock(t: number): string {
 
 function fmtM(v: number): string {
   return v >= 950 ? `${(v / 1000).toFixed(1)} km` : `${Math.round(v)} m`;
+}
+
+/** Renders a refs string, linking arXiv ids and DOIs to their public
+ *  records. Everything else (books, patent mentions) stays plain text. */
+function RefLinks({ text }: { text: string }) {
+  const parts = text.split(/(arXiv:\d{4}\.\d{4,5}|10\.\d{4,}\/[^\s;,)]+)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        const arxiv = part.match(/^arXiv:(\d{4}\.\d{4,5})$/);
+        const href = arxiv
+          ? `https://arxiv.org/abs/${arxiv[1]}`
+          : /^10\.\d{4,}\//.test(part)
+            ? `https://doi.org/${part}`
+            : null;
+        if (!href) return part;
+        return (
+          <a
+            key={i}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "inherit",
+              textDecoration: "underline",
+              textUnderlineOffset: "2px",
+            }}
+          >
+            {part}
+          </a>
+        );
+      })}
+    </>
+  );
 }
 
 /** Linear interpolation of a sampled curve at mission time t. */
@@ -187,8 +222,12 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
     [t, P]
   );
   const landed = t >= T_END && !!world;
+  // one of the three overlays (cold open, debrief, science modal) is up:
+  // the deck behind it leaves the tab order via `inert`.
+  const overlayOpen = !started || (landed && !reviewing) || topic !== null;
 
   return (
+    <MotionConfig reducedMotion="user">
     <div
       className="cinema deck-shell"
       style={{
@@ -204,6 +243,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       {/* top bar: clock, timeline, transport */}
       <div
         className="deck-top"
+        inert={overlayOpen}
         style={{
           display: "grid",
           gridTemplateColumns: "auto 1fr auto",
@@ -274,6 +314,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       {!world && (
         <div
           className="card"
+          inert={overlayOpen}
           style={{
             padding: "0.8rem 1rem",
             display: "flex",
@@ -285,16 +326,19 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           {fetchError ? (
             <>
               <span style={{ color: "#D8A08C", fontSize: "0.9rem" }}>
-                The twin is unreachable, probably a network hiccup on your
-                side or ours.
+                {TWIN_OFFLINE
+                  ? "The twin compute service is offline on our side. The mission demos will be back shortly."
+                  : "The twin is unreachable, probably a network hiccup on your side or ours."}
               </span>
-              <button
-                className="btn-ghost"
-                style={{ padding: "0.4rem 0.9rem" }}
-                onClick={() => setRetryNonce((n) => n + 1)}
-              >
-                Retry
-              </button>
+              {!TWIN_OFFLINE && (
+                <button
+                  className="btn-ghost"
+                  style={{ padding: "0.4rem 0.9rem" }}
+                  onClick={() => setRetryNonce((n) => n + 1)}
+                >
+                  Retry
+                </button>
+              )}
             </>
           ) : (
             <span className="figure-label" style={{ color: MUTED }}>
@@ -305,7 +349,11 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       )}
 
       {/* the two living panels */}
-      <div className="deck-panels" style={{ flex: 1, minHeight: 0 }}>
+      <div
+        className="deck-panels"
+        inert={overlayOpen}
+        style={{ flex: 1, minHeight: 0 }}
+      >
         <MapPanel
           world={world}
           t={t}
@@ -318,7 +366,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       </div>
 
       {/* bottom strip: console | mission log */}
-      <div className="deck-bottom">
+      <div className="deck-bottom" inert={overlayOpen}>
         <div
           className="card"
           style={{
@@ -440,6 +488,9 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       {/* cold open */}
       {!started && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="deck-coldopen-title"
           style={{
             position: "absolute",
             inset: 0,
@@ -454,6 +505,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
         >
           <div style={{ maxWidth: 560, textAlign: "center" }}>
             <h2
+              id="deck-coldopen-title"
               style={{
                 fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
                 fontWeight: 650,
@@ -490,6 +542,9 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       {/* debrief overlay */}
       {t >= T_END && world && !reviewing && (
         <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="deck-debrief-title"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           style={{
@@ -512,7 +567,11 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
               overflowY: "auto",
             }}
           >
-            <div className="figure-label" style={{ color: BLUE }}>
+            <div
+              id="deck-debrief-title"
+              className="figure-label"
+              style={{ color: BLUE }}
+            >
               Mission debrief · every figure model-derived
             </div>
             <p
@@ -583,7 +642,10 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 alignItems: "center",
               }}
             >
-              <button className="btn-primary" onClick={reset}>
+              <a href={MAILTO_TWIN_DEMO} className="btn-primary">
+                Request an expert twin session <span>→</span>
+              </a>
+              <button className="btn-ghost" onClick={reset}>
                 Replay this world
               </button>
               <button className="btn-ghost" onClick={newWorld}>
@@ -607,13 +669,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             >
               This mission is the public window of the twin. The full
               engineering twin flies deeper scenarios, on your trajectories,
-              your platforms, your threat models.{" "}
-              <a
-                href={MAILTO_TWIN_DEMO}
-                style={{ color: BLUE, whiteSpace: "nowrap" }}
-              >
-                Request an expert twin session →
-              </a>
+              your platforms, your threat models.
             </p>
           </div>
         </motion.div>
@@ -658,6 +714,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
         }
       `}</style>
     </div>
+    </MotionConfig>
   );
 }
 
@@ -676,7 +733,7 @@ const LEVEL_META: Record<
     label: "+ SF100 tensor array · separation & self-check",
     color: BLUE,
   },
-  full: { label: "+ fusion observers · the product", color: TEAL },
+  full: { label: "+ fusion observers · the full chain", color: TEAL },
 };
 
 function Waterfall({ abl }: { abl: AblationResult | null }) {
@@ -754,7 +811,7 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
         median position error, back half of the flight · the nominal leg of
         this same world, each level fully recomputed · your injected events
         are scored in the mission metrics above, where only the full
-        product can certify what it accepts
+        chain can certify what it accepts
       </p>
 
       <div className="figure-label" style={{ margin: "0.9rem 0 0.5rem" }}>
@@ -762,7 +819,7 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         <SwapBar
-          label="conventional vector array · 200 pT/√Hz, thermal drift"
+          label="conventional vector array · fluxgate class, thermal drift"
           value={abl.envelope.conventional.median_back_m}
           reference={abl.envelope.conventional.median_back_m}
           color="#C89B6B"
@@ -1003,7 +1060,17 @@ function ScienceModal({
 }) {
   const t = getTopic(k, profile);
   const [deep, setDeep] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   useEffect(() => setDeep(false), [k]);
+  // dialog focus: move it to the card on mount, hand it back on close
+  useEffect(() => {
+    const trigger =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    cardRef.current?.focus();
+    return () => trigger?.focus();
+  }, []);
   useEffect(() => {
     const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", h);
@@ -1025,6 +1092,11 @@ function ScienceModal({
       }}
     >
       <motion.div
+        ref={cardRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="deck-science-title"
+        tabIndex={-1}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         onClick={(e) => e.stopPropagation()}
@@ -1047,6 +1119,7 @@ function ScienceModal({
           }}
         >
           <p
+            id="deck-science-title"
             style={{
               color: TXT,
               fontWeight: 600,
@@ -1105,7 +1178,7 @@ function ScienceModal({
                 marginTop: "0.8rem",
               }}
             >
-              References: {t.refs}
+              References: <RefLinks text={t.refs} />
             </p>
           </div>
         ) : (

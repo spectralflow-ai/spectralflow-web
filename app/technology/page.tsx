@@ -3,12 +3,19 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import NVDiagram from "../components/NVDiagram";
 import { Prose, Plate, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
-import { MAILTO_TWIN_DEMO } from "../lib/contact";
+
+const DESCRIPTION =
+  "The NV-diamond principle and SpectralFlow's proprietary stack: SF-QSim (the simulation engine), SF-CORE (the fabrication process in development), the SF-100 sensor family and the navigation digital twin.";
 
 export const metadata: Metadata = {
   title: "Technology",
-  description:
-    "The NV-diamond principle and SpectralFlow's three proprietary bricks: SF-QSim (the simulation engine), SF-CORE (fab process) and the SF-100 sensor family.",
+  description: DESCRIPTION,
+  alternates: { canonical: "/technology" },
+  openGraph: {
+    title: "Technology · SpectralFlow",
+    description: DESCRIPTION,
+    url: "/technology",
+  },
 };
 
 const BRICKS = [
@@ -26,12 +33,12 @@ const BRICKS = [
   {
     tag: "SF-100 · the sensor family",
     title: "A sensor head designed for the vehicle, not the lab",
-    body: "Diamond, integrated optics and adaptive firmware packaged into a rugged, low-power sensor family, with on-board rejection of the host platform's own magnetic interference so the measurement stays true under way. We follow the “NVIDIA model”: sell the design, firmware and calibration; outsource the fab.",
+    body: "We are designing a rugged, low-power sensor family: diamond, integrated optics and adaptive firmware in a single head, with on-board rejection of the host platform's own magnetic interference so the measurement stays true under way. The model is fabless: we keep the design, the firmware and the calibration, and we contract out fabrication.",
   },
   {
     tag: "The digital twin",
     title: "The sensor flies before it exists",
-    body: "An end-to-end navigation digital twin: synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; hardware milestones will be judged against the twin's own predictions. The public layer, The Instrument, runs live in your browser; deeper expert sessions are granted on request.",
+    body: "An end-to-end navigation digital twin: synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; as hardware measurements arrive, they feed back into the model and sharpen it. The Instrument, our public mission demos, runs live in your browser. The twin itself is opened in expert sessions, granted on request.",
     cta: {
       href: "/instrument",
       label: "Fly the Instrument",
@@ -50,7 +57,7 @@ export default function Technology() {
             <br className="hidden md:block" /> manufacturable.
           </>
         }
-        intro="A nitrogen-vacancy centre in diamond is an atom-scale magnetometer that works in ambient conditions. SpectralFlow turns that physics into a product through three proprietary bricks."
+        intro="A nitrogen-vacancy centre in diamond is an atom-scale magnetometer that works in ambient conditions. SpectralFlow turns that physics into a product through a proprietary stack: simulation, process and sensor, bound together by a digital twin."
       />
 
       {/* NV principle */}
@@ -82,7 +89,7 @@ export default function Technology() {
       {/* Three bricks */}
       <Prose>
         <Reveal>
-          <Eyebrow>Three proprietary bricks</Eyebrow>
+          <Eyebrow>The proprietary stack</Eyebrow>
           <H2 className="max-w-3xl mb-6">From simulation to sensor head.</H2>
           <Lead className="max-w-2xl mb-14">
             Each brick is independently defensible, and together they form a vertically integrated
@@ -101,16 +108,42 @@ export default function Technology() {
                 </div>
                 <div>
                   <Body>{b.body}</Body>
-                  {b.cta && (
-                    <a href={b.cta.href} className="textlink mt-4">
-                      {b.cta.label} <span>→</span>
-                    </a>
-                  )}
+                  {b.cta &&
+                    (b.cta.href.startsWith("/") ? (
+                      <Link href={b.cta.href} className="textlink mt-4">
+                        {b.cta.label} <span>→</span>
+                      </Link>
+                    ) : (
+                      <a href={b.cta.href} className="textlink mt-4">
+                        {b.cta.label} <span>→</span>
+                      </a>
+                    ))}
                 </div>
               </div>
             </Reveal>
           ))}
         </div>
+      </Prose>
+
+      {/* Anchor registry */}
+      <Prose id="registry">
+        <Reveal>
+          <Eyebrow>The anchor registry</Eyebrow>
+          <H2 className="max-w-3xl mb-6">
+            When the model and an experiment disagree, the experiment wins.
+          </H2>
+          <Lead className="max-w-3xl">
+            Every coherence prediction SF-QSim makes is benchmarked against a registry of more than
+            100 published experimental results, curated anchor by anchor and re-checked as the
+            model evolves. When a prediction and a published measurement disagree, the model
+            changes.
+          </Lead>
+        </Reveal>
+        <Reveal delay={120}>
+          <Link href="/news" className="textlink mt-8">
+            How the registry keeps the engine honest <span>→</span>
+          </Link>
+        </Reveal>
       </Prose>
 
       {/* Comparison */}
@@ -129,10 +162,14 @@ export default function Technology() {
               <thead>
                 <tr>
                   <th
+                    scope="col"
                     className="p-4 md:p-5"
                     style={{ borderBottom: "1px solid var(--border)" }}
-                  />
+                  >
+                    <span className="sr-only">Criterion</span>
+                  </th>
                   <th
+                    scope="col"
                     className="p-4 md:p-5 font-semibold text-sm"
                     style={{
                       color: "var(--accent)",
@@ -143,12 +180,14 @@ export default function Technology() {
                     NV-diamond
                   </th>
                   <th
+                    scope="col"
                     className="p-4 md:p-5 font-semibold text-sm"
                     style={{ color: "var(--text-secondary)", borderBottom: "1px solid var(--border)" }}
                   >
                     SQUID
                   </th>
                   <th
+                    scope="col"
                     className="p-4 md:p-5 font-semibold text-sm"
                     style={{ color: "var(--text-secondary)", borderBottom: "1px solid var(--border)" }}
                   >
@@ -161,16 +200,16 @@ export default function Technology() {
                   { c: "Operating conditions", nv: "Room temperature", b: "Cryogenic (liquid helium)", d: "Vacuum + laser cooling" },
                   { c: "Size, weight & power", nv: "Chip-scale, low power", b: "Bulky + cooling plant", d: "Bench-scale apparatus" },
                   { c: "Vibration & shock", nv: "Solid-state, robust", b: "Shielding-sensitive", d: "Vibration-sensitive" },
-                  { c: "Emission", nv: "Passive, no RF", b: "Passive", d: "Active (laser)" },
-                  { c: "Field readiness", nv: "Field-ready", b: "Fixed installations", d: "Mostly laboratory" },
+                  { c: "Field readiness", nv: "Designed for the field", b: "Fixed installations", d: "Mostly laboratory" },
                 ].map((row) => (
                   <tr key={row.c}>
-                    <td
+                    <th
+                      scope="row"
                       className="p-4 md:p-5 text-sm font-medium"
                       style={{ color: "var(--text-primary)", borderBottom: "1px solid var(--border)" }}
                     >
                       {row.c}
-                    </td>
+                    </th>
                     <td
                       className="p-4 md:p-5 text-sm"
                       style={{
@@ -205,7 +244,7 @@ export default function Technology() {
       {/* Why it matters */}
       <Prose>
         <Reveal>
-          <Eyebrow>Why room-temperature matters</Eyebrow>
+          <Eyebrow>Why room temperature matters</Eyebrow>
           <H2 className="max-w-3xl mb-12">The constraints competitors live with, removed.</H2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8">
@@ -219,8 +258,8 @@ export default function Technology() {
               d: "Cold-atom interferometers are exquisite but delicate. Solid-state diamond holds coherence under shock, motion and launch loads.",
             },
             {
-              t: "No emission",
-              d: "The sensor reads the ambient field passively. It radiates nothing, so it cannot be detected, jammed or spoofed.",
+              t: "No signal to jam",
+              d: "The sensor listens to the ambient magnetic field. Unlike radar or satellite navigation, it does not depend on a transmitted signal: there is nothing to jam and nothing to spoof.",
             },
           ].map((c, i) => (
             <Reveal key={c.t} delay={i * 90}>

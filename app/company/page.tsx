@@ -3,10 +3,19 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
 import { PATENT_FAMILIES, PREPRINTS, VERTICALS } from "../lib/facts";
+import { PUBLICATIONS, doiUrl } from "../lib/publications";
+
+const DESCRIPTION = `SpectralFlow SAS: European, sovereign deep tech designing NV-diamond quantum sensors. Vision, sovereignty thesis, founder Alexandre Papa, NVIDIA Inception membership and ${PATENT_FAMILIES} patent families.`;
 
 export const metadata: Metadata = {
   title: "Company",
-  description: `SpectralFlow SAS: European, sovereign deep tech designing NV-diamond quantum sensors. Vision, sovereignty thesis, founder Alexandre Papa, NVIDIA Inception membership and ${PATENT_FAMILIES} patent families.`,
+  description: DESCRIPTION,
+  alternates: { canonical: "/company" },
+  openGraph: {
+    title: "Company · SpectralFlow",
+    description: DESCRIPTION,
+    url: "/company",
+  },
 };
 
 export default function Company() {
@@ -20,7 +29,7 @@ export default function Company() {
             <br className="hidden md:block" /> out of the lab.
           </>
         }
-        intro="SpectralFlow SAS is a European deep-tech company designing, patenting and industrialising NV-diamond quantum sensors: room temperature, chip-scale, sovereign."
+        intro="SpectralFlow SAS is a European deep-tech company designing and patenting NV-diamond quantum sensors: room temperature, chip-scale, sovereign."
       />
 
       {/* Vision */}
@@ -34,7 +43,7 @@ export default function Company() {
             drone, a hull or a satellite: rugged, low-power and ready to ship.
           </Lead>
           <Body className="max-w-3xl">
-            We follow an &ldquo;NVIDIA model&rdquo;: design the sensor, the firmware and the
+            We follow a fabless model: design the sensor, the firmware and the
             calibration; outsource the fab. That keeps a lean team focused on the defensible
             intellectual property while scaling through partners.
           </Body>
@@ -93,6 +102,38 @@ export default function Company() {
         </div>
       </Prose>
 
+      {/* Publications */}
+      <Prose id="publications">
+        <Reveal>
+          <Eyebrow>Publications</Eyebrow>
+          <H2 className="max-w-3xl mb-6">Preprints, in the open.</H2>
+          <Lead className="max-w-2xl mb-12">
+            Our modelling work is public before our hardware exists: timestamped, DOI-referenced,
+            citable. Read the reasoning, then check it against the literature.
+          </Lead>
+        </Reveal>
+        <div className="flex flex-col">
+          {PUBLICATIONS.map((p, i) => (
+            <Reveal key={p.doi} delay={i * 60}>
+              <div className="hairline py-6 grid grid-cols-1 md:grid-cols-[0.2fr_1.6fr_0.7fr] gap-2 md:gap-10 items-baseline">
+                <p className="figure-label">{p.year}</p>
+                <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
+                  {p.title}
+                </p>
+                <a
+                  href={doiUrl(p)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="textlink"
+                >
+                  {p.doi} <span>→</span>
+                </a>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Prose>
+
       {/* Ecosystem & memberships */}
       <Prose>
         <Reveal>
@@ -134,7 +175,7 @@ export default function Company() {
       </Prose>
 
       {/* Patents */}
-      <Prose>
+      <Prose id="patents">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <Reveal>
             <Eyebrow>Intellectual property</Eyebrow>
@@ -143,7 +184,8 @@ export default function Company() {
               SpectralFlow&rsquo;s position is protected by a growing portfolio spanning the
               sensor, the fabrication process and the application verticals, covering the bricks
               that matter from physics to product, filed pre-emptively before any public
-              disclosure.
+              disclosure. Patent applications remain confidential until official publication,
+              eighteen months from filing.
             </Body>
           </Reveal>
           <Reveal delay={120}>
@@ -151,11 +193,14 @@ export default function Company() {
               {[
                 { value: `${PATENT_FAMILIES}`, label: "Patent families filed" },
                 { value: `${VERTICALS}`, label: "Verticals covered" },
-                { value: "3", label: "Proprietary bricks" },
+                { value: "100+", label: "Experimental anchors behind the engine" },
                 { value: `${PREPRINTS}`, label: "Public preprints" },
               ].map((s) => (
                 <div key={s.label} className="p-7" style={{ background: "var(--surface)" }}>
-                  <p className="text-4xl font-semibold display" style={{ color: "var(--accent)" }}>
+                  <p
+                    className="text-4xl font-semibold display tabular-nums"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {s.value}
                   </p>
                   <p className="figure-label mt-2">{s.label}</p>

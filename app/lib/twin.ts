@@ -1,10 +1,17 @@
 /**
  * Typed client for the SF100 twin compute API (Railway backend).
- * Base URL from NEXT_PUBLIC_TWIN_API; falls back to localhost in dev.
+ * Base URL from NEXT_PUBLIC_TWIN_API; falls back to localhost in dev only.
+ * A production build without the variable gets the empty-string sentinel:
+ * requests short-circuit and the UI reports the service offline instead
+ * of blaming the visitor's network.
  * All figures returned are model-derived (digital twin).
  */
 export const TWIN_API =
-  process.env.NEXT_PUBLIC_TWIN_API ?? "http://127.0.0.1:8611";
+  process.env.NEXT_PUBLIC_TWIN_API ??
+  (process.env.NODE_ENV === "development" ? "http://127.0.0.1:8611" : "");
+
+/** True when no twin backend is configured for this build. */
+export const TWIN_OFFLINE = TWIN_API === "";
 
 export type Attack = ["gain" | "burst" | "spoof", number];
 
@@ -105,6 +112,7 @@ function attacksParam(attacks: Attack[]): string {
 }
 
 async function getJSON<T>(path: string): Promise<T> {
+  if (TWIN_OFFLINE) throw new Error(`twin api offline: ${path}`);
   const res = await fetch(`${TWIN_API}${path}`, { cache: "no-store" });
   if (!res.ok) throw new Error(`twin api ${res.status}: ${path}`);
   return res.json() as Promise<T>;

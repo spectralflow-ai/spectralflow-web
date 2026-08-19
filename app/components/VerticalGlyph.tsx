@@ -81,7 +81,7 @@ function LifeSciences() {
     decay += ` L ${(ix + t * iw).toFixed(1)} ${(iy + (ih - 6) * (1 - Math.exp(-3.2 * t))).toFixed(1)}`;
   }
   return (
-    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label="One NV sensor read two ways: the fluorine of a molecule bound at the diamond surface, and the radical noise inside a living cell.">
+    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label="One NV sensor read two ways: the nuclear spin of a molecule bound at the diamond surface, and the radical noise inside a living cell.">
       {/* NMR scene */}
       {bonds}
       {sites.map((s) => (s === nv ? null : s.x < 232 ? <circle key={`d${s.r}-${s.c}`} cx={s.x} cy={s.y} r="2.3" fill={BORDERS} /> : null))}
@@ -89,7 +89,7 @@ function LifeSciences() {
       <text x="22" y="110" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>SURFACE</text>
       {hexagon(mx, my, 13, "hex")}
       <line x1={mx} y1={my - 13} x2={mx} y2={my - 22} stroke={INK} strokeWidth="1.2" />
-      <text x={mx} y={my - 25} textAnchor="middle" fontSize="11" fontWeight="600" fill={BLUE} fontFamily={FONT}>¹⁹F</text>
+      <text x={mx} y={my - 25} textAnchor="middle" fontSize="11" fontWeight="600" fill={BLUE} fontFamily={FONT}>¹H</text>
       <path d={`M ${mx + 21} ${my - 6} A 21 21 0 1 1 ${mx + 19} ${my + 9}`} fill="none" stroke={MUT} strokeWidth="1" strokeDasharray="2 3" />
       <line x1={mx - 4} y1={my + 14} x2={nv.x + 4} y2={nv.y - 11} stroke={BLUE} strokeWidth="1.3" strokeDasharray="3 4" />
       <NvSensor x={nv.x} y={nv.y} label="NV" />

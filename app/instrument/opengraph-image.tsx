@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "The Instrument · fly the SF100 on our live digital twin";
+export const alt = "The Instrument · fly the SF100 through live mission demos";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -89,7 +89,8 @@ export default function Og() {
             }}
           >
             Fly a diamond quantum sensor through a full mission, attack it,
-            and watch it refuse to be fooled. Live on our digital twin.
+            and watch it refuse to be fooled. Live mission demos, in your
+            browser.
           </div>
         </div>
 

@@ -68,7 +68,7 @@ const LAYERS = [
   {
     tag: "The material",
     title: "A coherence-certified nanodiamond",
-    body: "A passivated nanodiamond whose coherence targets are specified per batch by our design engine, validated against 43 published measurements at R²(log) 0.984. A better sensing element lifts every measurement above it: the dynamic range of relaxometry, the molecular floor of surface NMR. Model-derived targets; no hardware exists at this stage.",
+    body: "A passivated nanodiamond whose coherence targets are specified per batch by our design engine, benchmarked against a registry of more than 100 published experimental results. A better sensing element lifts every measurement above it: the dynamic range of relaxometry, the molecular floor of surface NMR. Model-derived targets; no hardware exists at this stage.",
   },
   {
     tag: "The readout",
@@ -186,6 +186,9 @@ export default function BioLeaveBehind() {
           <a href={MAILTO_BIO} className="btn-primary">
             Talk to us about a bio collaboration
           </a>
+          <p className="hidden print:block figure-label mt-6">
+            spectralflow.ai/r/bio · {CONTACT_EMAIL}
+          </p>
         </Reveal>
       </Prose>
 

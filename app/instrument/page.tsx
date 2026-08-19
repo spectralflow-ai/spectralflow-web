@@ -1,27 +1,31 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Instrument from "./Instrument";
-import type { ProfileKey } from "./profiles";
 import { MAILTO_TWIN_DEMO } from "../lib/contact";
+import { TWIN_API } from "../lib/twin";
+
+/** Origin of the twin compute API, when configured as an absolute URL. */
+const TWIN_ORIGIN = /^https?:\/\//.test(TWIN_API)
+  ? new URL(TWIN_API).origin
+  : null;
 
 export const metadata: Metadata = {
   title: "The Instrument · mission demos",
   description:
     "Mission demos computed live by our navigation digital twin: fly the SF100 chain end to end, self-calibrating, source-separating, honest about its own confidence. All figures model-derived.",
+  alternates: { canonical: "/instrument" },
+  openGraph: {
+    title: "The Instrument · mission demos · SpectralFlow",
+    description:
+      "Mission demos computed live by our navigation digital twin: fly the SF100 chain end to end, self-calibrating, source-separating, honest about its own confidence. All figures model-derived.",
+    url: "/instrument",
+  },
 };
 
-export default async function InstrumentPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ profile?: string }>;
-}) {
-  const sp = await searchParams;
-  const initial: ProfileKey | null =
-    sp.profile === "defence" || sp.profile === "space" || sp.profile === "geo"
-      ? sp.profile
-      : null;
-
+export default function InstrumentPage() {
   return (
     <>
+      {TWIN_ORIGIN && <link rel="preconnect" href={TWIN_ORIGIN} />}
       <section>
         <div className="max-w-7xl mx-auto px-4 md:px-6 pt-5 pb-1">
           <div className="flex items-baseline justify-between flex-wrap gap-2">
@@ -49,8 +53,7 @@ export default async function InstrumentPage({
                 margin: 0,
               }}
             >
-              Every figure model-derived, computed live. No hardware exists at
-              this stage.
+              Every figure model-derived, computed live.
             </p>
           </div>
           <p
@@ -73,7 +76,9 @@ export default async function InstrumentPage({
       </section>
       <section>
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
-          <Instrument initial={initial} />
+          <Suspense fallback={null}>
+            <Instrument />
+          </Suspense>
         </div>
       </section>
       <section className="hairline">

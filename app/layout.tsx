@@ -5,6 +5,7 @@ import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { CONTACT_EMAIL } from "./lib/contact";
 import { PATENT_FAMILIES } from "./lib/facts";
+import { PUBLICATIONS } from "./lib/publications";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "SpectralFlow · Quantum Sensing, Out of the Lab";
+const TITLE = "SpectralFlow · Quantum sensing, out of the lab";
 const DESCRIPTION = `NV-diamond magnetometers for resilient navigation where GPS is jammed or denied: room temperature, chip-scale, designed for the vehicle, not the lab. Sovereign European deep tech. ${PATENT_FAMILIES} patent families filed.`;
 
 const SITE_URL = "https://www.spectralflow.ai";
@@ -28,6 +29,7 @@ export const metadata: Metadata = {
     template: "%s · SpectralFlow",
   },
   description: DESCRIPTION,
+  alternates: { canonical: "/" },
   applicationName: "SpectralFlow",
   verification: { google: "oyPBoJQ-UcuzTdlAquK44i-meA0AANU_CIDZ7uHeIDw" },
   keywords: [
@@ -103,6 +105,14 @@ const SITE_JSONLD = {
       jobTitle: "Founder",
       worksFor: { "@id": `${SITE_URL}/#org` },
     },
+    ...PUBLICATIONS.map((p) => ({
+      "@type": "ScholarlyArticle",
+      name: p.title,
+      datePublished: String(p.year),
+      sameAs: `https://doi.org/${p.doi}`,
+      author: { "@id": `${SITE_URL}/#founder` },
+      publisher: { "@id": `${SITE_URL}/#org` },
+    })),
   ],
 };
 

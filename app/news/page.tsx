@@ -3,10 +3,18 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import { Prose, Body, PageHeader } from "../components/kit";
 
+const DESCRIPTION =
+  "Behind the scenes at SpectralFlow: milestones and insights on NV-diamond quantum sensing and GPS-denied navigation.";
+
 export const metadata: Metadata = {
   title: "News & Insights",
-  description:
-    "Behind the scenes at SpectralFlow: milestones and insights on NV-diamond quantum sensing and GPS-denied navigation.",
+  description: DESCRIPTION,
+  alternates: { canonical: "/news" },
+  openGraph: {
+    title: "News & Insights · SpectralFlow",
+    description: DESCRIPTION,
+    url: "/news",
+  },
 };
 
 /**
@@ -15,6 +23,21 @@ export const metadata: Metadata = {
  * submissions (see REBUILD_BRIEF_V4.md).
  */
 const POSTS = [
+  {
+    tag: "Milestone",
+    date: "July 2026",
+    title: "SpectralFlow at ESA's quantum workshop at ESTEC",
+    excerpt:
+      "We joined ESA's Quantum Technologies for Space Exploration workshop at ESTEC in Noordwijk, alongside the European quantum sensing community. Between sessions, the Instrument ran live on laptops around the room: a full GNSS-free mission, recomputed in the browser, every figure honestly labelled model-derived. Our message to the roadmap discussion was simple: for exploration autonomy, integrity matters as much as sensitivity. An instrument must know when to distrust itself. And a compact sensor that rejects the spacecraft's own field on board can drop the boom and the magnetic-cleanliness tax that every mission still pays.",
+    cta: { href: "/instrument?profile=space", label: "Fly the space profile" },
+  },
+  {
+    tag: "Milestone",
+    date: "July 2026",
+    title: "Qualified as deeptech by Bpifrance",
+    excerpt:
+      "SpectralFlow is now officially qualified as a deeptech company by Bpifrance, the French public investment bank. The qualification recognises what we build on: technology grounded in original research, strong intellectual property, and a hard engineering path to market. It anchors our access to France's deeptech support ecosystem as we move through pre-prototyping.",
+  },
   {
     tag: "Milestone",
     date: "July 2026",
@@ -42,21 +65,22 @@ const POSTS = [
     date: "June 2026",
     title: "The navigation digital twin is online",
     excerpt:
-      "Before our first device is built, our sensor flies an end-to-end synthetic mission: magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived, and our hardware milestones will be judged against the twin’s own predictions. The interactive twin is live; access is granted on request.",
+      "Before our first device is built, our sensor flies an end-to-end synthetic mission: magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived, and the twin sets the design targets our hardware programme works towards. The interactive twin is live; access is granted on request.",
   },
   {
     tag: "Insight",
     date: "June 2026",
     title: "They compensate. We measure.",
     excerpt:
-      "Every magnetometer flying today is a lab instrument strapped onto a vehicle, corrected by external compensation models dating back to 1953. We took the opposite path: design the sensor for the vehicle from the first principle, so the measurement stays true under way, with the platform’s own magnetic noise rejected on board.",
+      "Magnetometers flying today are lab instruments strapped onto vehicles, corrected by external compensation models dating back to the 1950s. We took the opposite path: design the sensor for the vehicle from first principles, so the measurement stays true under way, with the platform’s own magnetic noise rejected on board.",
   },
   {
     tag: "Research",
     date: "2026",
-    title: "Eight preprints, in the open",
+    title: "The preprints, in the open",
     excerpt:
-      "Our modelling work is documented in eight public preprints on Zenodo: timestamped, DOI-referenced and citable. Publishing the reasoning behind the engine is part of how we build credibility, in the open, against the literature.",
+      "Our modelling work is documented in public preprints on Zenodo: timestamped, DOI-referenced and citable. Publishing the reasoning behind the engine is part of how we build credibility, in the open, against the literature.",
+    cta: { href: "/company#publications", label: "Read the preprints" },
   },
   {
     tag: "Milestone",
@@ -86,8 +110,8 @@ export default function News() {
     <main>
       <PageHeader
         eyebrow="News & Insights"
-        title="From the bench."
-        intro="Milestones and short notes on building NV-diamond quantum sensors."
+        title="The build log."
+        intro="Milestones and short notes as we design NV-diamond quantum sensors."
       />
 
       <Prose>
@@ -124,7 +148,7 @@ export default function News() {
                 Follow the build.
               </p>
               <Body>
-                We share progress and insights regularly, keeping the same cadence we keep on{" "}
+                We share progress and insights regularly, on the same cadence as our{" "}
                 <a
                   href="https://www.linkedin.com/company/spectralflow"
                   target="_blank"

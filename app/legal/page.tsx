@@ -7,6 +7,13 @@ export const metadata: Metadata = {
   title: "Legal notice",
   description:
     "Legal notice (mentions légales) for spectralflow.ai: Spectral Flow SAS, a French société par actions simplifiée.",
+  alternates: { canonical: "/legal" },
+  openGraph: {
+    title: "Legal notice · SpectralFlow",
+    description:
+      "Legal notice (mentions légales) for spectralflow.ai: Spectral Flow SAS, a French société par actions simplifiée.",
+    url: "/legal",
+  },
 };
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {

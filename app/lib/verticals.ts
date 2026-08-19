@@ -45,7 +45,7 @@ export const VERTICALS_CONTENT: Vertical[] = [
     title: "Navigation where GPS cannot reach.",
     tagline: "A passive magnetic reference nobody can switch off, for air, sea and space.",
     intro:
-      "Satellite navigation is jammed, spoofed and denied across contested airspace, deep oceans and orbit. A passive magnetic reference that emits nothing and cannot be switched off closes the gap. It is the vertical we ship first.",
+      "Satellite navigation is jammed, spoofed and denied across contested airspace, deep oceans and orbit. A passive magnetic reference that emits nothing and cannot be switched off closes the gap. It is the vertical we are developing first.",
     metaTitle: "GPS-denied navigation",
     metaDescription:
       "SpectralFlow designs NV-diamond magnetometers for GPS-denied (magnetic) navigation across air, sea and space: passive, unjammable, room temperature and chip-scale. Vertical #1.",
@@ -55,7 +55,7 @@ export const VERTICALS_CONTENT: Vertical[] = [
       lead:
         "Most vehicles fall back on inertial navigation when GPS is lost. Inertial systems accumulate error the moment the signal drops, and the drift only grows with time.",
       body:
-        "Magnetic navigation offers a different reference. The Earth's crust has a fixed magnetic signature that varies from place to place, a map that no adversary can switch off. A sensitive magnetometer reads the local field and matches it against that map to fix position and heading. Because it only listens, it emits nothing, so there is nothing to detect, jam or spoof.",
+        "Magnetic navigation offers a different reference. The Earth's crust has a fixed magnetic signature that varies from place to place, a map that no adversary can switch off. A sensitive magnetometer reads the local field and matches it against that map to fix position and heading. Because it only listens, it emits nothing and gives nothing away.",
     },
     whyNV: {
       eyebrow: "Why NV-diamond",
@@ -64,20 +64,20 @@ export const VERTICALS_CONTENT: Vertical[] = [
         { h: "Room temperature", p: "No cryogenics and no shielded room, so it runs field-ready where SQUIDs and cold atoms cannot go." },
         { h: "Passive and silent", p: "It reads the ambient field and radiates no RF. Nothing to detect, nothing to jam, nothing to spoof." },
         { h: "Vector and solid-state", p: "A single solid-state core holds coherence under shock and motion, on drones, hulls and launch loads." },
-        { h: "Radiation-hard", p: "Diamond is intrinsically radiation-tolerant, which keeps the sensor working in orbit and on re-entry." },
+        { h: "Radiation-hard", p: "Diamond is intrinsically radiation-tolerant, which keeps the sensor working in orbit and through the radiation belts." },
       ],
     },
     approach: {
       eyebrow: "Our approach",
       h: "We measure, where others compensate.",
       body:
-        "Every magnetometer flying today is a lab instrument strapped onto a vehicle, corrected by external compensation models dating back to 1953. We take the opposite path: a sensing architecture that identifies and removes the vehicle's own magnetic noise on board, in real time, so the measurement stays true under way. The cleaned reading is matched to a magnetic map to hold heading and correct inertial drift, continuously, with no satellites in the loop.",
+        "Magnetometers flying today are lab instruments strapped onto vehicles, corrected by external compensation models dating back to the 1950s. We take the opposite path: a sensing architecture that identifies and removes the vehicle's own magnetic noise on board, in real time, so the measurement stays true under way. The cleaned reading is matched to a magnetic map to hold heading and correct inertial drift, continuously, with no satellites in the loop.",
     },
     proof: {
       eyebrow: "See it fly",
       h: "The sensor already flies. In software.",
       body:
-        "Before the first device is built, an end-to-end navigation digital twin flies the mission: a synthetic magnetic map, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived. The public layer runs live in your browser.",
+        "Before the first device is built, an end-to-end navigation digital twin flies the mission: a synthetic magnetic map, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived. Its public window, the Instrument, runs live in your browser.",
       cta: { href: "/instrument", label: "Fly the Instrument" },
     },
     cta: {
@@ -111,7 +111,7 @@ export const VERTICALS_CONTENT: Vertical[] = [
     title: "Two quantum reads of the living world.",
     tagline: "Chip-scale NMR of molecules, and the magnetic signature of living cells.",
     intro:
-      "The same NV-diamond core reads biology two different ways: molecular binding by chip-scale magnetic resonance, and free-radical activity by relaxometry inside living cells. Both sit on a material almost no one has explored. A direction we are developing with research partners.",
+      "The same NV-diamond core reads biology two different ways: molecular binding by chip-scale magnetic resonance, and free-radical activity by relaxometry inside living cells. A direction we are developing toward research partnerships.",
     metaTitle: "Life sciences: chip-scale NMR & quantum biosensing",
     metaDescription:
       "NV-diamond quantum sensing for life sciences: chip-scale NMR of molecules and relaxometry of free-radical (ROS) activity in living cells, at room temperature. A research direction SpectralFlow is developing.",
@@ -186,14 +186,14 @@ export const VERTICALS_CONTENT: Vertical[] = [
       lead:
         "Advanced packaging stacks silicon into dense 2.5D and 3D structures. When something fails, the defect is often several layers down, invisible to optical and electron methods.",
       body:
-        "A magnetic field passes through the package that light cannot. Every current in a chip creates a magnetic field around it, so imaging that field reveals where the current actually flows, and where it should not. A quantum diamond microscope maps those fields at the micron scale, non-destructively, turning a magnetic image into a picture of buried current paths, shorts and defects. The same principle extends to industrial inspection, where sub-surface flaws in welds, batteries and critical parts carry a magnetic signature.",
+        "A magnetic field passes through the package that light cannot. Every current in a chip creates a magnetic field around it, so imaging that field reveals where the current actually flows, and where it should not. A quantum diamond microscope maps those fields at the micron scale, non-destructively, turning a magnetic image into a picture of buried current paths, shorts and defects. The same principle extends to industrial inspection, where many sub-surface flaws in welds, batteries and critical parts carry a magnetic signature.",
     },
     whyNV: {
       eyebrow: "Why NV-diamond",
       h: "A microscope that does not perturb what it measures.",
       points: [
         { h: "Non-destructive", p: "It images the field the chip already produces, without contact and without opening the package." },
-        { h: "Sub-micron", p: "A dense sensing layer resolves current paths at the micron scale, in buried layers." },
+        { h: "Micron-scale", p: "A dense sensing layer resolves current paths at the micron scale, in buried layers." },
         { h: "Room temperature", p: "No cryogenics and no vacuum, so it fits an analysis lab or a production line." },
         { h: "DC-capable", p: "It reads static and low-frequency fields, a regime where many inspection methods are blind." },
       ],
@@ -219,7 +219,7 @@ export const VERTICALS_CONTENT: Vertical[] = [
       },
       {
         q: "What can it inspect beyond semiconductors?",
-        a: "The same magnetic-imaging principle applies to industrial non-destructive testing: sub-surface flaws, corrosion and fatigue in welds, batteries and critical metal parts all carry a magnetic signature that a diamond sensor can read, including at DC where eddy-current methods are weak.",
+        a: "The same magnetic-imaging principle applies to industrial non-destructive testing: many sub-surface flaws in welds, batteries and critical metal parts disturb the local magnetic field in ways a diamond sensor can read, including at DC where eddy-current methods are weak.",
       },
       {
         q: "Why does room-temperature operation matter here?",

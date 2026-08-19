@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MAILTO_TWIN_DEMO } from "../lib/contact";
+import { CONTACT_EMAIL, MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "../lib/contact";
 import { PATENT_FAMILIES } from "../lib/facts";
 
 const COLS = [
@@ -16,12 +16,18 @@ const COLS = [
         label: "Expert twin session · on request",
         external: true,
       },
+      {
+        href: MAILTO_DATASHEET,
+        label: "Predictive datasheet · on request",
+        external: true,
+      },
     ],
   },
   {
     title: "Company",
     links: [
       { href: "/company", label: "About & vision" },
+      { href: "/company#publications", label: "Publications" },
       { href: "/news", label: "News & insights" },
       {
         href: "https://www.linkedin.com/company/spectralflow",
@@ -55,14 +61,20 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-sm leading-relaxed mt-4 max-w-xs" style={{ color: "var(--muted)" }}>
-            NV-diamond quantum sensors, taking quantum out of the lab. European, sovereign deep
-            tech.
+            Designing NV-diamond quantum sensors: taking quantum out of the lab. European,
+            sovereign deep tech.
           </p>
           <p className="text-sm leading-relaxed mt-4 max-w-xs" style={{ color: "var(--muted)" }}>
             Spectral Flow SAS<br />
             14 avenue de Grande Bretagne<br />
             06230 Villefranche-sur-Mer, France
           </p>
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="text-sm transition-colors text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] mt-4 inline-block"
+          >
+            info@spectralflow.ai
+          </a>
           <p className="figure-label mt-6">Member of NVIDIA Inception</p>
         </div>
 
@@ -75,16 +87,14 @@ export default function Footer() {
                   {"external" in l && l.external ? (
                     <a
                       href={l.href}
-                      className="text-sm transition-colors hover:text-black"
-                      style={{ color: "var(--text-secondary)" }}
+                      className="text-sm transition-colors text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
                     >
                       {l.label}
                     </a>
                   ) : (
                     <Link
                       href={l.href}
-                      className="text-sm transition-colors hover:text-black"
-                      style={{ color: "var(--text-secondary)" }}
+                      className="text-sm transition-colors text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
                     >
                       {l.label}
                     </Link>
@@ -99,7 +109,7 @@ export default function Footer() {
       <div className="hairline">
         <div className="max-w-6xl mx-auto px-6 md:px-8 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <p className="figure-label" style={{ textTransform: "none", letterSpacing: "0.04em" }}>
-            SpectralFlow SAS · France · © {new Date().getFullYear()}
+            Spectral Flow SAS · France · © {new Date().getFullYear()}
           </p>
           <p className="figure-label" style={{ textTransform: "none", letterSpacing: "0.04em" }}>
             {PATENT_FAMILIES} patent families filed · Quantum sensing for navigation, industry & life sciences

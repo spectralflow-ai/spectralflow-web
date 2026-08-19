@@ -7,15 +7,21 @@ import { MAILTO_TWIN_DEMO } from "../lib/contact";
 export const metadata: Metadata = {
   title: "Tools",
   description:
-    "SpectralFlow's tools: The Instrument (free in-browser mission demos on our navigation digital twin), SpectralFlow Studio (the SF-QSim design engine) and expert twin sessions. All figures model-derived.",
+    "SpectralFlow's tools: The Instrument (free in-browser mission demos, computed by our navigation digital twin), SpectralFlow Studio (the SF-QSim design engine) and expert twin sessions. All figures model-derived.",
   alternates: { canonical: "/tools" },
+  openGraph: {
+    title: "Tools · SpectralFlow",
+    description:
+      "SpectralFlow's tools: The Instrument (free in-browser mission demos, computed by our navigation digital twin), SpectralFlow Studio (the SF-QSim design engine) and expert twin sessions. All figures model-derived.",
+    url: "/tools",
+  },
 };
 
 const RUNGS = [
   {
     k: "Try it · free",
     title: "The Instrument",
-    body: "The public layer of our navigation digital twin, live in your browser with no account. Fly a full mission where satellites cannot help, attack the instrument three ways, and watch it hold. Every figure is recomputed live and honestly labelled model-derived.",
+    body: "Our public mission demos, computed by the navigation digital twin and live in your browser with no account. Fly a full mission where satellites cannot help, attack the instrument three ways, and watch it hold. Every figure is recomputed live and honestly labelled model-derived.",
     cta: { href: "/instrument", label: "Fly the Instrument", internal: true },
   },
   {
@@ -95,6 +101,13 @@ export default function Tools() {
           <H2 className="max-w-2xl mb-6">Evaluating the technology?</H2>
           <Lead className="max-w-2xl mb-9">
             Start with the Instrument, then talk to us about an expert session on the full twin.
+          </Lead>
+          <Lead className="max-w-2xl mb-9">
+            Our modelling work is public too: the preprints are timestamped and DOI-referenced.{" "}
+            <Link href="/company#publications" style={{ color: "var(--accent)" }}>
+              Read the preprints
+            </Link>
+            .
           </Lead>
           <Link href="/contact" className="btn-primary">
             Get in touch <span>→</span>

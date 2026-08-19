@@ -86,7 +86,7 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     impact: {
       gain: {
         title: "A channel starts lying by 2%",
-        body: "One of the twelve sensing channels quietly amplifies too much. Nothing looks wrong on any screen, yet the Earth's huge field now leaks through the mismatch and corrupts the measurement. The classic insidious failure of multi-sensor instruments.",
+        body: "One of the sensing channels quietly amplifies too much. Nothing looks wrong on any screen, yet the Earth's huge field now leaks through the mismatch and corrupts the measurement. The classic insidious failure of multi-sensor instruments.",
       },
       burst: {
         title: "A magnetic storm nearby",
@@ -94,7 +94,7 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       },
       spoof: {
         title: "An industrial jammer switches on ahead",
-        body: "A ground installation with fifty times the magnetic signature of a warship starts emitting near your route. The inverse-cube law is your armour: at a 200 m pass it writes barely 200 nT on the sensor, and its own passage signature gives it away. Watch the log: the attack becomes a target.",
+        body: "A ground installation with fifty times the magnetic signature of a warship starts emitting near your route. The inverse-cube law is your armour: at a 200 m pass it writes barely 200 nT on the sensor, and its own passage signature gives it away. Watch the log: the attack becomes a contact report.",
       },
     },
   },
@@ -145,7 +145,7 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     impact: {
       gain: {
         title: "A cosmic ray degrades a channel",
-        body: "A single-event strike makes one of the twelve channels amplify 2% too much. Nothing looks wrong, yet the planet's field now leaks through the mismatch. In deep space nobody can retune your instrument for you.",
+        body: "A single-event strike makes one of the channels amplify 2% too much. Nothing looks wrong, yet the planet's field now leaks through the mismatch. In deep space nobody can retune your instrument for you.",
       },
       burst: {
         title: "The Sun erupts",
@@ -205,7 +205,7 @@ export const PROFILES: Record<ProfileKey, Profile> = {
     impact: {
       gain: {
         title: "A channel drifts by 2%",
-        body: "One of the twelve sensing channels quietly amplifies too much. Nothing looks wrong on any screen, yet the Earth's huge field now leaks through the mismatch and writes a false gradient into the data. Levelling would smear it across the whole grid; here the chain catches it at the source and names it.",
+        body: "One of the sensing channels quietly amplifies too much. Nothing looks wrong on any screen, yet the Earth's huge field now leaks through the mismatch and writes a false gradient into the data. Levelling would smear it across the whole grid; here the chain catches it at the source and names it.",
       },
       burst: {
         title: "A geomagnetic storm rolls in",

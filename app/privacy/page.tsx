@@ -7,6 +7,13 @@ export const metadata: Metadata = {
   title: "Privacy policy",
   description:
     "Privacy policy (politique de confidentialité) for spectralflow.ai: how Spectral Flow SAS handles personal data under the GDPR.",
+  alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: "Privacy policy · SpectralFlow",
+    description:
+      "Privacy policy (politique de confidentialité) for spectralflow.ai: how Spectral Flow SAS handles personal data under the GDPR.",
+    url: "/privacy",
+  },
 };
 
 export default function Privacy() {

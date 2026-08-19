@@ -6,10 +6,18 @@ import { VERTICALS_ORDERED } from "../lib/verticals";
 import { VERTICALS } from "../lib/facts";
 import VerticalIcon from "../components/VerticalIcon";
 
+const DESCRIPTION =
+  "One NV-diamond sensing core, five patented verticals: GPS-denied navigation first, then life sciences, semiconductor metrology and ambient quantum computing.";
+
 export const metadata: Metadata = {
   title: "Applications",
-  description:
-    "One NV-diamond sensing core across a family of verticals: GPS-denied navigation ships first, with life sciences, semiconductor metrology and ambient quantum computing behind it. Five patented verticals.",
+  description: DESCRIPTION,
+  alternates: { canonical: "/applications" },
+  openGraph: {
+    title: "Applications · SpectralFlow",
+    description: DESCRIPTION,
+    url: "/applications",
+  },
 };
 
 export default function Applications() {
@@ -25,7 +33,7 @@ export default function Applications() {
             <br className="hidden md:block" /> A family of verticals.
           </>
         }
-        intro={`A single sensing core (engineered diamond, integrated optics, adaptive firmware) reaches across a family of markets. We ship GPS-denied navigation first; the platform extends into life sciences, industry and quantum information. ${VERTICALS} verticals are patented and activate as each science and market matures.`}
+        intro={`A single sensing core (engineered diamond, integrated optics, adaptive firmware) reaches across a family of markets. GPS-denied navigation comes first; the platform extends into life sciences, industry and quantum information. ${VERTICALS} verticals are patented; four are public here, and each activates as its science and market matures.`}
       />
 
       {/* Flagship */}
@@ -65,7 +73,7 @@ export default function Applications() {
           <Eyebrow>The platform goes further</Eyebrow>
           <H2 className="max-w-3xl mb-6">The same quantum core, beyond navigation.</H2>
           <Lead className="max-w-2xl mb-14">
-            Each vertical starts with the science of its domain, then our approach. Navigation ships
+            Each vertical starts with the science of its domain, then our approach. Navigation comes
             first; the rest are patented and activate as each market matures.
           </Lead>
         </Reveal>

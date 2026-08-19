@@ -5,10 +5,32 @@
  * for deep-linked audience sends; otherwise shows the neutral chooser.
  */
 import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import { PROFILES, type ProfileKey } from "./profiles";
-import FlightDeck from "./FlightDeck";
 
-export default function Instrument({ initial }: { initial: ProfileKey | null }) {
+const FlightDeck = dynamic(() => import("./FlightDeck"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="card"
+      style={{
+        minHeight: "60vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <p className="figure-label">Preparing the mission</p>
+    </div>
+  ),
+});
+
+export default function Instrument() {
+  const sp = useSearchParams();
+  const q = sp.get("profile");
+  const initial =
+    q === "defence" || q === "space" || q === "geo" ? (q as ProfileKey) : null;
   const [profile, setProfile] = useState<ProfileKey | null>(initial);
 
   if (!profile) {
@@ -94,7 +116,12 @@ export default function Instrument({ initial }: { initial: ProfileKey | null }) 
         </p>
         <button
           className="textlink"
-          onClick={() => setProfile(null)}
+          onClick={() => {
+            setProfile(null);
+            const url = new URL(window.location.href);
+            url.searchParams.delete("profile");
+            window.history.replaceState({}, "", url);
+          }}
           style={{ background: "none", border: "none", cursor: "pointer" }}
         >
           <span>⇄</span>
