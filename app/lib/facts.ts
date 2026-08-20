@@ -9,9 +9,9 @@ export const PATENT_FAMILIES = 16;
 export const PATENT_FAMILIES_LABEL = `${PATENT_FAMILIES} patent families`;
 
 /**
- * No preprint count is quoted anywhere public: the deposits are listed
- * by name in publications.ts, and a count invites the one comparison we
- * do not want to be measured on. See /company#publications.
+ * No preprint count is quoted anywhere public, and the Zenodo deposits are
+ * not linked from the site (founder decision, 19/08/2026): a count invites
+ * the one comparison we do not want to be measured on.
  */
 
 /** Patented application verticals. */

@@ -3,7 +3,6 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
 import { PATENT_FAMILIES, VERTICALS } from "../lib/facts";
-import { PUBLICATIONS, doiUrl } from "../lib/publications";
 
 const DESCRIPTION = `SpectralFlow SAS: European, sovereign deep tech designing NV-diamond quantum sensors. Vision, sovereignty thesis, founder Alexandre Papa, NVIDIA Inception membership and ${PATENT_FAMILIES} patent families.`;
 
@@ -99,39 +98,6 @@ export default function Company() {
               products.
             </Body>
           </Reveal>
-        </div>
-      </Prose>
-
-      {/* Publications */}
-      <Prose id="publications">
-        <Reveal>
-          <Eyebrow>The method, in the open</Eyebrow>
-          <H2 className="max-w-3xl mb-6">Read the reasoning.</H2>
-          <Lead className="max-w-2xl mb-12">
-            We deposit the modelling work publicly as we go, timestamped and citable, so the
-            reasoning behind the engine can be checked against the literature rather than taken
-            on trust.
-          </Lead>
-        </Reveal>
-        <div className="flex flex-col">
-          {PUBLICATIONS.map((p, i) => (
-            <Reveal key={p.doi} delay={i * 60}>
-              <div className="hairline py-6 grid grid-cols-1 md:grid-cols-[0.2fr_1.6fr_0.7fr] gap-2 md:gap-10 items-baseline">
-                <p className="figure-label">{p.year}</p>
-                <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
-                  {p.title}
-                </p>
-                <a
-                  href={doiUrl(p)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="textlink"
-                >
-                  {p.doi} <span>→</span>
-                </a>
-              </div>
-            </Reveal>
-          ))}
         </div>
       </Prose>
 

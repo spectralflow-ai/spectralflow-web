@@ -27,7 +27,6 @@ const COLS = [
     title: "Company",
     links: [
       { href: "/company", label: "About & vision" },
-      { href: "/company#publications", label: "Publications" },
       { href: "/news", label: "News & insights" },
       {
         href: "https://www.linkedin.com/company/spectralflow",

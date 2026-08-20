@@ -75,14 +75,6 @@ const POSTS = [
       "Magnetometers flying today are lab instruments strapped onto vehicles, corrected by external compensation models dating back to the 1950s. We took the opposite path: design the sensor for the vehicle from first principles, so the measurement stays true under way, with the platform’s own magnetic noise rejected on board.",
   },
   {
-    tag: "Research",
-    date: "2026",
-    title: "The preprints, in the open",
-    excerpt:
-      "Our modelling work is documented in public preprints on Zenodo: timestamped, DOI-referenced and citable. Publishing the reasoning behind the engine is part of how we build credibility, in the open, against the literature.",
-    cta: { href: "/company#publications", label: "Read the preprints" },
-  },
-  {
     tag: "Milestone",
     date: "2026",
     title: "SpectralFlow joins NVIDIA Inception",

@@ -56,20 +56,19 @@ export default function Home() {
               className="text-base md:text-lg leading-relaxed max-w-2xl mx-auto mt-8"
               style={{ color: "var(--text-secondary)" }}
             >
-              NV-diamond magnetometers designed for the vehicle, not the lab. Room temperature.
-              Chip-scale. Sovereign.
+              NV-diamond magnetometers designed for the vehicle, not the lab: room temperature,
+              chip-scale, sovereign.
             </p>
           </div>
           <div className="hero-rise" style={{ animationDelay: "280ms" }}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-10">
-              <Link href="/instrument" className="btn-primary">
-                Fly the Instrument <span>→</span>
-              </Link>
-              <Link href="/technology" className="textlink">
+              <Link href="/technology" className="btn-primary">
                 Explore the technology <span>→</span>
               </Link>
+              <a href={MAILTO_DATASHEET} className="textlink">
+                Request the predictive datasheet <span>→</span>
+              </a>
             </div>
-            <p className="figure-label mt-6">Live mission demos · every figure model-derived</p>
           </div>
         </div>
 
