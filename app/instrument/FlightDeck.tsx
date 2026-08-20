@@ -19,7 +19,7 @@ import {
   type ContactResult,
   type World,
 } from "../lib/twin";
-import { MAILTO_TWIN_DEMO } from "../lib/contact";
+import { CTA_TWIN } from "../lib/contact";
 import { PROFILES, type ProfileKey } from "./profiles";
 import { getTopic, type TopicKey } from "./science";
 
@@ -642,7 +642,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 alignItems: "center",
               }}
             >
-              <a href={MAILTO_TWIN_DEMO} className="btn-primary">
+              <a href={CTA_TWIN} className="btn-primary">
                 Request an expert twin session <span>→</span>
               </a>
               <button className="btn-ghost" onClick={reset}>

@@ -6,7 +6,7 @@ import Steps from "./components/Steps";
 import Counter from "./components/Counter";
 import PartnerStrip from "./components/PartnerStrip";
 import { Prose, Cinema, Eyebrow, H2, Lead, Body } from "./components/kit";
-import { MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "./lib/contact";
+import { CTA_DATASHEET, CTA_TWIN } from "./lib/contact";
 import { PATENT_FAMILIES, VERTICALS } from "./lib/facts";
 import { VERTICALS_ORDERED } from "./lib/verticals";
 import VerticalIcon from "./components/VerticalIcon";
@@ -65,7 +65,7 @@ export default function Home() {
               <Link href="/technology" className="btn-primary">
                 Explore the technology <span>→</span>
               </Link>
-              <a href={MAILTO_DATASHEET} className="textlink">
+              <a href={CTA_DATASHEET} className="textlink">
                 Request the predictive datasheet <span>→</span>
               </a>
             </div>
@@ -111,7 +111,7 @@ export default function Home() {
             <Link href="/instrument" className="btn-primary">
               Fly the Instrument <span>→</span>
             </Link>
-            <a href={MAILTO_TWIN_DEMO} className="textlink">
+            <a href={CTA_TWIN} className="textlink">
               Request an expert twin session <span>→</span>
             </a>
           </div>
@@ -290,7 +290,7 @@ export default function Home() {
             <Link href="/contact" className="btn-primary">
               Get in touch <span>→</span>
             </Link>
-            <a href={MAILTO_DATASHEET} className="btn-ghost">
+            <a href={CTA_DATASHEET} className="btn-ghost">
               Request the predictive datasheet
             </a>
           </div>

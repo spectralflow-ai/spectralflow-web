@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Instrument from "./Instrument";
-import { MAILTO_TWIN_DEMO } from "../lib/contact";
+import { CTA_TWIN } from "../lib/contact";
 import { TWIN_API } from "../lib/twin";
 
 /** Origin of the twin compute API, when configured as an absolute URL. */
@@ -67,7 +67,7 @@ export default function InstrumentPage() {
           >
             These missions are the public window of our engineering digital
             twin. The full twin flies deeper scenarios in{" "}
-            <a href={MAILTO_TWIN_DEMO} className="textlink">
+            <a href={CTA_TWIN} className="textlink">
               expert sessions
             </a>
             .
@@ -101,7 +101,7 @@ export default function InstrumentPage() {
             model-derived design targets. No hardware exists at this stage.
           </p>
           <p style={{ marginTop: "0.7rem" }}>
-            <a href={MAILTO_TWIN_DEMO} className="textlink">
+            <a href={CTA_TWIN} className="textlink">
               Request an expert twin session <span>→</span>
             </a>
           </p>

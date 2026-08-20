@@ -1,18 +1,44 @@
 "use client";
 
 import { useState } from "react";
-import { CONTACT_EMAIL as EMAIL } from "../lib/contact";
+import { useSearchParams } from "next/navigation";
+import { sendEnquiry } from "../actions/contact";
+import {
+  CONTACT_EMAIL as EMAIL,
+  INTENTS,
+  isIntent,
+  mailtoFor,
+  type Intent,
+} from "../lib/contact";
 
 export default function ContactForm() {
+  const params = useSearchParams();
+  const initial = params.get("intent");
+
+  const [intent, setIntent] = useState<Intent>(isIntent(initial) ? initial : "general");
   const [name, setName] = useState("");
   const [org, setOrg] = useState("");
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [website, setWebsite] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const subject = encodeURIComponent(`SpectralFlow enquiry: ${name || "website"}`);
-    const body = encodeURIComponent(`Name: ${name}\nOrganisation: ${org}\n\n${message}`);
-    window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
+    setState("sending");
+    const fields = { intent, name, org, email, message };
+    const res = await sendEnquiry({ ...fields, company_website: website });
+    if (res.ok) {
+      setState("sent");
+      return;
+    }
+    if (res.reason === "invalid") {
+      setState("error");
+      return;
+    }
+    // Server side unavailable: hand the message to the visitor's mail client.
+    setState("idle");
+    window.location.href = mailtoFor(fields);
   }
 
   const field =
@@ -22,8 +48,37 @@ export default function ContactForm() {
     color: "var(--text-primary)",
   } as const;
 
+  if (state === "sent") {
+    return (
+      <div className="flex flex-col gap-3">
+        <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
+          Message sent.
+        </p>
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          We read everything and reply personally, usually within two business days.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={submit} className="flex flex-col gap-3.5">
+      <label className="sr-only" htmlFor="intent">
+        I am writing about
+      </label>
+      <select
+        id="intent"
+        className={field}
+        style={fieldStyle}
+        value={intent}
+        onChange={(e) => setIntent(e.target.value as Intent)}
+      >
+        {INTENTS.map((i) => (
+          <option key={i.value} value={i.value}>
+            {i.label}
+          </option>
+        ))}
+      </select>
       <input
         className={field}
         style={fieldStyle}
@@ -36,8 +91,20 @@ export default function ContactForm() {
       <input
         className={field}
         style={fieldStyle}
+        type="email"
+        aria-label="Email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+      <input
+        className={field}
+        style={fieldStyle}
         aria-label="Organisation"
-        placeholder="Organisation"
+        placeholder={
+          intent === "datasheet" ? "Organisation (professional affiliation)" : "Organisation"
+        }
         value={org}
         onChange={(e) => setOrg(e.target.value)}
       />
@@ -50,11 +117,26 @@ export default function ContactForm() {
         onChange={(e) => setMessage(e.target.value)}
         required
       />
-      <button type="submit" className="btn-primary self-start">
-        Send message <span>→</span>
+      {/* Honeypot: hidden from people, tempting to bots. */}
+      <input
+        className="hidden"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+      />
+      <button type="submit" className="btn-primary self-start" disabled={state === "sending"}>
+        {state === "sending" ? "Sending" : "Send message"} <span>→</span>
       </button>
+      {state === "error" && (
+        <p className="text-xs" style={{ color: "var(--text-primary)" }}>
+          Please check the name, email and message fields.
+        </p>
+      )}
       <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
-        Opens your email client. Or write directly to {EMAIL}.
+        We read everything and reply personally, usually within two business days. Or write
+        directly to {EMAIL}.
       </p>
     </form>
   );

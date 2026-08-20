@@ -1,35 +1,59 @@
 "use client";
 
-/** Animated number : counts up when scrolled into view. */
+/**
+ * Animated number : counts up when scrolled into view.
+ *
+ * Hand-rolled rather than driven by the animation library: a count-up
+ * needs an eased interpolation, not spring physics, and this component
+ * sits on pages where the library is otherwise unused.
+ */
 
-import { useInView, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+
+const DURATION_MS = 1600;
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
 export default function Counter({
   value,
   suffix = "",
-  duration = 1.6,
 }: {
   value: number;
   suffix?: string;
-  duration?: number;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
-  const reduce = useReducedMotion();
-  const mv = useMotionValue(0);
-  const spring = useSpring(mv, { duration: duration * 1000, bounce: 0 });
   // Initialise to the real value so SSR ships the true figure.
   const [display, setDisplay] = useState(() => value.toString());
 
   useEffect(() => {
-    if (inView && !reduce) mv.set(value);
-  }, [inView, reduce, value, mv]);
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  useEffect(() => {
-    const unsub = spring.on("change", (v) => setDisplay(Math.round(v).toString()));
-    return unsub;
-  }, [spring]);
+    let raf = 0;
+    let start = 0;
+    const step = (now: number) => {
+      if (!start) start = now;
+      const t = Math.min((now - start) / DURATION_MS, 1);
+      setDisplay(Math.round(easeOut(t) * value).toString());
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        io.disconnect();
+        setDisplay("0");
+        raf = requestAnimationFrame(step);
+      },
+      { rootMargin: "-10% 0px" }
+    );
+    io.observe(el);
+
+    return () => {
+      io.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [value]);
 
   return (
     <span ref={ref}>

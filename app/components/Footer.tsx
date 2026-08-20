@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTACT_EMAIL, MAILTO_DATASHEET, MAILTO_TWIN_DEMO } from "../lib/contact";
+import { CONTACT_EMAIL, CTA_DATASHEET, CTA_TWIN } from "../lib/contact";
 import { PATENT_FAMILIES } from "../lib/facts";
 
 const COLS = [
@@ -12,12 +12,12 @@ const COLS = [
       { href: "/instrument", label: "The Instrument · mission demos" },
       { href: "https://studio.spectralflow.ai", label: "SpectralFlow Studio", external: true },
       {
-        href: MAILTO_TWIN_DEMO,
+        href: CTA_TWIN,
         label: "Expert twin session · on request",
         external: true,
       },
       {
-        href: MAILTO_DATASHEET,
+        href: CTA_DATASHEET,
         label: "Predictive datasheet · on request",
         external: true,
       },

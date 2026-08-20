@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
-import { MAILTO_TWIN_DEMO } from "../lib/contact";
+import { CTA_TWIN } from "../lib/contact";
 
 export const metadata: Metadata = {
   title: "Tools",
@@ -34,7 +34,7 @@ const RUNGS = [
     k: "Talk to us",
     title: "Expert twin session",
     body: "A guided session on the full engineering digital twin, under agreement: the complete sensor model, the navigation filter and the design targets, walked through with our team. For partners and technical evaluators who need to go past the public layer.",
-    cta: { href: MAILTO_TWIN_DEMO, label: "Request an expert session", internal: false },
+    cta: { href: CTA_TWIN, label: "Request an expert session", internal: false },
   },
 ];
 
