@@ -7,6 +7,7 @@ import MissionChart from "./components/MissionChart";
 import ErrorBound from "./components/ErrorBound";
 import DuotonePhoto from "./components/DuotonePhoto";
 import SourceNote from "./components/SourceNote";
+import GnssMap from "./components/GnssMap";
 import NewsCard from "./components/NewsCard";
 import EventCard from "./components/EventCard";
 import Supporters from "./components/Supporters";
@@ -313,170 +314,6 @@ const FIGURES: Figure[] = [
 const FIGURE_SOURCES = FIGURES.map((f) => ({ ...f, source: getSource(f.id) })).filter(
   (f): f is Figure & { source: ContextSource } => !!f.source
 );
-
-/*
- * Preview of the daily interference map. It is the same drawing as the
- * placeholder of the live map on the navigation page: coarse coastlines of
- * Europe and the Mediterranean, and generic zones of cells in faint blue.
- * It carries no data and makes no third-party request.
- */
-const MAP_LON0 = -11;
-const MAP_LAT1 = 61;
-const MAP_S = 12;
-const MAP_KX = Math.cos((46 * Math.PI) / 180); // equirectangular, true at 46 N
-const MAP_W = Math.round((42 - MAP_LON0) * MAP_KX * MAP_S);
-const MAP_H = Math.round((MAP_LAT1 - 29.5) * MAP_S);
-
-type LL = [number, number];
-
-const mapPx = ([lon, lat]: LL) =>
-  `${((lon - MAP_LON0) * MAP_KX * MAP_S).toFixed(1)} ${((MAP_LAT1 - lat) * MAP_S).toFixed(1)}`;
-const mapLine = (pts: LL[], close = false) => `M${pts.map(mapPx).join(" L")}${close ? " Z" : ""}`;
-
-const MAP_COASTS: { pts: LL[]; close?: boolean }[] = [
-  {
-    pts: [
-      [-5.6, 36.0], [-6.3, 36.5], [-8.0, 37.0], [-9.0, 37.0], [-9.5, 38.7], [-8.7, 41.2],
-      [-9.3, 42.9], [-8.4, 43.4], [-5.7, 43.6], [-3.8, 43.5], [-1.6, 43.5], [-1.2, 45.5],
-      [-1.2, 46.2], [-2.2, 47.2], [-4.6, 48.4], [-2.0, 48.7], [-1.6, 49.7], [0.1, 49.5],
-      [1.1, 49.9], [1.9, 51.0], [2.9, 51.2], [4.1, 51.9], [4.8, 53.0], [6.8, 53.4],
-      [8.7, 53.9], [8.4, 55.5], [10.6, 57.7], [10.2, 56.2], [9.7, 55.6], [10.1, 54.4],
-      [10.9, 54.0], [12.1, 54.2], [14.3, 53.9], [15.6, 54.2], [18.6, 54.4], [20.0, 54.9],
-      [21.1, 55.7], [21.0, 56.5], [21.6, 57.4], [22.6, 57.75], [24.1, 57.0], [24.5, 58.4],
-      [24.75, 59.45], [28.0, 59.4], [30.3, 59.9], [28.7, 60.6], [25.0, 60.15], [23.0, 59.8],
-      [22.2, 60.45], [21.4, 61.2],
-    ],
-  },
-  {
-    pts: [
-      [17.3, 61.6], [17.2, 60.7], [18.9, 59.3], [16.8, 58.6], [16.4, 56.7], [15.6, 56.1],
-      [13.2, 55.4], [12.9, 55.6], [12.7, 56.0], [11.9, 57.7], [10.7, 59.0], [8.0, 58.1],
-      [5.7, 58.9], [5.3, 60.4], [5.0, 61.6],
-    ],
-  },
-  {
-    close: true,
-    pts: [
-      [-5.7, 50.05], [-4.1, 50.35], [-2.4, 50.6], [-0.1, 50.8], [1.35, 51.1], [0.9, 51.5],
-      [1.3, 51.95], [1.75, 52.5], [1.0, 52.95], [0.3, 52.9], [0.1, 53.6], [-0.4, 54.3],
-      [-1.4, 55.0], [-3.0, 56.0], [-2.9, 56.45], [-2.1, 57.15], [-2.0, 57.7], [-4.0, 57.6],
-      [-3.1, 58.45], [-5.0, 58.6], [-6.0, 57.3], [-5.5, 56.4], [-5.6, 55.3], [-5.0, 54.7],
-      [-3.5, 54.9], [-3.0, 54.0], [-3.0, 53.4], [-4.5, 53.3], [-4.1, 52.4], [-5.3, 51.9],
-      [-4.0, 51.6], [-2.7, 51.5], [-4.5, 51.0],
-    ],
-  },
-  {
-    close: true,
-    pts: [
-      [-6.0, 53.3], [-6.3, 52.2], [-8.5, 51.6], [-10.2, 51.8], [-9.9, 52.6], [-9.0, 53.2],
-      [-10.0, 54.2], [-8.3, 55.2], [-6.0, 55.2], [-5.5, 54.4],
-    ],
-  },
-  {
-    pts: [
-      [-5.6, 36.0], [-4.4, 36.7], [-2.4, 36.8], [-1.0, 37.6], [-0.5, 38.3], [-0.3, 39.5],
-      [0.8, 40.7], [2.2, 41.4], [3.3, 42.3], [3.0, 42.7], [3.9, 43.5], [5.4, 43.3],
-      [6.0, 43.1], [7.3, 43.7], [8.9, 44.4], [9.8, 44.1], [10.3, 43.5], [10.5, 42.9],
-      [12.3, 41.7], [13.5, 41.2], [14.3, 40.8], [14.8, 40.6], [15.6, 40.0], [16.0, 38.9],
-      [15.65, 38.1], [16.1, 38.0], [17.1, 39.1], [17.2, 40.45], [18.35, 39.8], [18.5, 40.15],
-      [17.95, 40.65], [16.9, 41.1], [16.2, 41.9], [14.2, 42.5], [13.5, 43.6], [12.6, 44.1],
-      [12.3, 45.4], [13.8, 45.65], [13.9, 44.85], [14.4, 45.3], [15.2, 44.1], [16.4, 43.5],
-      [18.1, 42.65], [19.1, 42.1], [19.45, 41.3], [19.5, 40.45], [20.0, 39.7], [20.75, 38.95],
-      [21.7, 38.25], [21.7, 37.0], [22.1, 36.9], [22.5, 36.4], [23.1, 36.45], [22.8, 37.55],
-      [23.7, 37.95], [24.0, 37.65], [23.6, 38.5], [22.9, 39.35], [22.9, 40.6], [23.8, 40.0],
-      [24.4, 40.9], [25.9, 40.85], [26.4, 40.2], [26.2, 39.5], [26.7, 38.5], [27.4, 37.0],
-      [28.3, 36.8], [29.1, 36.6], [30.7, 36.85], [32.0, 36.5], [32.8, 36.0], [34.6, 36.8],
-      [36.2, 36.6], [35.8, 35.5], [35.85, 34.4], [35.5, 33.9], [35.0, 32.8], [34.75, 32.05],
-      [34.4, 31.5], [32.3, 31.25], [29.9, 31.2], [27.2, 31.35], [23.9, 32.1], [20.1, 32.1],
-      [19.5, 30.6], [16.6, 31.2], [15.1, 32.4], [13.2, 32.9], [11.1, 33.2], [10.1, 33.9],
-      [10.8, 34.75], [10.8, 35.8], [11.05, 37.05], [10.2, 36.8], [9.9, 37.3], [7.8, 36.9],
-      [3.05, 36.75], [-0.6, 35.7], [-2.9, 35.3], [-5.3, 35.9], [-5.8, 35.8], [-6.8, 34.0],
-      [-7.6, 33.6], [-9.3, 32.3], [-9.8, 30.4],
-    ],
-  },
-  {
-    close: true,
-    pts: [
-      [29.0, 41.2], [28.0, 41.6], [27.5, 42.5], [27.9, 43.2], [28.65, 44.15], [29.7, 45.2],
-      [30.7, 46.5], [31.8, 46.6], [32.5, 45.4], [33.5, 44.6], [34.2, 44.5], [35.4, 45.0],
-      [36.5, 45.3], [37.8, 44.7], [39.7, 43.6], [41.6, 41.6], [39.7, 41.0], [36.3, 41.3],
-      [35.1, 42.0], [33.0, 41.9], [31.8, 41.45], [29.9, 41.15],
-    ],
-  },
-  {
-    close: true,
-    pts: [[35.4, 45.3], [35.0, 45.9], [37.0, 47.1], [39.2, 47.2], [38.2, 46.4], [37.8, 45.6], [36.6, 45.3]],
-  },
-  { close: true, pts: [[9.4, 43.0], [9.5, 42.0], [9.2, 41.4], [8.6, 41.7], [8.6, 42.5]] },
-  { close: true, pts: [[9.2, 41.2], [9.8, 40.8], [9.6, 39.2], [9.0, 39.0], [8.4, 39.0], [8.2, 40.6]] },
-  { close: true, pts: [[12.4, 38.0], [13.4, 38.2], [15.5, 38.3], [15.1, 37.0], [14.3, 36.7], [12.5, 37.6]] },
-  { close: true, pts: [[23.5, 35.6], [24.5, 35.4], [26.3, 35.3], [26.2, 35.0], [24.7, 35.1], [23.5, 35.3]] },
-  { close: true, pts: [[32.3, 35.0], [33.0, 35.4], [34.6, 35.7], [34.0, 35.0], [33.0, 34.6]] },
-  { close: true, pts: [[2.4, 39.6], [3.4, 39.85], [3.2, 39.3], [2.6, 39.45]] },
-];
-
-const MAP_COAST_PATHS = MAP_COASTS.map((c) => mapLine(c.pts, c.close));
-
-const MAP_HEX_R = 7.5;
-
-function mapHex(cx: number, cy: number) {
-  const pts: string[] = [];
-  for (let i = 0; i < 6; i++) {
-    const a = (Math.PI / 3) * i + Math.PI / 6;
-    pts.push(`${(cx + MAP_HEX_R * Math.cos(a)).toFixed(1)} ${(cy + MAP_HEX_R * Math.sin(a)).toFixed(1)}`);
-  }
-  return `M${pts.join(" L")} Z`;
-}
-
-function mapCluster(center: LL, rings: number, seed: number) {
-  const [cx, cy] = mapPx(center).split(" ").map(Number);
-  const dx = MAP_HEX_R * Math.sqrt(3);
-  const dy = MAP_HEX_R * 1.5;
-  const cells: { d: string; o: number }[] = [];
-  for (let q = -rings; q <= rings; q++) {
-    for (let r = -rings; r <= rings; r++) {
-      const dist = Math.max(Math.abs(q), Math.abs(r), Math.abs(-q - r));
-      if (dist > rings) continue;
-      // Deterministic thinning so each cluster has an irregular edge.
-      const h = Math.abs(Math.sin((q + 3.1) * 12.9898 + (r + 1.7) * 78.233 + seed) * 43758.5453) % 1;
-      if (dist === rings && h < 0.45) continue;
-      cells.push({
-        d: mapHex(cx + dx * (q + r / 2), cy + dy * r),
-        o: dist === 0 ? 0.34 : dist === 1 ? 0.24 : 0.13,
-      });
-    }
-  }
-  return cells;
-}
-
-const MAP_ZONES = [
-  ...mapCluster([21.5, 57.2], 3, 1),
-  ...mapCluster([33.5, 45.2], 3, 2),
-  ...mapCluster([34.3, 34.0], 2, 3),
-];
-
-function InterferencePreview() {
-  return (
-    <svg
-      viewBox={`0 0 ${MAP_W} ${MAP_H}`}
-      preserveAspectRatio="xMidYMid slice"
-      className="absolute inset-0 h-full w-full"
-      aria-hidden
-      focusable="false"
-    >
-      <g fill="none" stroke="var(--text-primary)" strokeOpacity="0.32" strokeWidth="0.9" strokeLinejoin="round">
-        {MAP_COAST_PATHS.map((d, i) => (
-          <path key={i} d={d} />
-        ))}
-      </g>
-      <g stroke="var(--accent)" strokeOpacity="0.35" strokeWidth="0.6">
-        {MAP_ZONES.map((z, i) => (
-          <path key={i} d={z.d} fill="var(--accent)" fillOpacity={z.o} />
-        ))}
-      </g>
-    </svg>
-  );
-}
 
 /* ----- How it works ----------------------------------------------------- */
 
@@ -843,16 +680,11 @@ export default function Home() {
           ))}
         </div>
 
-        {/* The daily interference map: a preview drawn here, the whole card
-            leading to the live map on the navigation page. */}
+        {/* The daily interference map, live, beside the sentence that turns it
+            towards our question. */}
         <Reveal className="mt-14">
           <div className="card relative grid grid-cols-1 md:grid-cols-[1.1fr_1fr] overflow-hidden">
-            <div
-              className="relative aspect-[16/9] md:aspect-auto md:min-h-[17rem]"
-              style={{ background: "var(--surface-2)" }}
-            >
-              <InterferencePreview />
-            </div>
+            <GnssMap variant="compact" />
             <div className="p-7 md:p-9 flex flex-col justify-center">
               <p className="eyebrow mb-3">Mapped every day</p>
               <p
@@ -865,15 +697,11 @@ export default function Home() {
               <p className="text-[15px] leading-7 mt-3" style={{ color: "var(--muted)" }}>
                 That is the question our instrument is designed to answer.
               </p>
-              <Link
-                href="/applications/navigation#problem"
-                className="textlink mt-6 self-start after:absolute after:inset-0 after:rounded-[var(--radius)]"
-              >
-                See the daily interference map <span aria-hidden>→</span>
+              <Link href="/applications/navigation#problem" className="textlink mt-6 self-start">
+                Why it matters <span aria-hidden>→</span>
               </Link>
               <p className="source-note mt-5">
-                The daily map is GPSJAM, by John Wiseman, built from aircraft ADS-B reports. The drawing
-                here is an illustration, not data.
+                The map is built from aircraft ADS-B reports. Third-party data, not Spectral Flow&apos;s.
               </p>
             </div>
           </div>

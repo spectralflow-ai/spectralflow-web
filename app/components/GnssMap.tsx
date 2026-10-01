@@ -1,21 +1,115 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
- * Live GNSS interference map, loaded on request.
+ * Live GNSS interference map: GPSJAM, by John Wiseman, credited under the
+ * frame.
  *
- * Before the click: a vignette drawn here, in our own lines (Europe and the
- * Mediterranean, generic zones in faint blue). It is not a copy of any map
- * and carries no data. No third-party request is made until the visitor
- * asks for the live map. On small screens the live map opens in a new tab
- * instead, so the page keeps scrolling normally.
+ * The live map is mounted when its section comes near the viewport, so it
+ * does not weigh on the first paint. While it loads, the frame shows a plain
+ * ground. The drawing made here (coarse coastlines of Europe and the
+ * Mediterranean, generic zones in faint blue, no data) takes the frame's place,
+ * labelled as an illustration, when:
+ * - this site's own check (/api/map-status, answered from the server) says
+ *   gpsjam.org is down, answers with an error, or forbids framing;
+ * - or the frame has not fired its load event in time.
  *
- * The live map is GPSJAM by John Wiseman, credited under the frame.
+ * Limit: when the visitor's own network blocks gpsjam.org while the site is up,
+ * browsers still fire load on their error page, so that page shows under the
+ * veil instead of the drawing. The link to gpsjam.org stays available.
+ *
+ * Once loaded, the map sits under a transparent veil until the visitor clicks
+ * or taps it, so the wheel and touch scrolling keep moving the page. The veil
+ * comes back when the map leaves the screen or the visitor clicks elsewhere on
+ * the page. Until then the frame is inert: its controls are out of the tab
+ * order. In print, the drawing stands in for the third-party map.
  */
 
 const LIVE_URL = "https://gpsjam.org/";
-const IFRAME_TITLE = "GPSJAM: daily map of likely GNSS interference, by John Wiseman";
+/** Same-origin availability check, answered from the server. */
+const STATUS_URL = "/api/map-status";
+
+/** Mount the live map this far ahead of the viewport. */
+const MOUNT_MARGIN = "600px 0px";
+/** The availability check gives up after this long (the load timeout still applies). */
+const PROBE_TIMEOUT_MS = 8000;
+/** The map must have fired its load event within this long. */
+const LOAD_TIMEOUT_MS = 12000;
+
+/*
+ * The frame runs gpsjam.org's own scripts (a MapLibre map: modules, a blob
+ * worker, WebGL, fetches to its own origin and to its tile server), so it
+ * needs scripts and its own origin. Links it opens in a new tab keep working.
+ * What the sandbox removes: navigating this page from inside the frame,
+ * forms, downloads and dialogs, none of which the map uses.
+ */
+const SANDBOX = "allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox";
+
+type Locale = "en" | "fr";
+type Variant = "full" | "compact";
+type Status = "idle" | "loading" | "live" | "offline";
+
+const NBSP = "\u00A0";
+
+const TEXT: Record<
+  Locale,
+  {
+    title: string;
+    loading: string;
+    click: string;
+    tap: string;
+    offline: string;
+    openSite: string;
+    openLive: string;
+    newTab: string;
+    creditBefore: string;
+    creditAfter: string;
+    drawingBefore: string;
+    drawingAfter: string;
+    legendAfter: string;
+    argument: string;
+  }
+> = {
+  en: {
+    title: "GPSJAM: daily map of likely GNSS interference, by John Wiseman",
+    loading: "Loading today's map…",
+    click: "Click to explore the map",
+    tap: "Tap to explore the map",
+    offline:
+      "The live map is unavailable right now. This drawing is an illustration, not data.",
+    openSite: "Open gpsjam.org",
+    openLive: "Open the live map",
+    newTab: " (opens gpsjam.org in a new tab)",
+    creditBefore: "Live map: ",
+    creditAfter: " by John Wiseman",
+    drawingBefore: "Drawing by Spectral Flow, illustration only. The live map is ",
+    drawingAfter: " by John Wiseman.",
+    legendAfter:
+      " by John Wiseman, built from aircraft ADS-B navigation-accuracy reports. Red cells mean many aircraft reported low accuracy, usually but not always caused by interference. Third-party data, not Spectral Flow's.",
+    argument:
+      "The map shows where aircraft lost confidence in satellite positioning. It cannot show how wrong each position was. That is the question our instrument is designed to answer.",
+  },
+  fr: {
+    title: `GPSJAM${NBSP}: carte quotidienne des interférences GNSS probables, par John Wiseman`,
+    loading: "Chargement de la carte du jour…",
+    click: "Cliquer pour explorer la carte",
+    tap: "Toucher pour explorer la carte",
+    offline:
+      "La carte en direct est indisponible pour le moment. Ce dessin est une illustration, pas des données.",
+    openSite: "Ouvrir gpsjam.org",
+    openLive: "Ouvrir la carte en direct",
+    newTab: " (ouvre gpsjam.org dans un nouvel onglet)",
+    creditBefore: `Carte en direct${NBSP}: `,
+    creditAfter: ", par John Wiseman",
+    drawingBefore: "Dessin de Spectral Flow, simple illustration. La carte en direct est ",
+    drawingAfter: ", par John Wiseman.",
+    legendAfter:
+      ", par John Wiseman, établie à partir des rapports de précision de navigation que les avions émettent en ADS-B. Une cellule rouge signifie que de nombreux avions ont signalé une précision faible, le plus souvent, mais pas toujours, à cause d’interférences. Données d’un tiers, pas celles de Spectral Flow.",
+    argument:
+      "La carte montre où des avions ont perdu confiance dans le positionnement par satellite. Elle ne peut pas montrer de combien chaque position était fausse. C’est la question à laquelle notre instrument est conçu pour répondre.",
+  },
+};
 
 /* ----- The vignette: coarse coastlines, longitude and latitude --------- */
 
@@ -161,12 +255,13 @@ const ZONES = [
   ...cluster([34.3, 34.0], 2, 3),
 ];
 
-function Vignette() {
+/** The drawing shown when the live map is offline. It carries no data. */
+export function GnssMapDrawing({ className = "absolute inset-0 w-full h-full" }: { className?: string }) {
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       preserveAspectRatio="xMidYMid slice"
-      className="absolute inset-0 w-full h-full"
+      className={className}
       aria-hidden
       focusable="false"
     >
@@ -184,74 +279,269 @@ function Vignette() {
   );
 }
 
+function ExternalLink({ label, newTab, href = LIVE_URL }: { label: string; newTab: string; href?: string }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="textlink">
+      {label}
+      <span className="sr-only">{newTab}</span>
+      <span aria-hidden>↗</span>
+    </a>
+  );
+}
+
 export default function GnssMap({
   showArgument = true,
   className = "",
+  locale = "en",
+  variant = "full",
 }: {
-  /** Print the sentence that turns the map towards our question. */
+  /** Print the sentence that turns the map towards our question (full variant only). */
   showArgument?: boolean;
   className?: string;
+  /** Language of the texts around the map. The map itself is in English. */
+  locale?: Locale;
+  /** "full": framed map with legend. "compact": fills its container, short credit only. */
+  variant?: Variant;
 }) {
-  const [live, setLive] = useState(false);
+  const t = TEXT[locale];
+  const compact = variant === "compact";
+
+  const frameRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const loadedRef = useRef(false);
+  // Identical on the server and on the first client render: nothing is
+  // decided before an effect runs.
+  const [status, setStatus] = useState<Status>("idle");
+  const [engaged, setEngaged] = useState(false);
+  const started = status !== "idle";
+
+  // Mount the live map when the frame comes near the viewport.
+  useEffect(() => {
+    if (started) return;
+    const el = frameRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const id = window.setTimeout(() => setStatus("loading"), 0);
+      return () => window.clearTimeout(id);
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        setStatus("loading");
+      },
+      { rootMargin: MOUNT_MARGIN }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [started]);
+
+  // Once mounted: ask this site whether gpsjam.org can be shown, and check
+  // that the map loads in time. Only a definite "no" from the check, or the
+  // load timeout, removes the frame and shows the drawing. If the check itself
+  // fails or is slow, the map is left alone and the load timeout decides.
+  useEffect(() => {
+    if (!started) return;
+    let cancelled = false;
+    const fail = () => {
+      if (!cancelled) setStatus("offline");
+    };
+
+    const controller = new AbortController();
+    const probeTimer = window.setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+    fetch(STATUS_URL, { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: unknown) => {
+        if (data && typeof data === "object" && (data as { ok?: unknown }).ok === false) fail();
+      })
+      .catch(() => {})
+      .finally(() => window.clearTimeout(probeTimer));
+
+    const loadTimer = window.setTimeout(() => {
+      if (!loadedRef.current) fail();
+    }, LOAD_TIMEOUT_MS);
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearTimeout(probeTimer);
+      window.clearTimeout(loadTimer);
+    };
+  }, [started]);
+
+  // Once the veil is lifted: move focus into the map (the frame stops being
+  // inert only after this render), and put the veil back when the map leaves
+  // the screen or focus returns to the page, for instance on a click elsewhere.
+  useEffect(() => {
+    if (!engaged) return;
+    iframeRef.current?.focus({ preventScroll: true });
+    const rearm = () => setEngaged(false);
+    window.addEventListener("focus", rearm);
+    const el = frameRef.current;
+    let io: IntersectionObserver | null = null;
+    if (el && typeof IntersectionObserver !== "undefined") {
+      io = new IntersectionObserver((entries) => {
+        if (entries.every((e) => !e.isIntersecting)) setEngaged(false);
+      });
+      io.observe(el);
+    }
+    return () => {
+      window.removeEventListener("focus", rearm);
+      io?.disconnect();
+    };
+  }, [engaged]);
+
+  const onLoad = () => {
+    loadedRef.current = true;
+    setStatus((s) => (s === "loading" ? "live" : s));
+  };
+
+  const engage = () => setEngaged(true);
+
+  const live = status === "live";
+  const offline = status === "offline";
+  const showFrame = status === "loading" || live;
+
+  const drawingCredit = (
+    <span className="source-note">
+      {t.drawingBefore}
+      <a href={LIVE_URL} target="_blank" rel="noopener noreferrer">
+        GPSJAM
+      </a>
+      {t.drawingAfter}
+    </span>
+  );
+
+  const frameClass = compact
+    ? "relative w-full overflow-hidden h-[420px] md:h-auto md:flex-1 md:min-h-[22rem]"
+    : "relative w-full overflow-hidden rounded-[var(--radius)] h-[420px] md:h-auto md:aspect-[16/9]";
 
   return (
-    <figure className={className}>
+    <figure className={`${compact ? "flex flex-col h-full" : ""} ${className}`.trim()}>
       <div
-        className="relative w-full overflow-hidden rounded-[var(--radius)] aspect-[4/3] md:aspect-[16/9]"
-        style={{ border: "1px solid var(--border)", background: "var(--surface-2)" }}
+        ref={frameRef}
+        className={frameClass}
+        style={{
+          background: "var(--surface-2)",
+          border: compact ? undefined : "1px solid var(--border)",
+        }}
       >
-        {live ? (
+        {showFrame && (
           <iframe
+            ref={iframeRef}
             src={LIVE_URL}
-            title={IFRAME_TITLE}
-            loading="lazy"
+            title={t.title}
             referrerPolicy="no-referrer"
-            className="absolute inset-0 w-full h-full"
+            sandbox={SANDBOX}
+            inert={!(live && engaged)}
+            onLoad={onLoad}
+            className="absolute inset-0 w-full h-full print:hidden focus-visible:[outline-offset:-2px]!"
             style={{ border: 0 }}
           />
-        ) : (
+        )}
+
+        {/* In print, the drawing stands in for the third-party map. */}
+        {!offline && (
+          <div className="hidden print:block absolute inset-0">
+            <GnssMapDrawing />
+          </div>
+        )}
+
+        {!live && !offline && (
+          <div
+            className="absolute inset-0 flex items-center justify-center p-6 text-center print:hidden"
+            style={{ background: "var(--surface-2)" }}
+          >
+            <span className="figure-label is-plain" aria-hidden>
+              {t.loading}
+            </span>
+          </div>
+        )}
+
+        {live && !engaged && (
+          <button
+            type="button"
+            onClick={engage}
+            className={`absolute inset-0 z-10 flex items-end justify-center p-4 md:p-5 cursor-pointer bg-transparent print:hidden focus-visible:[outline-offset:-4px]! ${
+              compact ? "" : "rounded-[var(--radius)]"
+            }`}
+          >
+            <span className="pill">
+              <span className="[@media(pointer:coarse)]:hidden">{t.click}</span>
+              <span className="hidden [@media(pointer:coarse)]:inline">{t.tap}</span>
+            </span>
+          </button>
+        )}
+
+        {offline && (
           <>
-            <Vignette />
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
-              <button
-                type="button"
-                onClick={() => setLive(true)}
-                className="btn-primary hidden md:inline-flex"
+            <GnssMapDrawing />
+            <div className="absolute inset-0 flex items-center justify-center p-5">
+              <div
+                className="max-w-sm rounded-[var(--radius)] px-5 py-4 text-center flex flex-col items-center gap-2"
+                style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
               >
-                Load today&apos;s live map
-              </button>
-              <a
-                href={LIVE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary md:hidden"
-              >
-                Open the live map <span aria-hidden>↗</span>
-                <span className="sr-only"> (opens gpsjam.org in a new tab)</span>
-              </a>
-              <span className="figure-label is-plain">Illustration. The live map loads from gpsjam.org.</span>
+                <p className="text-[13px] leading-6" style={{ color: "var(--text-secondary)" }} aria-hidden>
+                  {t.offline}
+                </p>
+                <ExternalLink label={t.openSite} newTab={t.newTab} />
+              </div>
             </div>
           </>
         )}
+
+        {/* One permanent live region, so a change of state is announced. */}
+        <p className="sr-only" aria-live="polite">
+          {status === "loading" ? t.loading : offline ? t.offline : ""}
+        </p>
       </div>
 
-      <figcaption className="mt-4 flex flex-col gap-3 max-w-3xl">
-        <p className="source-note">
-          Live map:{" "}
-          <a href={LIVE_URL} target="_blank" rel="noopener noreferrer">
-            GPSJAM
-          </a>{" "}
-          by John Wiseman, built from aircraft ADS-B navigation-accuracy reports. Red cells mean many
-          aircraft reported low accuracy, usually but not always caused by interference. Third-party
-          data, not Spectral Flow&apos;s.
-        </p>
-        {showArgument && (
-          <p className="text-[15px] leading-7" style={{ color: "var(--text-secondary)" }}>
-            The map shows where aircraft lost confidence in satellite positioning. It cannot show how
-            wrong each position was. That is the question our instrument is designed to answer.
-          </p>
-        )}
-      </figcaption>
+      {compact ? (
+        <figcaption className="hairline flex flex-wrap items-center justify-between gap-x-5 gap-y-2 px-5 py-3">
+          {offline ? (
+            drawingCredit
+          ) : (
+            <>
+              <span className="source-note print:hidden">
+                {t.creditBefore}
+                <a href={LIVE_URL} target="_blank" rel="noopener noreferrer">
+                  GPSJAM
+                </a>
+                {t.creditAfter}
+              </span>
+              <span className="hidden print:inline">{drawingCredit}</span>
+              <span className="md:hidden print:hidden">
+                <ExternalLink label={t.openLive} newTab={t.newTab} />
+              </span>
+            </>
+          )}
+        </figcaption>
+      ) : (
+        <figcaption className="mt-4 flex flex-col gap-3 max-w-3xl">
+          {offline ? (
+            <p>{drawingCredit}</p>
+          ) : (
+            <>
+              <span className="md:hidden self-start print:hidden">
+                <ExternalLink label={t.openLive} newTab={t.newTab} />
+              </span>
+              <p className="source-note print:hidden">
+                {t.creditBefore}
+                <a href={LIVE_URL} target="_blank" rel="noopener noreferrer">
+                  GPSJAM
+                </a>
+                {t.legendAfter}
+              </p>
+              <p className="hidden print:block">{drawingCredit}</p>
+              {showArgument && (
+                <p className="text-[15px] leading-7 print:hidden" style={{ color: "var(--text-secondary)" }}>
+                  {t.argument}
+                </p>
+              )}
+            </>
+          )}
+        </figcaption>
+      )}
     </figure>
   );
 }

@@ -82,18 +82,24 @@ export default function Privacy() {
           the demos, and we do not use these requests to identify visitors.
         </Body>
         <Body className="max-w-3xl mb-4">
-          <strong style={strong}>Live GNSS interference map.</strong> Some pages offer a live map
-          from gpsjam.org, a third-party site by John Wiseman. Nothing is requested from
-          gpsjam.org until you click to load the map; before that, the page shows a drawing made
-          by us. When you click, your browser loads gpsjam.org inside the page, and gpsjam.org,
-          together with any service that site itself uses, receives your IP address and standard
-          technical data under its own terms. On small screens the map opens on gpsjam.org in a
-          new tab instead.
+          <strong style={strong}>Live GNSS interference map.</strong> Some pages show a live map
+          from gpsjam.org, a third-party site run by John Wiseman. The map loads automatically
+          when you come close to that part of the page: your browser then connects to gpsjam.org,
+          which receives your IP address and standard technical data. Inside the map, gpsjam.org
+          may load its own resources (map tiles, fonts, cookie-free audience measurement), some of
+          them from other providers, which then also receive your IP address, and may keep its
+          settings in your browser&apos;s storage. This happens under gpsjam.org&apos;s own terms.
+          We receive nothing from gpsjam.org about you. To know whether the map is available, our
+          own server, not your browser, checks that gpsjam.org is answering; that check carries
+          nothing about you. If the map cannot be shown, the page displays a drawing made by us
+          instead. Legal basis: our legitimate interest in showing current public data on
+          satellite navigation interference.
         </Body>
         <Body className="max-w-3xl">
           <strong style={strong}>Cookies and audience measurement.</strong> This site uses no
-          audience measurement, no advertising or tracking cookies, and does not profile visitors.
-          Fonts and images are served from this site itself. Only strictly necessary cookies
+          audience measurement (the gpsjam.org map described above runs its own, cookie-free), no
+          advertising or tracking cookies, and does not profile visitors. Fonts and images are
+          served from this site itself, except inside the third-party map described above. Only strictly necessary cookies
           required for the site to be served securely may be set by our host. No consent banner is
           therefore required; should we add audience measurement, this policy will be updated
           first and consent requested where the law requires it.

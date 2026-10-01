@@ -752,7 +752,7 @@ export default function EnBref() {
           </ul>
         )}
 
-        {/* Today's interference map, loaded only on request */}
+        {/* Today's interference map, live */}
         <Reveal>
           <div className="hairline mt-14 pt-10 max-w-3xl">
             <h3 className="font-semibold text-lg mb-2.5" style={{ color: "var(--text-primary)" }}>
@@ -760,22 +760,15 @@ export default function EnBref() {
             </h3>
             <Body>
               {fr(
-                "La carte ci-dessous est établie chaque jour par GPSJAM, un site tiers en anglais, à partir des données de précision de navigation que transmettent les avions. Elle ne se charge que si vous le demandez."
+                "La carte ci-dessous est établie chaque jour par GPSJAM, un site tiers en anglais, à partir des données de précision de navigation que transmettent les avions. Elle se charge d'elle-même quand vous approchez de cette section."
               )}
             </Body>
           </div>
         </Reveal>
         <Reveal delay={100}>
-          <div lang="en">
-            <GnssMap className="mt-8" showArgument={false} />
-          </div>
-        </Reveal>
-        <Reveal>
-          <p className="mt-6 max-w-3xl text-[15px] leading-7" style={{ color: "var(--text-secondary)" }}>
-            {fr(
-              "La carte montre où des avions ont perdu confiance dans le positionnement par satellite. Elle ne peut pas montrer de combien chaque position était fausse. C'est la question à laquelle notre instrument est conçu pour répondre."
-            )}
-          </p>
+          {/* The component prints the argument sentence itself, and hides it
+              when the drawing replaces the live map. */}
+          <GnssMap className="mt-8" locale="fr" />
         </Reveal>
       </Cinema>
 
