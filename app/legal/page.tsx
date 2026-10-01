@@ -83,6 +83,11 @@ export default function Legal() {
               {CONTACT_EMAIL}
             </a>
           </Row>
+          <Row label="Telephone">
+            <a href="tel:+33664967360" style={{ color: "var(--accent)" }}>
+              +33 6 64 96 73 60
+            </a>
+          </Row>
         </dl>
       </Prose>
 
