@@ -1,13 +1,15 @@
 "use client";
 
 /**
- * FlightDeck V2: the SF100 story computed live on the Railway twin backend.
- * One mission on one screen: map + error chart side by side, live inertial
- * vs aided readouts, an event console, a compact mission log, a debrief
- * overlay, and the two-depth science layer one click away on every panel.
- * All figures model-derived.
+ * FlightDeck: one mission computed live by the simulation backend, on one
+ * screen: map + error chart side by side, live inertial vs aided readouts,
+ * an event console, a compact mission log, a debrief overlay, and the
+ * two-depth science layer one click away on every panel.
+ * All figures model-derived, and none is shown as a number: the public
+ * layer reports events and counts only. Palette: ink, porcelain, greys and
+ * the one cinema blue; series differ by line style (solid, dashed, dotted).
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, MotionConfig } from "framer-motion";
 import {
   fetchAblation,
@@ -19,18 +21,52 @@ import {
   type ContactResult,
   type World,
 } from "../lib/twin";
-import { CTA_TWIN } from "../lib/contact";
+import { CTA_SIMULATION } from "../lib/contact";
 import { PROFILES, type ProfileKey } from "./profiles";
 import { getTopic, type TopicKey } from "./science";
 
 const SPEED = 12; // mission seconds per wall second
 const T_END = 600;
 
-const BLUE = "#6FA1FF";
-const RED = "#D08770";
-const TEAL = "#5BBD8B";
-const TXT = "#F4F5F2";
+// SVG paints. The deck always sits in a .cinema band, so these mirror the
+// cinema tokens (--accent, --text-primary, --muted) for attributes that
+// take a plain colour.
+const BLUE = "#6FA1FF"; // the one blue (cinema): our chain
+const BLUE_SOFT = "rgba(111,161,255,0.38)";
+const TXT = "#F4F5F2"; // porcelain on ink: events that need the eye
+const GREY = "#AEB4C0"; // light grey: references (inertial alone)
 const MUTED = "#828A9A";
+// HTML text uses the tokens themselves.
+const T_PRIMARY = "var(--text-primary)";
+const T_SECONDARY = "var(--text-secondary)";
+const T_MUTED = "var(--muted)";
+
+/** Focusable elements inside a container, in tab order. */
+function focusables(root: HTMLElement | null): HTMLElement[] {
+  if (!root) return [];
+  return Array.from(
+    root.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  );
+}
+
+/** Keeps Tab and Shift+Tab inside a dialog. */
+function trapTab(e: React.KeyboardEvent, root: HTMLElement | null) {
+  if (e.key !== "Tab") return;
+  const items = focusables(root);
+  if (!items.length) return;
+  const first = items[0];
+  const lastItem = items[items.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey && (active === first || active === root)) {
+    e.preventDefault();
+    lastItem.focus();
+  } else if (!e.shiftKey && active === lastItem) {
+    e.preventDefault();
+    first.focus();
+  }
+}
 
 type LogKind = "ok" | "bad" | "info" | "contact";
 interface LogRow {
@@ -43,10 +79,6 @@ function fmtClock(t: number): string {
   const m = Math.floor(t / 60);
   const s = Math.floor(t % 60);
   return `T+${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-}
-
-function fmtM(v: number): string {
-  return v >= 950 ? `${(v / 1000).toFixed(1)} km` : `${Math.round(v)} m`;
 }
 
 /** Renders a refs string, linking arXiv ids and DOIs to their public
@@ -83,25 +115,19 @@ function RefLinks({ text }: { text: string }) {
   );
 }
 
-/** Linear interpolation of a sampled curve at mission time t. */
-function valAt(ts: number[], es: number[], t: number): number {
-  if (!ts.length) return 0;
-  if (t <= ts[0]) return es[0];
-  for (let i = 1; i < ts.length; i++) {
-    if (ts[i] >= t) {
-      const f = (t - ts[i - 1]) / (ts[i] - ts[i - 1] || 1);
-      return es[i - 1] + f * (es[i] - es[i - 1]);
-    }
-  }
-  return es[es.length - 1];
-}
-
-export default function FlightDeck({ profile }: { profile: ProfileKey }) {
+export default function FlightDeck({
+  profile,
+  focusOnOpen = false,
+}: {
+  profile: ProfileKey;
+  /** move keyboard focus to the cold open (set when a visitor chose the
+   *  mission in the chooser, not on a deep link) */
+  focusOnOpen?: boolean;
+}) {
   const P = PROFILES[profile];
   const [seed, setSeed] = useState(2);
   const [attacks, setAttacks] = useState<Attack[]>([]);
   const [world, setWorld] = useState<World | null>(null);
-  const [loading, setLoading] = useState(true);
   const [t, setT] = useState(0);
   const [started, setStarted] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -110,9 +136,15 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   >(null);
   const [reviewing, setReviewing] = useState(false);
   const [topic, setTopic] = useState<TopicKey | null>(null);
-  const [abl, setAbl] = useState<AblationResult | null>(null);
+  const [ablBySeed, setAblBySeed] = useState<{
+    seed: number;
+    result: AblationResult;
+  } | null>(null);
+  const abl = ablBySeed?.seed === seed ? ablBySeed.result : null;
   const raf = useRef<number>(0);
   const last = useRef<number>(0);
+  const coldCtaRef = useRef<HTMLButtonElement>(null);
+  const debriefRef = useRef<HTMLDivElement>(null);
 
   // level-by-level breakdown, fetched once the mission is over.
   // Computed on the NOMINAL leg of this world, never on the attacked one:
@@ -123,9 +155,8 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   useEffect(() => {
     if (!landedNow) return;
     let live = true;
-    setAbl(null);
     fetchAblation(seed, 20, [])
-      .then((a) => live && setAbl(a))
+      .then((a) => live && setAblBySeed({ seed, result: a }))
       .catch(() => {});
     return () => {
       live = false;
@@ -146,54 +177,57 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
     };
   }, [landedNow, contact, contactFailed]);
 
-  // fetch world whenever seed or attacks change
-  const [fetchError, setFetchError] = useState(false);
+  // fetch world whenever seed or attacks change. Loading and error states
+  // are derived from which request last settled, so the effect never sets
+  // state synchronously.
   const [retryNonce, setRetryNonce] = useState(0);
+  const requestKey = `${seed}|${attacks
+    .map(([k, at]) => `${k}:${at}`)
+    .join(",")}|${retryNonce}`;
+  const [settled, setSettled] = useState<{ key: string; ok: boolean } | null>(
+    null
+  );
+  const loading = settled?.key !== requestKey;
+  const fetchError = !loading && settled?.ok === false;
   useEffect(() => {
     let live = true;
-    setLoading(true);
-    setFetchError(false);
     fetchWorld(seed, 20, attacks)
       .then((w) => {
         if (live) {
           setWorld(w);
-          setLoading(false);
+          setSettled({ key: requestKey, ok: true });
         }
       })
       .catch(() => {
-        if (live) {
-          setLoading(false);
-          setFetchError(true);
-        }
+        if (live) setSettled({ key: requestKey, ok: false });
       });
     return () => {
       live = false;
     };
-  }, [seed, attacks, retryNonce]);
+  }, [seed, attacks, retryNonce, requestKey]);
 
   // playback clock
-  const tick = useCallback((now: number) => {
-    if (last.current) {
-      const dt = (now - last.current) / 1000;
-      setT((prev) => {
-        const next = prev + dt * SPEED;
-        if (next >= T_END) {
-          setPlaying(false);
-          return T_END;
-        }
-        return next;
-      });
-    }
-    last.current = now;
-    raf.current = requestAnimationFrame(tick);
-  }, []);
   useEffect(() => {
-    if (playing) {
-      last.current = 0;
+    if (!playing) return;
+    last.current = 0;
+    const tick = (now: number) => {
+      if (last.current) {
+        const dt = (now - last.current) / 1000;
+        setT((prev) => {
+          const next = prev + dt * SPEED;
+          if (next >= T_END) {
+            setPlaying(false);
+            return T_END;
+          }
+          return next;
+        });
+      }
+      last.current = now;
       raf.current = requestAnimationFrame(tick);
-      return () => cancelAnimationFrame(raf.current);
-    }
-  }, [playing, tick]);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [playing]);
 
   // attacks open after the 60 s calibration prefix (server clamps too)
   const canAttack = attacks.length < 3 && t >= 70 && t <= T_END - 150;
@@ -225,6 +259,16 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
   // one of the three overlays (cold open, debrief, science modal) is up:
   // the deck behind it leaves the tab order via `inert`.
   const overlayOpen = !started || (landed && !reviewing) || topic !== null;
+  const debriefOpen = landed && !reviewing;
+
+  // keyboard focus follows the overlays, so it is never left on an
+  // element that has just gone inert
+  useEffect(() => {
+    if (focusOnOpen) coldCtaRef.current?.focus({ preventScroll: true });
+  }, [focusOnOpen]);
+  useEffect(() => {
+    if (debriefOpen) debriefRef.current?.focus({ preventScroll: true });
+  }, [debriefOpen]);
 
   return (
     <MotionConfig reducedMotion="user">
@@ -251,12 +295,12 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           alignItems: "center",
         }}
       >
-        <div style={{ minWidth: 130 }}>
+        <div className="deck-clock">
           <div
             style={{
               fontFamily: "var(--font-geist-mono)",
               fontSize: "1.3rem",
-              color: TXT,
+              color: T_PRIMARY,
               lineHeight: 1,
             }}
           >
@@ -278,6 +322,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           }}
           style={{ width: "100%", accentColor: BLUE }}
           aria-label="mission timeline"
+          aria-valuetext={fmtClock(t)}
         />
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <button
@@ -310,7 +355,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
         </div>
       </div>
 
-      {/* twin status: first compute or unreachable backend */}
+      {/* service status: first compute or unreachable backend */}
       {!world && (
         <div
           className="card"
@@ -325,10 +370,10 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
         >
           {fetchError ? (
             <>
-              <span style={{ color: "#D8A08C", fontSize: "0.9rem" }}>
+              <span style={{ color: T_PRIMARY, fontSize: "0.9rem" }}>
                 {TWIN_OFFLINE
-                  ? "The twin compute service is offline on our side. The mission demos will be back shortly."
-                  : "The twin is unreachable, probably a network hiccup on your side or ours."}
+                  ? "The simulation service is offline on our side. The mission demos will be back shortly."
+                  : "The simulation service is unreachable, probably a network hiccup on your side or ours."}
               </span>
               {!TWIN_OFFLINE && (
                 <button
@@ -341,8 +386,8 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
               )}
             </>
           ) : (
-            <span className="figure-label" style={{ color: MUTED }}>
-              computing this world live on the twin, a second or two...
+            <span className="figure-label" style={{ color: T_MUTED }}>
+              computing this world live in simulation, a second or two...
             </span>
           )}
         </div>
@@ -387,7 +432,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           >
             <button
               className="btn-ghost"
-              style={{ padding: "0.45rem 0.9rem", borderColor: "#5A3328" }}
+              style={{ padding: "0.45rem 0.9rem", borderStyle: "dashed" }}
               disabled={!canAttack}
               onClick={() => attack("gain")}
             >
@@ -395,7 +440,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             </button>
             <button
               className="btn-ghost"
-              style={{ padding: "0.45rem 0.9rem", borderColor: "#5A3328" }}
+              style={{ padding: "0.45rem 0.9rem", borderStyle: "dashed" }}
               disabled={!canAttack}
               onClick={() => attack("burst")}
             >
@@ -403,7 +448,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             </button>
             <button
               className="btn-ghost"
-              style={{ padding: "0.45rem 0.9rem", borderColor: "#2E4A3F" }}
+              style={{ padding: "0.45rem 0.9rem", borderStyle: "dashed" }}
               disabled={!canAttack}
               onClick={() => attack("spoof")}
             >
@@ -412,7 +457,6 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             <Chip k="attack_gain" profile={profile} onOpen={setTopic} />
             <Chip k="attack_burst" profile={profile} onOpen={setTopic} />
             <Chip k="spoofing" profile={profile} onOpen={setTopic} />
-            <Chip k="fleet" profile={profile} onOpen={setTopic} />
           </div>
           {lastAttack ? (
             <motion.div
@@ -424,16 +468,16 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 {P.impactKicker} ·{" "}
               </span>
               <span
-                style={{ color: TXT, fontWeight: 500, fontSize: "0.85rem" }}
+                style={{ color: T_PRIMARY, fontWeight: 500, fontSize: "0.85rem" }}
               >
                 {P.impact[lastAttack].title}.
               </span>{" "}
-              <span style={{ color: "#9AA2B1", fontSize: "0.82rem" }}>
+              <span style={{ color: T_SECONDARY, fontSize: "0.82rem" }}>
                 {P.impact[lastAttack].body}
               </span>
             </motion.div>
           ) : (
-            <span className="figure-label" style={{ color: MUTED }}>
+            <span className="figure-label" style={{ color: T_MUTED }}>
               {attacks.length === 0
                 ? P.consoleIdle
                 : `${attacks.length} event${
@@ -489,7 +533,6 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       {!started && (
         <div
           role="dialog"
-          aria-modal="true"
           aria-labelledby="deck-coldopen-title"
           style={{
             position: "absolute",
@@ -509,7 +552,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
               style={{
                 fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
                 fontWeight: 650,
-                color: TXT,
+                color: T_PRIMARY,
                 margin: "0 0 0.7rem",
                 letterSpacing: "-0.02em",
               }}
@@ -518,7 +561,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             </h2>
             <p
               style={{
-                color: "#AEB4C0",
+                color: T_SECONDARY,
                 fontSize: "0.95rem",
                 lineHeight: 1.65,
                 margin: "0 0 1.4rem",
@@ -527,6 +570,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
               {P.coldSub}
             </p>
             <button
+              ref={coldCtaRef}
               className="btn-primary"
               onClick={() => {
                 setStarted(true);
@@ -540,10 +584,9 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       )}
 
       {/* debrief overlay */}
-      {t >= T_END && world && !reviewing && (
+      {debriefOpen && world && (
         <motion.div
           role="dialog"
-          aria-modal="true"
           aria-labelledby="deck-debrief-title"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -560,11 +603,14 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
           }}
         >
           <div
+            ref={debriefRef}
+            tabIndex={-1}
             style={{
               maxWidth: 720,
               width: "100%",
               maxHeight: "100%",
               overflowY: "auto",
+              outline: "none",
             }}
           >
             <div
@@ -576,7 +622,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             </div>
             <p
               style={{
-                color: TXT,
+                color: T_PRIMARY,
                 fontSize: "clamp(1.05rem, 2vw, 1.3rem)",
                 fontWeight: 600,
                 lineHeight: 1.45,
@@ -587,10 +633,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 ? P.headlineAttacked
                     .replace("{k}", String(attacks.length))
                     .replace("{n}", String(world.metrics.fixes_withheld))
-                : P.headline.replace(
-                    "{pct}",
-                    world.metrics.drift_removed_pct.toFixed(0)
-                  )}
+                : P.headline}
             </p>
             <div
               style={{
@@ -601,27 +644,13 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
               }}
             >
               <Metric
-                label="Inertial drift removed"
-                value={`${world.metrics.drift_removed_pct.toFixed(0)}%`}
-                tone={TEAL}
-              />
-              <Metric
                 label="Accepted fixes within their bound"
                 value={(() => {
                   const acc = world.fixes.filter((f) => !f.withheld);
                   const ok = acc.filter((f) => f.err_m <= f.bound_m);
                   return `${ok.length} / ${acc.length}`;
                 })()}
-                tone={TEAL}
-              />
-              <Metric
-                label="Bounded error, back half"
-                value={fmtM(world.metrics.bounded_back_half_m)}
-              />
-              <Metric
-                label="Inertial alone would be"
-                value={fmtM(world.metrics.dr_end_m)}
-                tone={RED}
+                tone={BLUE}
               />
               <Metric
                 label="Fixes accepted / withheld"
@@ -642,8 +671,8 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
                 alignItems: "center",
               }}
             >
-              <a href={CTA_TWIN} className="btn-primary">
-                Request an expert twin session <span>→</span>
+              <a href={CTA_SIMULATION} className="btn-primary">
+                Request an expert simulation session <span>→</span>
               </a>
               <button className="btn-ghost" onClick={reset}>
                 Replay this world
@@ -660,16 +689,15 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             </div>
             <p
               style={{
-                color: "#9AA2B1",
+                color: T_SECONDARY,
                 fontSize: "0.85rem",
                 lineHeight: 1.55,
                 margin: "1.1rem 0 0",
                 maxWidth: 620,
               }}
             >
-              This mission is the public window of the twin. The full
-              engineering twin flies deeper scenarios, on your trajectories,
-              your platforms, your threat models.
+              Expert sessions run deeper scenarios, on your own trajectories
+              and platforms.
             </p>
           </div>
         </motion.div>
@@ -678,6 +706,7 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
       {/* science modal */}
       {topic && (
         <ScienceModal
+          key={topic}
           k={topic}
           profile={profile}
           onClose={() => setTopic(null)}
@@ -700,10 +729,22 @@ export default function FlightDeck({ profile }: { profile: ProfileKey }) {
             height: clamp(520px, calc(100dvh - 235px), 860px);
           }
         }
+        .deck-clock { min-width: 130px; }
+        .wf-row {
+          display: grid;
+          grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+          gap: 0.7rem;
+          align-items: center;
+        }
+        @media (max-width: 560px) {
+          .wf-row { grid-template-columns: 1fr; gap: 0.3rem; }
+        }
         @media (max-width: 899px) {
           .deck-panels { grid-template-columns: 1fr; }
           .deck-bottom { grid-template-columns: 1fr; }
           .map-box { width: 100% !important; height: auto !important; }
+          .err-box { flex: none !important; height: 220px; }
+          .deck-clock { min-width: 0; }
           .deck-top {
             grid-template-columns: 1fr auto;
           }
@@ -724,16 +765,16 @@ const LEVEL_META: Record<
   string,
   { label: string; color: string }
 > = {
-  inertial: { label: "IMU alone · gyro + accelerometer drift", color: RED },
+  inertial: { label: "IMU alone · gyro + accelerometer drift", color: MUTED },
   raw_mag: {
-    label: "+ a bare magnetometer · classical MagNav",
-    color: "#C89B6B",
+    label: "+ a magnetometer without on-board rejection",
+    color: GREY,
   },
   ai_chain: {
-    label: "+ SF100 tensor array · separation & self-check",
-    color: BLUE,
+    label: "+ on-board rejection and self-check",
+    color: BLUE_SOFT,
   },
-  full: { label: "+ fusion observers · the full chain", color: TEAL },
+  full: { label: "+ fusion observers · the full chain", color: BLUE },
 };
 
 function Waterfall({ abl }: { abl: AblationResult | null }) {
@@ -741,7 +782,7 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
     return (
       <p
         className="figure-label"
-        style={{ color: MUTED, margin: "0 0 1.1rem" }}
+        style={{ color: T_MUTED, margin: "0 0 1.1rem" }}
       >
         computing the level-by-level breakdown, four full recomputations of
         this exact world...
@@ -752,26 +793,19 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
   return (
     <div style={{ margin: "0 0 1.2rem" }}>
       <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
-        Where the performance comes from
+        Where the gain comes from, level by level
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {abl.levels.map((l) => {
           const meta = LEVEL_META[l.key];
           const w = Math.max((l.median_back_m / ref) * 100, 1.2);
           return (
-            <div
-              key={l.key}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(180px,290px) 1fr 70px",
-                gap: "0.7rem",
-                alignItems: "center",
-              }}
-            >
-              <span style={{ color: "#9AA2B1", fontSize: "0.78rem" }}>
+            <div key={l.key} className="wf-row">
+              <span style={{ color: T_SECONDARY, fontSize: "0.78rem" }}>
                 {meta.label}
               </span>
               <div
+                aria-hidden
                 style={{
                   height: 8,
                   borderRadius: 99,
@@ -790,108 +824,19 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
                   }}
                 />
               </div>
-              <span
-                style={{
-                  fontFamily: "var(--font-geist-mono)",
-                  color: meta.color,
-                  fontSize: "0.82rem",
-                  textAlign: "right",
-                }}
-              >
-                {fmtM(l.median_back_m)}
-              </span>
             </div>
           );
         })}
       </div>
       <p
         className="figure-label"
-        style={{ color: MUTED, marginTop: "0.45rem" }}
+        style={{ color: T_MUTED, marginTop: "0.45rem" }}
       >
-        median position error, back half of the flight · the nominal leg of
-        this same world, each level fully recomputed · your injected events
-        are scored in the mission metrics above, where only the full
-        chain can certify what it accepts
+        relative position error, back half of the flight · the nominal leg
+        of this same world, each level fully recomputed · your injected
+        events are counted above, where only the full chain can vouch for
+        what it accepts
       </p>
-
-      <div className="figure-label" style={{ margin: "0.9rem 0 0.5rem" }}>
-        And swap only the sensor · same corridor, nominal leg
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <SwapBar
-          label="conventional vector array · fluxgate class, thermal drift"
-          value={abl.envelope.conventional.median_back_m}
-          reference={abl.envelope.conventional.median_back_m}
-          color="#C89B6B"
-        />
-        <SwapBar
-          label="SF100 diamond array · quantum-stable reference"
-          value={abl.envelope.sf100.median_back_m}
-          reference={abl.envelope.conventional.median_back_m}
-          color={TEAL}
-        />
-      </div>
-      <p
-        className="figure-label"
-        style={{ color: MUTED, marginTop: "0.45rem" }}
-      >
-        the conventional stand-in is generous (premium compact array); its
-        scale-factor and offset drift leak the 47 µT Earth field into the
-        very band the map lives in · the chain withheld{" "}
-        {abl.envelope.conventional_withheld} of {abl.envelope.n_fixes} of
-        its fixes as untrustworthy
-      </p>
-    </div>
-  );
-}
-
-function SwapBar({
-  label,
-  value,
-  reference,
-  color,
-}: {
-  label: string;
-  value: number;
-  reference: number;
-  color: string;
-}) {
-  const w = Math.max((value / Math.max(reference, 1)) * 100, 1.2);
-  return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "minmax(180px,290px) 1fr 70px",
-        gap: "0.7rem",
-        alignItems: "center",
-      }}
-    >
-      <span style={{ color: "#9AA2B1", fontSize: "0.78rem" }}>{label}</span>
-      <div
-        style={{
-          height: 8,
-          borderRadius: 99,
-          background: "rgba(255,255,255,0.06)",
-          overflow: "hidden",
-        }}
-      >
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${w}%` }}
-          transition={{ duration: 0.7 }}
-          style={{ height: "100%", borderRadius: 99, background: color }}
-        />
-      </div>
-      <span
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          color,
-          fontSize: "0.82rem",
-          textAlign: "right",
-        }}
-      >
-        {fmtM(value)}
-      </span>
     </div>
   );
 }
@@ -910,17 +855,17 @@ function ContactReplay({
   if (failed) return null;
   const header =
     profile === "space"
-      ? "The science target, replayed · the passage that gave it away"
+      ? "The buried body, replayed · the passage that gave it away"
       : profile === "geo"
         ? "The anomaly, replayed · the passage that gave it away"
-        : "The contact, replayed · the passage that gave it away";
+        : "The source, replayed · the passage that gave it away";
   if (!contact) {
     return (
       <div style={{ margin: "0 0 1.2rem" }}>
         <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
           {header}
         </div>
-        <p className="figure-label" style={{ color: MUTED, margin: 0 }}>
+        <p className="figure-label" style={{ color: T_MUTED, margin: 0 }}>
           replaying the detection...
         </p>
       </div>
@@ -942,20 +887,12 @@ function ContactReplay({
   const yBot = lo - pad;
   const px = (x: number) => ((x - xMin) / (xMax - xMin || 1)) * W;
   const py = (y: number) => ((yTop - y) / (yTop - yBot)) * H;
-  const err = Math.round(
-    Math.hypot(
-      (contact.truth?.[0] ?? 0) - (contact.est?.[0] ?? 0),
-      (contact.truth?.[1] ?? 0) - (contact.est?.[1] ?? 0)
-    )
-  );
-  const fmtNT = (v: number) =>
-    v >= 10 ? v.toFixed(0) : v >= 1 ? v.toFixed(1) : v.toFixed(2);
   const body =
     profile === "space"
-      ? "A buried magnetised body, thousands of times weaker at the sensor than the scout's own field, catalogued from a single pass while navigation ran uninterrupted."
+      ? "A buried magnetised body, far weaker at the sensor than the scout's own field, catalogued from a single pass while navigation ran uninterrupted."
       : profile === "geo"
-        ? "A compact magnetised body, thousands of times weaker at the sensor than the aircraft's own field, catalogued from a single pass while navigation ran uninterrupted."
-        : "A vessel-class source, thousands of times weaker at the sensor than the platform's own field, localised from a single fly-by while navigation ran uninterrupted.";
+        ? "A compact magnetised body, far weaker at the sensor than the aircraft's own field, catalogued from a single pass while navigation ran uninterrupted."
+        : "A large steel object, far weaker at the sensor than the platform's own field, localised from a single fly-by while navigation ran uninterrupted.";
   return (
     <div style={{ margin: "0 0 1.2rem" }}>
       <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
@@ -965,6 +902,8 @@ function ContactReplay({
         <svg
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="none"
+          role="img"
+          aria-label="The field profile swept along the track as the source passed, rising and fading around the closest approach"
           style={{ width: "100%", height: 150, display: "block" }}
         >
           <rect
@@ -987,7 +926,7 @@ function ContactReplay({
               .map((x, i) => `${px(x).toFixed(1)},${py(ys[i]).toFixed(1)}`)
               .join(" ")}
             fill="none"
-            stroke={TEAL}
+            stroke={BLUE}
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -997,15 +936,14 @@ function ContactReplay({
       </div>
       <p
         className="figure-label"
-        style={{ color: MUTED, margin: "0.45rem 0 0" }}
+        style={{ color: T_MUTED, margin: "0.45rem 0 0" }}
       >
-        significance ×{(contact.det ?? 0).toFixed(0)} · localisation error{" "}
-        {err} m · platform leakage floor {fmtNT(leak)} nT · {contact.resolved}
-        /{contact.n} epochs resolved
+        detected · localised from a single pass · shaded band: what remains
+        of the platform&rsquo;s own field after on-board rejection
       </p>
       <p
         style={{
-          color: "#9AA2B1",
+          color: T_SECONDARY,
           fontSize: "0.8rem",
           lineHeight: 1.55,
           margin: "0.35rem 0 0",
@@ -1032,19 +970,25 @@ function Chip({
   return (
     <button
       onClick={() => onOpen(k)}
+      aria-label={`${t.short}, science note: ${t.title}`}
       style={{
-        border: "1px solid rgba(255,255,255,0.16)",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.3rem",
+        minHeight: 24,
+        border: "1px solid var(--border-strong)",
         borderRadius: 999,
         padding: "0.1rem 0.6rem",
         fontSize: "0.7rem",
         letterSpacing: "0.04em",
-        color: MUTED,
+        color: T_MUTED,
         background: "rgba(255,255,255,0.03)",
         cursor: "pointer",
         whiteSpace: "nowrap",
       }}
     >
-      &#9432; {t.short}
+      <span aria-hidden>&#9432;</span>
+      {t.short}
     </button>
   );
 }
@@ -1059,9 +1003,9 @@ function ScienceModal({
   onClose: () => void;
 }) {
   const t = getTopic(k, profile);
+  // a new topic remounts the modal (keyed by topic), so depth starts closed
   const [deep, setDeep] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  useEffect(() => setDeep(false), [k]);
   // dialog focus: move it to the card on mount, hand it back on close
   useEffect(() => {
     const trigger =
@@ -1100,6 +1044,7 @@ function ScienceModal({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => trapTab(e, cardRef.current)}
         className="card"
         style={{
           maxWidth: 620,
@@ -1107,7 +1052,8 @@ function ScienceModal({
           maxHeight: "82dvh",
           overflowY: "auto",
           padding: "1.4rem 1.6rem",
-          background: "#0E1420",
+          background: "var(--surface)",
+          outline: "none",
         }}
       >
         <div
@@ -1121,7 +1067,7 @@ function ScienceModal({
           <p
             id="deck-science-title"
             style={{
-              color: TXT,
+              color: T_PRIMARY,
               fontWeight: 600,
               fontSize: "1.05rem",
               margin: 0,
@@ -1131,13 +1077,15 @@ function ScienceModal({
           </p>
           <button
             onClick={onClose}
-            aria-label="close"
+            aria-label="Close"
             style={{
               background: "none",
               border: "none",
-              color: MUTED,
+              color: T_MUTED,
               cursor: "pointer",
               fontSize: "1rem",
+              minWidth: 24,
+              minHeight: 24,
             }}
           >
             ✕
@@ -1145,7 +1093,7 @@ function ScienceModal({
         </div>
         <p
           style={{
-            color: "#C7CCD6",
+            color: T_SECONDARY,
             fontSize: "0.92rem",
             lineHeight: 1.6,
             margin: "0.7rem 0 0.9rem",
@@ -1162,7 +1110,7 @@ function ScienceModal({
               <p
                 key={i}
                 style={{
-                  color: "#9AA2B1",
+                  color: T_SECONDARY,
                   fontSize: "0.86rem",
                   lineHeight: 1.6,
                   margin: "0.6rem 0",
@@ -1173,7 +1121,7 @@ function ScienceModal({
             ))}
             <p
               style={{
-                color: MUTED,
+                color: T_MUTED,
                 fontSize: "0.76rem",
                 marginTop: "0.8rem",
               }}
@@ -1231,7 +1179,7 @@ function MapPanel({
       >
         <span className="figure-label">{title}</span>
         <Chip k="map" profile={profile} onOpen={onTopic} />
-        <Chip k="tensor" profile={profile} onOpen={onTopic} />
+        <Chip k="rejection" profile={profile} onOpen={onTopic} />
       </div>
       <div
         className="map-box"
@@ -1245,9 +1193,13 @@ function MapPanel({
         }}
       >
         {world && (
+          // a data URI computed per world: next/image adds nothing here
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={`data:image/png;base64,${world.map.png_b64}`}
-            alt="anomaly map"
+            alt="Synthetic magnetic anomaly map of the mission area, with the flight track and the position fixes drawn over it"
+            width={600}
+            height={600}
             style={{
               width: "100%",
               height: "100%",
@@ -1263,6 +1215,7 @@ function MapPanel({
           <svg
             viewBox={`0 0 ${ext} ${ext}`}
             preserveAspectRatio="none"
+            aria-hidden
             style={{
               position: "absolute",
               inset: 0,
@@ -1294,9 +1247,9 @@ function MapPanel({
                   cx={f.x}
                   cy={ext - f.y}
                   r={ext / 90}
-                  fill={f.withheld ? RED : BLUE}
-                  stroke="#0B0F1A"
-                  strokeWidth={ext / 600}
+                  fill={f.withheld ? "none" : BLUE}
+                  stroke={f.withheld ? TXT : "#0B0F1A"}
+                  strokeWidth={f.withheld ? ext / 300 : ext / 600}
                 />
               ))}
             {world.faults
@@ -1314,18 +1267,19 @@ function MapPanel({
                     cx={f.ring!.x}
                     cy={ext - f.ring!.y}
                     r={f.ring!.r}
-                    fill={TEAL}
-                    fillOpacity={0.07}
-                    stroke={TEAL}
+                    fill={TXT}
+                    fillOpacity={0.06}
+                    stroke={TXT}
                     strokeWidth={1.4}
-                    strokeDasharray="6 5"
+                    strokeDasharray="1.5 4"
+                    strokeLinecap="round"
                     vectorEffect="non-scaling-stroke"
                   />
                   <circle
                     cx={f.ring!.x}
                     cy={ext - f.ring!.y}
                     r={ext / 140}
-                    fill={TEAL}
+                    fill={TXT}
                   />
                 </g>
               ))}
@@ -1372,9 +1326,6 @@ function ErrorPanel({
     return pts.join(" ");
   };
 
-  const eDr = world ? valAt(world.dr.t, world.dr.e, t) : 0;
-  const eAid = world ? valAt(world.aided.t, world.aided.e, t) : 0;
-
   return (
     <div
       className="card"
@@ -1395,17 +1346,22 @@ function ErrorPanel({
         }}
       >
         <span className="figure-label">Position error</span>
-        <Readout color={RED} label="inertial only" value={fmtM(eDr)} />
-        <Readout color={BLUE} label="with magnetic fixes" value={fmtM(eAid)} />
+        <Readout color={GREY} dashed label="inertial only" />
+        <Readout color={BLUE} label="with magnetic fixes" />
         <span style={{ flex: 1 }} />
         <Chip k="drift" profile={profile} onOpen={onTopic} />
         <Chip k="selfcheck" profile={profile} onOpen={onTopic} />
         <Chip k="recursive" profile={profile} onOpen={onTopic} />
       </div>
-      <div style={{ flex: 1, minHeight: 0, position: "relative" }}>
+      <div
+        className="err-box"
+        style={{ flex: 1, minHeight: 0, position: "relative" }}
+      >
         <svg
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="none"
+          role="img"
+          aria-label="Position error over the mission: inertial only, dashed, keeps growing; with magnetic fixes, solid, drops back at each accepted fix. Crosses mark withheld fixes."
           style={{
             width: "100%",
             height: "100%",
@@ -1441,8 +1397,8 @@ function ErrorPanel({
               y={YT}
               width={px(Math.min(f.t1, T_END)) - px(f.t0)}
               height={Y0 - YT}
-              fill={f.kind === "spoof" ? TEAL : RED}
-              opacity={0.07}
+              fill={f.kind === "spoof" ? BLUE : TXT}
+              opacity={f.kind === "spoof" ? 0.08 : 0.05}
             />
           ))}
           {world && (
@@ -1460,7 +1416,7 @@ function ErrorPanel({
               <path
                 d={path(world.dr.t, world.dr.e)}
                 fill="none"
-                stroke={RED}
+                stroke={GREY}
                 strokeWidth={2}
                 strokeLinecap="round"
                 strokeDasharray="7 5"
@@ -1477,14 +1433,14 @@ function ErrorPanel({
                         x2={px(f.t)}
                         y1={py(f.err_m)}
                         y2={py(f.bound_m)}
-                        stroke="#2E4470"
+                        stroke={BLUE_SOFT}
                         strokeWidth={3}
                         vectorEffect="non-scaling-stroke"
                       />
                     )}
                     {f.withheld ? (
                       <g
-                        stroke={RED}
+                        stroke={TXT}
                         strokeWidth={2}
                         vectorEffect="non-scaling-stroke"
                       >
@@ -1524,7 +1480,7 @@ function ErrorPanel({
       <div
         className="figure-label"
         style={{
-          color: MUTED,
+          color: T_MUTED,
           marginTop: "0.35rem",
           display: "flex",
           justifyContent: "space-between",
@@ -1533,10 +1489,7 @@ function ErrorPanel({
         }}
       >
         <span>mission time →</span>
-        <span>
-          gridline every {fmtM(yMax / 4)} · red curve continues off scale
-          {world ? ` to ${fmtM(world.metrics.dr_end_m)}` : ""}
-        </span>
+        <span>relative scale · the dashed curve continues off scale</span>
       </div>
     </div>
   );
@@ -1545,11 +1498,12 @@ function ErrorPanel({
 function Readout({
   color,
   label,
-  value,
+  dashed = false,
 }: {
   color: string;
   label: string;
-  value: string;
+  /** legend swatch drawn dashed, matching the curve it names */
+  dashed?: boolean;
 }) {
   return (
     <span
@@ -1560,27 +1514,26 @@ function Readout({
         whiteSpace: "nowrap",
       }}
     >
-      <span
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: 99,
-          background: color,
-          display: "inline-block",
-          alignSelf: "center",
-        }}
-      />
-      <span className="figure-label" style={{ color: MUTED }}>
-        {label}
-      </span>
-      <span
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          color,
-          fontSize: "0.95rem",
-        }}
+      <svg
+        width="18"
+        height="8"
+        viewBox="0 0 18 8"
+        aria-hidden
+        style={{ alignSelf: "center", flexShrink: 0 }}
       >
-        {value}
+        <line
+          x1="1"
+          x2="17"
+          y1="4"
+          y2="4"
+          stroke={color}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeDasharray={dashed ? "4 3" : undefined}
+        />
+      </svg>
+      <span className="figure-label" style={{ color: T_MUTED }}>
+        {label}
       </span>
     </span>
   );
@@ -1588,11 +1541,15 @@ function Readout({
 
 function LogLine({ row }: { row: LogRow }) {
   const color =
-    row.kind === "bad" ? "#D8A08C" : row.kind === "contact" ? "#8CCBAA" : "#9AA2B1";
+    row.kind === "bad" || row.kind === "contact" ? T_PRIMARY : T_SECONDARY;
   const bg =
-    row.kind === "bad" ? "#1A1210" : row.kind === "contact" ? "#0F1B16" : "#0E1420";
+    row.kind === "bad"
+      ? "rgba(244,245,242,0.06)"
+      : row.kind === "contact"
+        ? "rgba(111,161,255,0.09)"
+        : "var(--surface)";
   const bar =
-    row.kind === "bad" ? RED : row.kind === "contact" ? TEAL : "#2E4470";
+    row.kind === "bad" ? TXT : row.kind === "contact" ? BLUE : BLUE_SOFT;
   return (
     <div
       style={{
@@ -1606,7 +1563,7 @@ function LogLine({ row }: { row: LogRow }) {
         flexShrink: 0,
       }}
     >
-      <span style={{ color: MUTED, marginRight: "0.6rem" }}>
+      <span style={{ color: T_MUTED, marginRight: "0.6rem" }}>
         {fmtClock(row.t)}
       </span>
       {row.text}
@@ -1630,7 +1587,7 @@ function Metric({
         style={{
           fontFamily: "var(--font-geist-mono)",
           fontSize: "1.35rem",
-          color: tone ?? TXT,
+          color: tone ?? T_PRIMARY,
           marginTop: 4,
         }}
       >
@@ -1656,22 +1613,9 @@ function buildLog(
       kind: "bad",
       text: `EVENT · ${P.atkNames[f.kind]} injected`,
     });
-    if (f.fleet) {
-      rows.push({
-        t: f.t0 + 45,
-        kind: f.fleet === "coincident" ? "contact" : "info",
-        text: f.fleet === "coincident" ? P.fleetCoincident : P.fleetLocal,
-      });
-    }
     if (f.kind === "spoof" && f.detected && f.t_cpa) {
       rows.push({ t: f.t_cpa - 12, kind: "info", text: P.spoofSearching });
-      rows.push({
-        t: f.t_cpa + 20,
-        kind: "contact",
-        text: P.spoofDetected
-          .replace("{det}", (f.det ?? 0).toFixed(0))
-          .replace("{range}", (f.range_m ?? 0).toFixed(0)),
-      });
+      rows.push({ t: f.t_cpa + 20, kind: "contact", text: P.spoofDetected });
     }
   }
   for (const f of world.fixes) {
@@ -1685,7 +1629,10 @@ function buildLog(
         : {
             t: f.t,
             kind: "ok",
-            text: `FIX ACCEPTED · error ${f.err_m.toFixed(0)} m · bound ${f.bound_m.toFixed(0)} m`,
+            text:
+              f.err_m <= f.bound_m
+                ? "FIX ACCEPTED · within its bound"
+                : "FIX ACCEPTED · outside its bound",
           }
     );
   }

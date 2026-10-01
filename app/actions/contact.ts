@@ -34,7 +34,7 @@ export async function sendEnquiry(input: {
   }
 
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.CONTACT_FROM ?? "SpectralFlow site <onboarding@resend.dev>";
+  const from = process.env.CONTACT_FROM ?? "Spectral Flow site <onboarding@resend.dev>";
   if (!key) return { ok: false, reason: "unconfigured" };
 
   const text = [

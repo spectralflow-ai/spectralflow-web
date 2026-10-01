@@ -7,7 +7,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { PROFILES, type ProfileKey } from "./profiles";
+import { PROFILES, PROFILE_ORDER, type ProfileKey } from "./profiles";
 
 const FlightDeck = dynamic(() => import("./FlightDeck"), {
   ssr: false,
@@ -32,16 +32,18 @@ export default function Instrument() {
   const initial =
     q === "defence" || q === "space" || q === "geo" ? (q as ProfileKey) : null;
   const [profile, setProfile] = useState<ProfileKey | null>(initial);
+  // true once the visitor picks a mission here: the deck then takes focus
+  const [chosen, setChosen] = useState(false);
 
   if (!profile) {
     return (
       <div>
-        <p
+        <h2
           className="figure-label"
           style={{ color: "var(--muted)", marginBottom: "1.5rem" }}
         >
           Choose your mission · the physics is the same, the story is yours
-        </p>
+        </h2>
         <div
           style={{
             display: "grid",
@@ -49,7 +51,7 @@ export default function Instrument() {
             gap: "1rem",
           }}
         >
-          {(Object.keys(PROFILES) as ProfileKey[]).map((k) => {
+          {PROFILE_ORDER.map((k) => {
             const p = PROFILES[k];
             return (
               <button
@@ -57,6 +59,7 @@ export default function Instrument() {
                 className="card"
                 onClick={() => {
                   setProfile(k);
+                  setChosen(true);
                   const url = new URL(window.location.href);
                   url.searchParams.set("profile", k);
                   window.history.replaceState({}, "", url);
@@ -67,10 +70,14 @@ export default function Instrument() {
                   cursor: "pointer",
                 }}
               >
-                <div className="figure-label" style={{ color: "var(--accent)" }}>
+                <span
+                  className="figure-label block"
+                  style={{ color: "var(--accent)" }}
+                >
                   {p.chooserKicker}
-                </div>
-                <h3
+                </span>
+                <span
+                  className="block"
                   style={{
                     fontSize: "1.4rem",
                     fontWeight: 600,
@@ -79,17 +86,17 @@ export default function Instrument() {
                   }}
                 >
                   {p.chooserTitle}
-                </h3>
-                <p
+                </span>
+                <span
+                  className="block"
                   style={{
                     color: "var(--text-secondary)",
                     fontSize: "0.92rem",
                     lineHeight: 1.55,
-                    margin: 0,
                   }}
                 >
                   {p.chooserBody}
-                </p>
+                </span>
               </button>
             );
           })}
@@ -111,8 +118,8 @@ export default function Instrument() {
         }}
       >
         <p className="figure-label" style={{ color: "var(--muted)", margin: 0 }}>
-          {PROFILES[profile].chooserTitle} · mission demo · computed live on
-          the twin
+          {PROFILES[profile].chooserTitle} · mission demo · computed live in
+          simulation
         </p>
         <button
           className="textlink"
@@ -128,7 +135,7 @@ export default function Instrument() {
           <span>Change mission</span>
         </button>
       </div>
-      <FlightDeck profile={profile} />
+      <FlightDeck profile={profile} focusOnOpen={chosen} />
     </div>
   );
 }

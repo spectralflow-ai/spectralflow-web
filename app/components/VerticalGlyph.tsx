@@ -183,7 +183,7 @@ function Navigation() {
   }
   const vx = 300, mapY = 176 + Math.sin(37 * 0.5) * 10 + Math.sin(37 * 0.17) * 16;
   return (
-    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label="A vehicle matches its magnetometer reading against a magnetic map to fix position and hold a true heading.">
+    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label="A vehicle matches its magnetometer readings against a magnetic map to correct its position.">
       {/* magnetic map */}
       <path d={pts.join(" ")} fill="none" stroke={INK} strokeWidth="1.3" />
       <text x="40" y="212" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>MAGNETIC MAP</text>

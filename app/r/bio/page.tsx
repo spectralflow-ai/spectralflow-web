@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Reveal from "../../components/Reveal";
 import { Prose, Cinema, Eyebrow, H2, Lead, Body, PageHeader } from "../../components/kit";
-import { CONTACT_EMAIL } from "../../lib/contact";
+import { CONTACT_EMAIL, CTA_LAB } from "../../lib/contact";
+import { BRAND, FACTS_AS_OF } from "../../lib/facts";
 
 // Unlisted leave-behind for research conversations (life sciences).
 // Not in the nav, not in the sitemap, noindex. Reachable only by its URL / QR.
 export const metadata: Metadata = {
   title: "Life sciences",
   description:
-    "The NV-diamond core, read two ways in biology: molecular binding by chip-scale NMR, and free-radical flux by relaxometry. A research direction we are developing. All figures model-derived.",
+    "The NV-diamond core, read two ways in biology: molecular binding by surface NMR, and free-radical flux by relaxometry. A research direction we are developing. All figures model-derived.",
   robots: { index: false, follow: false },
 };
-
-const MAILTO_BIO = `mailto:${CONTACT_EMAIL}?subject=Biosensing%20collaboration`;
 
 /* Two small schematics, drawn in the house palette (ink strokes, one blue). */
 function NmrGlyph() {
@@ -49,17 +49,17 @@ function RelaxGlyph() {
 
 const WINDOWS = [
   {
-    tag: "Chip-scale NMR",
+    tag: "Surface NMR",
     title: "Read a molecule bind",
-    body: "A shallow NV reads the nuclear spins of a fluorinated molecule sitting on the surface. It reports binding and relaxation in the mass-limited, picolitre regime, where a conventional coil cannot reach. Demonstrated in the literature down to roughly a hundred molecules.",
+    body: "A shallow NV reads the nuclear spins of a fluorinated molecule sitting on the surface. It reports binding and relaxation in mass-limited samples, where a conventional coil cannot reach. NV detection of nuclear spins has been demonstrated in the literature down to single proteins (Lovchinsky et al., Science, 2016).",
     label: "¹⁹F · surface · mass-limited",
     glyph: <NmrGlyph />,
   },
   {
     tag: "Intracellular relaxometry",
     title: "See free-radical flux",
-    body: "A fluorescent nanodiamond inside a living cell has its coherence shortened by the magnetic noise of nearby radicals. It tracks reactive-oxygen-species flux in real time, without consuming a probe, and reports a local flux in the micromolar regime, not an absolute concentration.",
-    label: "ROS flux · µM regime",
+    body: "A fluorescent nanodiamond inside a living cell has its coherence shortened by the magnetic noise of nearby radicals. It tracks reactive-oxygen-species flux in real time, without consuming a probe, and reports a local flux, not an absolute concentration.",
+    label: "ROS flux · intracellular",
     glyph: <RelaxGlyph />,
   },
 ];
@@ -67,8 +67,8 @@ const WINDOWS = [
 const LAYERS = [
   {
     tag: "The material",
-    title: "A coherence-certified nanodiamond",
-    body: "A passivated nanodiamond whose coherence targets are specified per batch by our design engine, benchmarked against a registry of more than 100 published experimental results. A better sensing element lifts every measurement above it: the dynamic range of relaxometry, the molecular floor of surface NMR. Model-derived targets; no hardware exists at this stage.",
+    title: "A nanodiamond specified for coherence",
+    body: "A passivated nanodiamond whose coherence targets come from our simulation, which is still to be calibrated and is useful in relative terms. Its validation register covers more than a hundred published results; quantitative validation covers the subset whose experimental conditions are documented well enough, and the list is available. A better sensing element lifts every measurement above it: the dynamic range of relaxometry, the molecular floor of surface NMR. Model-derived targets.",
   },
   {
     tag: "The readout",
@@ -78,7 +78,7 @@ const LAYERS = [
   {
     tag: "The proof, in design",
     title: "A first NV measurement of a binding constant",
-    body: "We are designing a phase-0 demonstrator: the first NV-NMR measurement of a fluorinated fragment’s dissociation constant on a protein, benchmarked against the literature. Falsifiable, and never done on an NV sensor.",
+    body: "We are designing a first experiment: the NV-NMR measurement of a fluorinated fragment’s dissociation constant on a protein, compared against the literature. To our knowledge, as of October 2026, it has not yet been reported with an NV sensor.",
   },
 ];
 
@@ -135,21 +135,21 @@ export default function BioLeaveBehind() {
           <Eyebrow>The opening</Eyebrow>
           <H2 className="max-w-3xl mb-6">The CVD-nanofabricated nanodiamond is a near-blank page.</H2>
           <Lead className="max-w-2xl">
-            Almost every nanodiamond result today uses milled HPHT material of uncertain coherence.
+            Almost every nanodiamond result today uses milled HPHT material.
             The CVD-nanofabricated, surface-engineered nanodiamond is barely in the literature. That
             gap is where the first-of-kind results live.
           </Lead>
         </Reveal>
       </Cinema>
 
-      {/* What we're building */}
+      {/* What we are developing */}
       <Prose>
         <Reveal>
           <Eyebrow>What we are developing</Eyebrow>
-          <H2 className="max-w-3xl mb-6">Two layers no one has put together.</H2>
+          <H2 className="max-w-3xl mb-6">Two layers, designed together.</H2>
           <Lead className="max-w-2xl mb-14">
             We do not win by repeating a physics demonstration. We bring the sensing element and the
-            readout the field is missing, plus a falsifiable first.
+            readout, and a first experiment that can be checked.
           </Lead>
         </Reveal>
         <div className="flex flex-col">
@@ -175,17 +175,17 @@ export default function BioLeaveBehind() {
       <Prose>
         <Reveal>
           <Eyebrow>Built with the research ecosystem</Eyebrow>
-          <H2 className="max-w-3xl mb-6">We design; partners fabricate, functionalise, measure.</H2>
+          <H2 className="max-w-3xl mb-6">We design; partners fabricate and measure.</H2>
           <Lead className="max-w-2xl mb-8">
-            The strongest version of this is collaborative. We bring the design engine and the
+            The strongest version of this is collaborative. We bring the simulation and the
             inference layer; academic partners in diamond fabrication, NV science and structural NMR
             bring the cleanroom, the surface chemistry and the biological ground truth. The result is
-            a shared, publishable record and validated hardware. The recipes and the engine stay
-            ours; the science is joint.
+            a shared, publishable record and hardware measured in the laboratory. The recipes and
+            the simulation stay ours; the science is joint.
           </Lead>
-          <a href={MAILTO_BIO} className="btn-primary">
-            Talk to us about a bio collaboration
-          </a>
+          <Link href={`${CTA_LAB}#message`} className="btn-primary">
+            Talk to us about a bio collaboration <span>→</span>
+          </Link>
           <p className="hidden print:block figure-label mt-6">
             spectralflow.ai/r/bio · {CONTACT_EMAIL}
           </p>
@@ -196,9 +196,11 @@ export default function BioLeaveBehind() {
       <section className="hairline">
         <div className="max-w-6xl mx-auto px-6 md:px-8 py-10">
           <p style={{ color: "var(--muted)", fontSize: "0.85rem", maxWidth: "42rem", lineHeight: 1.6 }}>
-            SpectralFlow is at pre-prototype stage. Every figure here is a model-derived design
-            target; no hardware exists yet. Sensitivity regimes follow what the physics allows, not
-            marketing. The architecture and methods are covered by patent applications filed in 2026.
+            {BRAND} is at the design stage. As of {FACTS_AS_OF}, our first mobile prototype, for
+            navigation, is designed; assembly starts once funding is confirmed. The life-sciences
+            work on this page is a research direction: every target here is model-derived, and what
+            each method can read is taken from the published literature. The methods are covered
+            by patent applications filed in 2026.
           </p>
         </div>
       </section>

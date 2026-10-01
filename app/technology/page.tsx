@@ -1,282 +1,352 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
-import NVDiagram from "../components/NVDiagram";
-import { Prose, Plate, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
+import NVDiagram, { NVAxes } from "../components/NVDiagram";
+import Principle from "../components/Principle";
+import { Prose, Eyebrow, H2, Lead, Body } from "../components/kit";
+import { BRAND, SITE_URL, STAGE_LINE } from "../lib/facts";
+import { CTA_SIMULATION } from "../lib/contact";
+import { getPost } from "../lib/news";
 
+/* ----- Metadata ------------------------------------------------------ */
+
+const PAGE_PATH = "/technology";
+const META_TITLE = "Technology: NV centres in diamond";
+const SHARE_TITLE = `${META_TITLE} · ${BRAND}`;
 const DESCRIPTION =
-  "The NV-diamond principle and SpectralFlow's proprietary stack: SF-QSim (the simulation engine), SF-CORE (the fabrication process in development), the SF-100 sensor family and the navigation digital twin.";
+  "How a diamond quantum sensor reads a magnetic field: the NV principle in three steps, why diamond, and why every design flies in simulation first.";
 
 export const metadata: Metadata = {
-  title: "Technology",
+  title: META_TITLE,
   description: DESCRIPTION,
-  alternates: { canonical: "/technology" },
+  alternates: { canonical: PAGE_PATH },
   openGraph: {
-    title: "Technology · SpectralFlow",
+    title: SHARE_TITLE,
     description: DESCRIPTION,
-    url: "/technology",
+    url: PAGE_PATH,
+    siteName: BRAND,
+    locale: "en_GB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SHARE_TITLE,
+    description: DESCRIPTION,
   },
 };
 
-const BRICKS = [
+const ldJson = (data: unknown) => JSON.stringify(data).replace(/</g, "\\u003c");
+
+const BREADCRUMB_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+    { "@type": "ListItem", position: 2, name: "Technology", item: `${SITE_URL}${PAGE_PATH}` },
+  ],
+};
+
+/* ----- What this means on a vehicle ---------------------------------- */
+
+const ON_A_VEHICLE = [
   {
-    tag: "SF-QSim · the engine",
-    title: "Design the sensor in software",
-    body: "A first-principles physics engine that predicts coherence and magnetic sensitivity across independent decoherence channels, from cryogenic to well above room temperature. It is the design layer that lets a lean team explore the parameter space before committing to the cleanroom.",
-    cta: { href: "https://studio.spectralflow.ai", label: "Open SpectralFlow Studio" },
+    t: "No cryogenics",
+    d: "The NV centre works at room temperature, with no vacuum and no consumables.",
   },
   {
-    tag: "SF-CORE · the process",
-    title: "Turn physics into a manufacturable part",
-    body: "We are developing a proprietary fabrication and integration process that engineers the diamond, the nitrogen-vacancy density and the optical readout into a repeatable, chip-scale sensing core: the bridge from a quantum effect to an industrial component.",
+    t: "Survives the platform",
+    d: "Shock, vibration, radiation: the sensing element is a solid crystal. We design the sensor head around it to ride on the vehicle.",
   },
   {
-    tag: "SF-100 · the sensor family",
-    title: "A sensor head designed for the vehicle, not the lab",
-    body: "We are designing a rugged, low-power sensor family: diamond, integrated optics and adaptive firmware in a single head, with on-board rejection of the host platform's own magnetic interference so the measurement stays true under way. The model is fabless: we keep the design, the firmware and the calibration, and we contract out fabrication.",
-  },
-  {
-    tag: "The digital twin",
-    title: "The sensor flies before it exists",
-    body: "An end-to-end navigation digital twin: synthetic magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived; as hardware measurements arrive, they feed back into the model and sharpen it. The Instrument, our public mission demos, runs live in your browser. The twin itself is opened in expert sessions, granted on request.",
-    cta: {
-      href: "/instrument",
-      label: "Fly the Instrument",
-    },
+    t: "No external signal",
+    d: "Passive: it reads the Earth's own field and needs no external signal. A magnetic source placed nearby can disturb a magnetometer. The instrument is designed to detect that and say so.",
   },
 ];
+
+/* ----- What a vehicle asks of a magnetic sensor ---------------------- */
+
+type Origin = "material" | "both" | "design";
+
+const ORIGIN_LABEL: Record<Origin, string> = {
+  material: "The material",
+  both: "The material, then the head design",
+  design: "The instrument design",
+};
+
+const REQUIREMENTS: { need: string; answer: string; origin: Origin }[] = [
+  {
+    need: "Run without cryogenics",
+    answer: "Room temperature, nothing to refill.",
+    origin: "material",
+  },
+  {
+    need: "Ride through vibration and shock",
+    answer: "A solid crystal, carried by the sensor head.",
+    origin: "both",
+  },
+  {
+    need: "Measure the field as a vector",
+    answer: "Four crystal axes: the vector comes from the lattice.",
+    origin: "material",
+  },
+  {
+    need: "Keep the vehicle's own field out",
+    answer: "The instrument rejects the platform's own magnetic field on board.",
+    origin: "design",
+  },
+  {
+    need: "Say how far each position can be trusted",
+    answer: "Every fix comes with its error bound.",
+    origin: "design",
+  },
+];
+
+const REGISTER_POST = getPost("register-of-published-experiments");
+
+const H3 = "display text-2xl md:text-3xl font-semibold tracking-tight";
 
 export default function Technology() {
   return (
     <main>
-      <PageHeader
-        eyebrow="Technology"
-        title={
-          <>
-            The physics, made
-            <br className="hidden md:block" /> manufacturable.
-          </>
-        }
-        intro="A nitrogen-vacancy centre in diamond is an atom-scale magnetometer that works in ambient conditions. SpectralFlow turns that physics into a product through a proprietary stack: simulation, process and sensor, bound together by a digital twin."
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: ldJson(BREADCRUMB_JSON_LD) }}
       />
 
-      {/* NV principle */}
-      <Prose>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <Reveal>
-            <Eyebrow>The NV-diamond principle</Eyebrow>
-            <H2 className="mb-5">An atomic compass inside a crystal.</H2>
-            <Body className="mb-4">
-              A nitrogen-vacancy (NV) centre is a single atomic defect in the diamond lattice: a
-              nitrogen atom beside a missing carbon. Its electronic spin responds to magnetic
-              fields and can be initialised and read out optically, turning a beam of light into a
-              precise magnetic measurement.
-            </Body>
-            <Body>
-              Because the host is diamond, this quantum sensor survives where others cannot: at
-              room temperature, under vibration and radiation, with no shielding and no cooling.
-              That ruggedness is what moves quantum sensing out of the lab and into the field.
-            </Body>
-          </Reveal>
-          <Reveal delay={120}>
-            <Plate caption="The nitrogen-vacancy centre: one nitrogen, one missing carbon.">
-              <NVDiagram />
-            </Plate>
-          </Reveal>
+      {/* ===================== Header ===================== */}
+      <div className="hairline">
+        <div className="max-w-6xl mx-auto px-6 md:px-8 pt-20 md:pt-28 pb-16 md:pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-12 lg:gap-16 items-center">
+            <div>
+              <Eyebrow>Technology</Eyebrow>
+              <h1
+                className="display text-4xl md:text-6xl font-semibold tracking-tight mb-6"
+                style={{ color: "var(--text-primary)" }}
+              >
+                A quantum sensor in diamond, read with light.
+              </h1>
+              <Lead className="max-w-xl">
+                A nitrogen-vacancy (NV) centre is a defect in diamond that behaves like a tiny
+                compass you read with light. It works at room temperature, and the crystal lattice
+                gives it a sense of direction. We design instruments around it, navigation first.
+              </Lead>
+            </div>
+            <figure>
+              <div className="plate p-6 md:p-10 flex items-center justify-center">
+                <NVDiagram />
+              </div>
+              <figcaption className="mt-4 text-sm" style={{ color: "var(--muted)" }}>
+                Schematic of the NV centre: a nitrogen atom beside a missing carbon in the crystal.
+              </figcaption>
+            </figure>
+          </div>
         </div>
-      </Prose>
+      </div>
 
-      {/* Three bricks */}
-      <Prose>
+      {/* ===================== The principle ===================== */}
+      <Prose id="principle">
         <Reveal>
-          <Eyebrow>The proprietary stack</Eyebrow>
-          <H2 className="max-w-3xl mb-6">From simulation to sensor head.</H2>
-          <Lead className="max-w-2xl mb-14">
-            Each brick is independently defensible, and together they form a vertically integrated
-            design-to-device pipeline.
+          <Eyebrow>The principle</Eyebrow>
+          <H2 className="max-w-3xl mb-6">How a diamond reads the Earth&apos;s magnetic field.</H2>
+          <Lead className="max-w-2xl mb-12 md:mb-14">
+            Three steps, from the map to the spin. No equations.
           </Lead>
         </Reveal>
-        <div className="flex flex-col">
-          {BRICKS.map((b, i) => (
-            <Reveal key={b.tag} delay={i * 80}>
-              <div className="hairline py-9 grid grid-cols-1 md:grid-cols-[0.9fr_1.4fr] gap-5 md:gap-12">
-                <div>
-                  <p className="eyebrow mb-2">{b.tag}</p>
-                  <p className="text-xl font-semibold display" style={{ color: "var(--text-primary)" }}>
-                    {b.title}
-                  </p>
-                </div>
-                <div>
-                  <Body>{b.body}</Body>
-                  {b.cta &&
-                    (b.cta.href.startsWith("/") ? (
-                      <Link href={b.cta.href} className="textlink mt-4">
-                        {b.cta.label} <span>→</span>
-                      </Link>
-                    ) : (
-                      <a href={b.cta.href} className="textlink mt-4">
-                        {b.cta.label} <span>→</span>
-                      </a>
-                    ))}
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Prose>
-
-      {/* Anchor registry */}
-      <Prose id="registry">
-        <Reveal>
-          <Eyebrow>The anchor registry</Eyebrow>
-          <H2 className="max-w-3xl mb-6">
-            When the model and an experiment disagree, the experiment wins.
-          </H2>
-          <Lead className="max-w-3xl">
-            Every coherence prediction SF-QSim makes is benchmarked against a registry of more than
-            100 published experimental results, curated anchor by anchor and re-checked as the
-            model evolves. When a prediction and a published measurement disagree, the model
-            changes.
-          </Lead>
+        <Reveal delay={80}>
+          <Principle />
         </Reveal>
         <Reveal delay={120}>
-          <Link href="/news" className="textlink mt-8">
-            How the registry keeps the engine honest <span>→</span>
+          <Link href="/applications/navigation#how" className="textlink mt-10">
+            How this becomes navigation <span>→</span>
           </Link>
         </Reveal>
       </Prose>
 
-      {/* Comparison */}
-      <Prose>
+      {/* ===================== Why diamond ===================== */}
+      <Prose id="diamond">
         <Reveal>
-          <Eyebrow>How it compares</Eyebrow>
-          <H2 className="max-w-3xl mb-6">Lab-grade sensitivity, field-grade ruggedness.</H2>
-          <Lead className="max-w-2xl mb-10">
-            The leading magnetometry approaches trade ruggedness for sensitivity. NV-diamond is the
-            one designed to leave the lab.
-          </Lead>
+          <Eyebrow>Why diamond</Eyebrow>
+          <H2 className="max-w-3xl mb-14">
+            Room temperature. Survives the platform. Four crystal axes.
+          </H2>
         </Reveal>
-        <Reveal delay={80}>
-          <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid var(--border)" }}>
-            <table className="w-full text-left border-collapse min-w-[640px]">
-              <thead>
-                <tr>
-                  <th
-                    scope="col"
-                    className="p-4 md:p-5"
-                    style={{ borderBottom: "1px solid var(--border)" }}
-                  >
-                    <span className="sr-only">Criterion</span>
-                  </th>
-                  <th
-                    scope="col"
-                    className="p-4 md:p-5 font-semibold text-sm"
-                    style={{
-                      color: "var(--accent)",
-                      borderBottom: "1px solid var(--accent)",
-                      background: "var(--accent-soft)",
-                    }}
-                  >
-                    NV-diamond
-                  </th>
-                  <th
-                    scope="col"
-                    className="p-4 md:p-5 font-semibold text-sm"
-                    style={{ color: "var(--text-secondary)", borderBottom: "1px solid var(--border)" }}
-                  >
-                    SQUID
-                  </th>
-                  <th
-                    scope="col"
-                    className="p-4 md:p-5 font-semibold text-sm"
-                    style={{ color: "var(--text-secondary)", borderBottom: "1px solid var(--border)" }}
-                  >
-                    Cold-atom
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { c: "Operating conditions", nv: "Room temperature", b: "Cryogenic (liquid helium)", d: "Vacuum + laser cooling" },
-                  { c: "Size, weight & power", nv: "Chip-scale, low power", b: "Bulky + cooling plant", d: "Bench-scale apparatus" },
-                  { c: "Vibration & shock", nv: "Solid-state, robust", b: "Shielding-sensitive", d: "Vibration-sensitive" },
-                  { c: "Field readiness", nv: "Designed for the field", b: "Fixed installations", d: "Mostly laboratory" },
-                ].map((row) => (
-                  <tr key={row.c}>
-                    <th
-                      scope="row"
-                      className="p-4 md:p-5 text-sm font-medium"
-                      style={{ color: "var(--text-primary)", borderBottom: "1px solid var(--border)" }}
-                    >
-                      {row.c}
-                    </th>
-                    <td
-                      className="p-4 md:p-5 text-sm"
-                      style={{
-                        color: "var(--text-primary)",
-                        borderBottom: "1px solid var(--border)",
-                        background: "var(--accent-soft)",
-                      }}
-                    >
-                      {row.nv}
-                    </td>
-                    <td
-                      className="p-4 md:p-5 text-sm"
-                      style={{ color: "var(--muted)", borderBottom: "1px solid var(--border)" }}
-                    >
-                      {row.b}
-                    </td>
-                    <td
-                      className="p-4 md:p-5 text-sm"
-                      style={{ color: "var(--muted)", borderBottom: "1px solid var(--border)" }}
-                    >
-                      {row.d}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="figure-label mt-4">Qualitative positioning across magnetometry approaches.</p>
-        </Reveal>
-      </Prose>
 
-      {/* Why it matters */}
-      <Prose>
         <Reveal>
-          <Eyebrow>Why room temperature matters</Eyebrow>
-          <H2 className="max-w-3xl mb-12">The constraints competitors live with, removed.</H2>
+          <h3 className={`${H3} mb-10`} style={{ color: "var(--text-primary)" }}>
+            What this means on a vehicle
+          </h3>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8">
-          {[
-            {
-              t: "No cryogenics",
-              d: "SQUIDs need liquid-helium cooling and magnetic shielding. Diamond needs neither, collapsing size, weight, power and cost.",
-            },
-            {
-              t: "No fragility",
-              d: "Cold-atom interferometers are exquisite but delicate. Solid-state diamond holds coherence under shock, motion and launch loads.",
-            },
-            {
-              t: "No signal to jam",
-              d: "The sensor listens to the ambient magnetic field. Unlike radar or satellite navigation, it does not depend on a transmitted signal: there is nothing to jam and nothing to spoof.",
-            },
-          ].map((c, i) => (
+          {ON_A_VEHICLE.map((c, i) => (
             <Reveal key={c.t} delay={i * 90}>
               <div className="hairline pt-6 h-full">
-                <p className="font-semibold mb-2.5" style={{ color: "var(--text-primary)" }}>
+                <h4 className="font-semibold mb-2.5" style={{ color: "var(--text-primary)" }}>
                   {c.t}
-                </p>
+                </h4>
                 <Body>{c.d}</Body>
               </div>
             </Reveal>
           ))}
         </div>
-        <Reveal delay={140}>
-          <Link href="/applications" className="textlink mt-12">
-            Where we deploy it first <span>→</span>
-          </Link>
+
+        <div className="mt-20 md:mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <Reveal>
+            <h3 className={`${H3} mb-5`} style={{ color: "var(--text-primary)" }}>
+              Four crystal axes: the vector comes from the lattice.
+            </h3>
+            <Body className="mb-4">
+              In diamond, an NV centre points along one of four directions fixed by the crystal
+              lattice. Each direction senses the part of the magnetic field that lies along it.
+            </Body>
+            <Body>Read together, they give the full vector: its strength and its direction.</Body>
+          </Reveal>
+          <Reveal delay={120}>
+            <figure>
+              <div className="plate p-6 md:p-10 flex items-center justify-center">
+                <div className="w-full max-w-[420px]">
+                  <NVAxes />
+                </div>
+              </div>
+              <figcaption className="mt-4 text-sm" style={{ color: "var(--muted)" }}>
+                An NV centre: a vacancy (dashed) with the nitrogen (blue) on one of its four bonds.
+                NV centres point along these four directions.
+              </figcaption>
+            </figure>
+          </Reveal>
+        </div>
+      </Prose>
+
+      {/* ===================== By requirement ===================== */}
+      <Prose id="requirements">
+        <Reveal>
+          <Eyebrow>By requirement</Eyebrow>
+          <H2 className="max-w-3xl mb-6">What a vehicle asks of a magnetic sensor.</H2>
+          <Lead className="max-w-2xl mb-12">
+            Others flew NV sensors before us. Diamond brings the first three answers, and how well
+            it brings them depends on the material, which is part of our work. The last two depend
+            on how the instrument is designed.
+          </Lead>
         </Reveal>
+        <Reveal delay={80}>
+          <div
+            className="hidden md:grid md:grid-cols-[1fr_1.35fr_0.75fr] gap-8 pb-4 figure-label"
+            aria-hidden="true"
+          >
+            <span>The vehicle needs to</span>
+            <span>How it is met</span>
+            <span>Where it comes from</span>
+          </div>
+          <dl>
+            {REQUIREMENTS.map((r) => (
+              <div
+                key={r.need}
+                className="hairline py-6 grid grid-cols-1 md:grid-cols-[1fr_1.35fr_0.75fr] gap-2 md:gap-8"
+              >
+                <dt className="font-semibold" style={{ color: "var(--text-primary)" }}>
+                  {r.need}
+                </dt>
+                <dd className="text-[15px] leading-7" style={{ color: "var(--text-secondary)" }}>
+                  {r.answer}
+                </dd>
+                <dd className="text-[15px] leading-7 font-medium" style={{ color: "var(--muted)" }}>
+                  <span className="md:sr-only">From: </span>
+                  {ORIGIN_LABEL[r.origin]}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <div className="hairline pt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <p className="text-sm leading-6" style={{ color: "var(--muted)" }}>
+              Qualitative. Whatever depends on our design, the sensor head included, is design
+              intent until shown on hardware.
+            </p>
+            <Link href="/company#where-we-stand" className="textlink shrink-0">
+              Where we stand <span>→</span>
+            </Link>
+          </div>
+        </Reveal>
+      </Prose>
+
+      {/* ===================== Simulation first ===================== */}
+      <Prose id="simulation">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-16">
+          <Reveal>
+            <Eyebrow>Simulation first</Eyebrow>
+            <H2 className="mb-6">Every design flies in simulation first.</H2>
+            <Lead className="mb-8">
+              Before any hardware, we simulate the whole chain: the magnetic terrain, a vehicle
+              with its own magnetic field, the sensor and the navigation filter. A small team can
+              compare designs this way before anything is fabricated.
+            </Lead>
+            <p className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
+              To be calibrated, useful in relative terms.
+            </p>
+            <Body>
+              The simulation tells us which design is better, not what a prototype will measure.
+              Its figures are labelled model-derived, and hardware measurements will calibrate it.
+            </Body>
+          </Reveal>
+
+          <Reveal delay={120}>
+            <div className="plate p-8 md:p-10 h-full flex flex-col">
+              <p
+                className="display text-6xl md:text-7xl font-semibold"
+                style={{ color: "var(--text-primary)" }}
+              >
+                100+
+              </p>
+              <p className="mt-3 mb-6 font-semibold" style={{ color: "var(--text-primary)" }}>
+                published experiments in our validation register
+              </p>
+              <p className="text-[15px] leading-7 mb-4" style={{ color: "var(--text-secondary)" }}>
+                Quantitative validation covers the subset whose experimental conditions are
+                documented well enough, and the list is available on request.
+              </p>
+              <p className="text-[15px] leading-7" style={{ color: "var(--text-secondary)" }}>
+                When the model and an experiment disagree, the experiment wins and the model
+                changes.
+              </p>
+              {REGISTER_POST && (
+                <Link href={`/news/${REGISTER_POST.slug}`} className="textlink mt-auto pt-8">
+                  How the register is kept <span>→</span>
+                </Link>
+              )}
+            </div>
+          </Reveal>
+        </div>
+      </Prose>
+
+      {/* ===================== Where we stand ===================== */}
+      <Prose>
+        <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-10 md:gap-16 items-end">
+          <Reveal>
+            <Eyebrow>Where we stand</Eyebrow>
+            <h2
+              className="display text-2xl md:text-3xl font-semibold tracking-tight max-w-2xl"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {STAGE_LINE}
+            </h2>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/instrument" className="btn-primary">
+                Fly a mission
+              </Link>
+              <Link href={CTA_SIMULATION} className="btn-ghost">
+                Request an expert session
+              </Link>
+            </div>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="flex flex-col gap-3 md:items-end">
+              <Link href="/company#where-we-stand" className="textlink">
+                See the dated timeline <span>→</span>
+              </Link>
+              <Link href="/applications/navigation" className="textlink">
+                Navigation, our first application <span>→</span>
+              </Link>
+            </div>
+          </Reveal>
+        </div>
       </Prose>
     </main>
   );

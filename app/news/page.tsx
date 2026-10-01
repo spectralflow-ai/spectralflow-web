@@ -1,162 +1,196 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Reveal from "../components/Reveal";
+import NewsCard from "../components/NewsCard";
 import { Prose, Body, PageHeader } from "../components/kit";
+import { BRAND, LINKEDIN_URL } from "../lib/facts";
+import { POSTS, POST_TAGS, getPost, type Post, type PostTag } from "../lib/news";
 
 const DESCRIPTION =
-  "Behind the scenes at SpectralFlow: milestones and insights on NV-diamond quantum sensing and GPS-denied navigation.";
+  "Milestones, events and insights from Spectral Flow: diamond quantum sensors, and navigation you can trust without GPS.";
+
+const OG_IMAGE = {
+  url: "/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: `${BRAND} · Diamond quantum sensors`,
+};
 
 export const metadata: Metadata = {
-  title: "News & Insights",
+  title: "News",
   description: DESCRIPTION,
-  alternates: { canonical: "/news" },
+  alternates: {
+    canonical: "/news",
+    types: { "application/rss+xml": [{ url: "/news/feed.xml", title: `${BRAND} · News` }] },
+  },
   openGraph: {
-    title: "News & Insights · SpectralFlow",
+    title: `News · ${BRAND}`,
     description: DESCRIPTION,
     url: "/news",
+    type: "website",
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `News · ${BRAND}`,
+    description: DESCRIPTION,
+    images: [OG_IMAGE.url],
   },
 };
 
-/**
- * Editorial entries. Keep these qualitative and confirmed : no
- * unverified specs, clients, financials, pipeline names or grant
- * submissions (see REBUILD_BRIEF_V4.md).
- */
-const POSTS = [
-  {
-    tag: "Milestone",
-    date: "July 2026",
-    title: "SpectralFlow at ESA's quantum workshop at ESTEC",
-    excerpt:
-      "We joined ESA's Quantum Technologies for Space Exploration workshop at ESTEC in Noordwijk, alongside the European quantum sensing community. Between sessions, the Instrument ran live on laptops around the room: a full GNSS-free mission, recomputed in the browser, every figure honestly labelled model-derived. Our message to the roadmap discussion was simple: for exploration autonomy, integrity matters as much as sensitivity. An instrument must know when to distrust itself. And a compact sensor that rejects the spacecraft's own field on board can drop the boom and the magnetic-cleanliness tax that every mission still pays.",
-    cta: { href: "/instrument?profile=space", label: "Fly the space profile" },
-  },
-  {
-    tag: "Milestone",
-    date: "July 2026",
-    title: "Qualified as deeptech by Bpifrance",
-    excerpt:
-      "SpectralFlow is now officially qualified as a deeptech company by Bpifrance, the French public investment bank. The qualification recognises what we build on: technology grounded in original research, strong intellectual property, and a hard engineering path to market. It anchors our access to France's deeptech support ecosystem as we move through pre-prototyping.",
-  },
-  {
-    tag: "Milestone",
-    date: "July 2026",
-    title: "Fly the sensor: The Instrument is public",
-    excerpt:
-      "The public layer of our digital twin is now open to everyone, in the browser, no account needed. Fly a full mission where satellites cannot help, attack your own instrument three different ways, and watch it refuse to be fooled: every figure recomputed live, every layer's contribution decomposed in the debrief, and the science behind each panel one click away. Every number is honestly labelled model-derived.",
-    cta: { href: "/instrument", label: "Fly the Instrument" },
-  },
-  {
-    tag: "Milestone",
-    date: "July 2026",
-    title: "The patent portfolio grows to sixteen families",
-    excerpt:
-      "Three patent families were filed in ten days at the turn of June and July, bringing the portfolio to sixteen. One protects how the sensing architecture rejects the host platform's own magnetic interference on board; one covers the onboard inference layer that turns the cleaned signal into navigation data the system can vouch for; and one extends that attribution across networks of sensors. All were filed before any public disclosure, and the details stay confidential until publication.",
-  },
-  {
-    tag: "Research",
-    date: "June 2026",
-    title: "A hundred anchors keep the engine honest",
-    excerpt:
-      "A physics engine is only as good as its confrontation with the literature. Every coherence prediction the engine makes is benchmarked against a registry of more than 100 published experimental results, curated anchor by anchor and re-checked as the model evolves. When the model and an experiment disagree, the experiment wins and the model changes.",
-  },
-  {
-    tag: "Milestone",
-    date: "June 2026",
-    title: "The navigation digital twin is online",
-    excerpt:
-      "Before our first device is built, our sensor flies an end-to-end synthetic mission: magnetic terrain, a vehicle with its own interference, the full sensor model and the navigation filter. Every figure is honestly labelled model-derived, and the twin sets the design targets our hardware programme works towards. The interactive twin is live; access is granted on request.",
-  },
-  {
-    tag: "Insight",
-    date: "June 2026",
-    title: "They compensate. We measure.",
-    excerpt:
-      "Magnetometers flying today are lab instruments strapped onto vehicles, corrected by external compensation models dating back to the 1950s. We took the opposite path: design the sensor for the vehicle from first principles, so the measurement stays true under way, with the platform’s own magnetic noise rejected on board.",
-  },
-  {
-    tag: "Milestone",
-    date: "2026",
-    title: "SpectralFlow joins NVIDIA Inception",
-    excerpt:
-      "We’re now a member of NVIDIA Inception, the programme supporting deep-tech startups. It strengthens our compute and ecosystem foundation as we scale the SF-QSim engine.",
-  },
-  {
-    tag: "Insight",
-    date: "2026",
-    title: "Why GPS-denied navigation is the right first vertical",
-    excerpt:
-      "Satellite navigation is increasingly jammed, spoofed and denied. A passive magnetic reference that emits nothing and cannot be switched off is the missing layer, and it is exactly what NV-diamond is good at.",
-  },
-  {
-    tag: "Insight",
-    date: "2026",
-    title: "Designing a quantum sensor in software, first",
-    excerpt:
-      "Before a sensor reaches the cleanroom, it lives in SF-QSim. Simulating coherence and sensitivity across decoherence channels lets a lean team explore the design space at deep-tech speed.",
-  },
-];
+const TAG_LABEL: Record<PostTag, string> = {
+  Milestone: "Milestones",
+  Event: "Events",
+  Research: "Research",
+  Insight: "Insights",
+};
+
+/* Featured entries, shown as cards above the full list. */
+const FEATURED_SLUGS = ["first-mobile-prototype-designed", "contested-satellite-navigation"];
+const FEATURED = FEATURED_SLUGS.map((slug) => getPost(slug)).filter((p): p is Post => Boolean(p));
+
+/* The full list, grouped by month. POSTS is sorted newest first, so each
+   month's entries are contiguous. */
+type Month = { key: string; label: string; posts: Post[]; tags: PostTag[] };
+const MONTHS: Month[] = POSTS.reduce<Month[]>((acc, p) => {
+  const key = p.date.slice(0, 7);
+  const last = acc[acc.length - 1];
+  if (last && last.key === key) {
+    last.posts.push(p);
+    if (!last.tags.includes(p.tag)) last.tags.push(p.tag);
+  } else {
+    acc.push({ key, label: p.dateLabel, posts: [p], tags: [p.tag] });
+  }
+  return acc;
+}, []);
+
+/* Tag filter: radio inputs and CSS only, so the page stays static and
+   works without JavaScript. Without :has() support, every post shows.
+   A month with no entry of the chosen tag is hidden with its heading. */
+const FILTER_ID = (t: string) => `news-tag-${t.toLowerCase()}`;
+const TAGS_IN_USE = POST_TAGS.filter((t) => POSTS.some((p) => p.tag === t));
+
+const FILTER_CSS = [
+  `.news-filter label { border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); }`,
+  `.news-filter label:hover { border-color: var(--border-strong); color: var(--text-primary); }`,
+  `.news-filter input:checked + label { background: var(--text-primary); border-color: var(--text-primary); color: var(--background); }`,
+  `.news-filter input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }`,
+  `.news-filter .news-count { color: var(--muted); }`,
+  `.news-filter input:checked + label .news-count { color: inherit; opacity: 0.7; }`,
+  ...TAGS_IN_USE.flatMap((t) => [
+    `.news-index:has(#${FILTER_ID(t)}:checked) [data-tag]:not([data-tag="${t}"]) { display: none; }`,
+    `.news-index:has(#${FILTER_ID(t)}:checked) [data-tags]:not([data-tags~="${t}"]) { display: none; }`,
+  ]),
+].join("\n");
 
 export default function News() {
+  const options: { id: string; label: string; count: number }[] = [
+    { id: FILTER_ID("all"), label: "All", count: POSTS.length },
+    ...TAGS_IN_USE.map((t) => ({
+      id: FILTER_ID(t),
+      label: TAG_LABEL[t],
+      count: POSTS.filter((p) => p.tag === t).length,
+    })),
+  ];
+
   return (
     <main>
+      <style dangerouslySetInnerHTML={{ __html: FILTER_CSS }} />
+
       <PageHeader
-        eyebrow="News & Insights"
-        title="The build log."
-        intro="Milestones and short notes as we design NV-diamond quantum sensors."
+        eyebrow="Resources"
+        title="News and insights."
+        intro="Milestones, events and insights from our work on diamond quantum sensors. Each entry states the facts as of its date."
       />
 
-      <Prose>
-        <div className="flex flex-col">
-          {POSTS.map((p, i) => (
-            <Reveal key={p.title} delay={i * 60}>
-              <article className="hairline py-9 grid grid-cols-1 md:grid-cols-[0.45fr_1.55fr] gap-3 md:gap-12">
-                <div className="flex md:flex-col gap-3 md:gap-1.5">
-                  <span className="eyebrow">{p.tag}</span>
-                  <span className="figure-label" style={{ letterSpacing: "0.04em", textTransform: "none" }}>
-                    {p.date}
-                  </span>
+      <Prose className="news-index">
+        {FEATURED.length > 0 && (
+          <div className="mb-16 md:mb-20">
+            <h2 className="eyebrow mb-5">Featured</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {FEATURED.map((p) => (
+                <NewsCard key={p.slug} post={p} variant="card" headingLevel={3} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <fieldset className="news-filter mb-6">
+          <legend className="eyebrow">Show</legend>
+          <div className="mt-3 flex flex-wrap items-center gap-2.5">
+            {options.map((o, i) => (
+              <span key={o.id} className="inline-flex">
+                <input
+                  type="radio"
+                  name="news-tag"
+                  id={o.id}
+                  className="sr-only"
+                  defaultChecked={i === 0}
+                />
+                <label
+                  htmlFor={o.id}
+                  className="cursor-pointer select-none rounded-full px-4 py-1.5 text-[0.8rem] font-medium transition-colors"
+                >
+                  {o.label}
+                  <span className="news-count ml-1.5">{o.count}</span>
+                </label>
+              </span>
+            ))}
+          </div>
+        </fieldset>
+
+        <div>
+          {MONTHS.map((m) => (
+            <div key={m.key} data-tags={m.tags.join(" ")} className="pt-10">
+              <h2 className="eyebrow mb-1">
+                <time dateTime={m.key}>{m.label}</time>
+              </h2>
+              {m.posts.map((p) => (
+                <div key={p.slug} data-tag={p.tag}>
+                  <NewsCard post={p} variant="row" headingLevel={3} />
                 </div>
-                <div>
-                  <h2 className="text-xl font-semibold display mb-3" style={{ color: "var(--text-primary)" }}>
-                    {p.title}
-                  </h2>
-                  <Body>{p.excerpt}</Body>
-                  {"cta" in p && p.cta && (
-                    <Link href={p.cta.href} className="textlink mt-3">
-                      {p.cta.label} <span>→</span>
-                    </Link>
-                  )}
-                </div>
-              </article>
-            </Reveal>
+              ))}
+            </div>
           ))}
         </div>
 
-        <Reveal delay={120}>
-          <div className="hairline pt-9 mt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
-            <div>
-              <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
-                Follow the build.
-              </p>
-              <Body>
-                We share progress and insights regularly, on the same cadence as our{" "}
-                <a
-                  href="https://www.linkedin.com/company/spectralflow"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-black transition-colors"
-                >
-                  LinkedIn
-                </a>
-                . Want the behind-the-scenes?
-              </Body>
-            </div>
-            <Link href="/contact" className="btn-ghost shrink-0">
+        <div className="hairline pt-9 mt-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <h2 className="font-semibold text-base mb-1" style={{ color: "var(--text-primary)" }}>
+              Follow our work.
+            </h2>
+            <Body>
+              New entries also go to our{" "}
+              <a
+                href={LINKEDIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-[color:var(--text-primary)] transition-colors"
+              >
+                LinkedIn page
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>{" "}
+              and to the{" "}
+              <a
+                href="/news/feed.xml"
+                className="underline underline-offset-2 hover:text-[color:var(--text-primary)] transition-colors"
+              >
+                RSS feed
+              </a>
+              . Journalists will find facts, texts and logos in the press kit.
+            </Body>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 shrink-0">
+            <Link href="/events" className="textlink">
+              Where to meet us <span>→</span>
+            </Link>
+            <Link href="/press" className="textlink">
+              Press kit <span>→</span>
+            </Link>
+            <Link href="/contact" className="btn-ghost">
               Get in touch <span>→</span>
             </Link>
           </div>
-        </Reveal>
+        </div>
       </Prose>
     </main>
   );

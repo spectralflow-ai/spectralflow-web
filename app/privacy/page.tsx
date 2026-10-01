@@ -2,19 +2,30 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Prose, Eyebrow, H2, Body, PageHeader } from "../components/kit";
 import { CONTACT_EMAIL } from "../lib/contact";
+import { ADDRESS, BRAND, LEGAL_NAME } from "../lib/facts";
+
+const DESCRIPTION = `Privacy policy (politique de confidentialité) for spectralflow.ai: how ${LEGAL_NAME} handles personal data under the GDPR.`;
 
 export const metadata: Metadata = {
   title: "Privacy policy",
-  description:
-    "Privacy policy (politique de confidentialité) for spectralflow.ai: how Spectral Flow SAS handles personal data under the GDPR.",
+  description: DESCRIPTION,
   alternates: { canonical: "/privacy" },
   openGraph: {
-    title: "Privacy policy · SpectralFlow",
-    description:
-      "Privacy policy (politique de confidentialité) for spectralflow.ai: how Spectral Flow SAS handles personal data under the GDPR.",
+    title: `Privacy policy · ${BRAND}`,
+    description: DESCRIPTION,
     url: "/privacy",
+    siteName: BRAND,
+    locale: "en_GB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Privacy policy · ${BRAND}`,
+    description: DESCRIPTION,
   },
 };
+
+const strong = { color: "var(--text-primary)" } as const;
 
 export default function Privacy() {
   return (
@@ -29,9 +40,9 @@ export default function Privacy() {
         <Eyebrow>Data controller</Eyebrow>
         <H2 className="max-w-3xl mb-6">Who is responsible</H2>
         <Body className="max-w-3xl">
-          The data controller is <strong style={{ color: "var(--text-primary)" }}>Spectral Flow
-          SAS</strong>, 14 avenue de Grande Bretagne, 06230 Villefranche-sur-Mer, France. For any
-          question about your data, contact{" "}
+          The data controller is <strong style={strong}>{LEGAL_NAME}</strong>, {ADDRESS.street},{" "}
+          {ADDRESS.postalCode} {ADDRESS.locality}, {ADDRESS.country}. For any question about your
+          data, contact{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: "var(--accent)" }}>
             {CONTACT_EMAIL}
           </a>
@@ -43,27 +54,49 @@ export default function Privacy() {
         <Eyebrow>What we collect & why</Eyebrow>
         <H2 className="max-w-3xl mb-6">Data, purpose and legal basis</H2>
         <Body className="max-w-3xl mb-4">
-          <strong style={{ color: "var(--text-primary)" }}>Contact &amp; access requests.</strong>{" "}
-          When you email us or use a form on this site (general contact, predictive-datasheet or
-          digital-twin access requests), we process the data you provide (typically your name,
-          email address, professional affiliation and your message) for the sole purpose of
-          responding to your request and managing the relationship that follows. Legal basis:
-          our legitimate interest in answering inbound enquiries, and the steps taken at your
-          request prior to any agreement.
+          <strong style={strong}>Contact and requests.</strong> When you email us or use the
+          contact form (general enquiries, programme, laboratory, press or careers enquiries,
+          requests for the model-derived datasheet or an expert simulation session), we process
+          the data you provide, typically your name, email address, organisation and message, for
+          the sole purpose of answering you and managing the relationship that follows. Legal
+          basis: our legitimate interest in answering inbound enquiries, and steps taken at your
+          request before any agreement.
         </Body>
         <Body className="max-w-3xl mb-4">
-          <strong style={{ color: "var(--text-primary)" }}>Technical logs.</strong> Our host may
-          process standard technical data (e.g. IP address, browser, timestamps) to deliver and
-          secure the site. Legal basis: legitimate interest in the security and proper operation
-          of the site.
+          <strong style={strong}>How the form is delivered.</strong> Messages sent through the
+          form are passed to our mailbox by Resend, a service of Plus Five Five, Inc. (United States), an email
+          delivery service acting on our instructions. If the form cannot send, your own email
+          client opens with the message prepared, and nothing passes through Resend.
+        </Body>
+        <Body className="max-w-3xl mb-4">
+          <strong style={strong}>Technical logs.</strong> Our host, Vercel Inc. (United States),
+          may process standard technical data (for example IP address, browser and timestamps)
+          to deliver and secure the site.
+          Legal basis: our legitimate interest in the security and proper operation of the site.
+        </Body>
+        <Body className="max-w-3xl mb-4">
+          <strong style={strong}>Mission demos.</strong> When you open the Instrument, your
+          browser connects to our compute service, hosted by Railway Corporation (United States), which
+          computes each simulated mission. That service receives your IP address and standard
+          technical data needed to answer the request. You do not type any personal data into
+          the demos, and we do not use these requests to identify visitors.
+        </Body>
+        <Body className="max-w-3xl mb-4">
+          <strong style={strong}>Live GNSS interference map.</strong> Some pages offer a live map
+          from gpsjam.org, a third-party site by John Wiseman. Nothing is requested from
+          gpsjam.org until you click to load the map; before that, the page shows a drawing made
+          by us. When you click, your browser loads gpsjam.org inside the page, and gpsjam.org,
+          together with any service that site itself uses, receives your IP address and standard
+          technical data under its own terms. On small screens the map opens on gpsjam.org in a
+          new tab instead.
         </Body>
         <Body className="max-w-3xl">
-          <strong style={{ color: "var(--text-primary)" }}>Cookies &amp; analytics.</strong>{" "}
-          This site uses no advertising or third-party tracking cookies and does not profile
-          visitors. Only strictly necessary cookies required for the site to function and be
-          served securely may be set by our host. No consent banner is therefore required for
-          tracking; should we add analytics in future, this policy will be updated and consent
-          requested where the law requires it.
+          <strong style={strong}>Cookies and audience measurement.</strong> This site uses no
+          audience measurement, no advertising or tracking cookies, and does not profile visitors.
+          Fonts and images are served from this site itself. Only strictly necessary cookies
+          required for the site to be served securely may be set by our host. No consent banner is
+          therefore required; should we add audience measurement, this policy will be updated
+          first and consent requested where the law requires it.
         </Body>
       </Prose>
 
@@ -71,10 +104,13 @@ export default function Privacy() {
         <Eyebrow>Retention & sharing</Eyebrow>
         <H2 className="max-w-3xl mb-6">How long, and with whom</H2>
         <Body className="max-w-3xl mb-4">
-          We keep enquiry data only as long as needed to handle your request and our subsequent
-          relationship, then archive or delete it. We do not sell personal data. It may be
-          processed by our service providers (e.g. email and hosting) acting on our instructions,
-          some of which may operate outside the EU under appropriate safeguards.
+          We keep enquiry data while we handle your request and the relationship that follows,
+          and no longer than three years after our last exchange; then we delete it. We do not
+          sell personal data. It may be processed by our service providers (hosting, compute and
+          email delivery, named above) acting on our instructions. Some of them operate outside the
+          European Union, in particular in the United States; such transfers rely on the safeguards provided by the GDPR, such as the EU-US
+          Data Privacy Framework or the European Commission&rsquo;s standard contractual
+          clauses.
         </Body>
       </Prose>
 

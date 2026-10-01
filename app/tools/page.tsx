@@ -2,18 +2,30 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
-import { CTA_TWIN } from "../lib/contact";
+import { CTA_DATASHEET, CTA_SIMULATION } from "../lib/contact";
+import { BRAND, FACTS_AS_OF, STAGE_LINE } from "../lib/facts";
+
+const DESCRIPTION = `${BRAND}'s tools: the Instrument (free mission demos in the browser, computed live in simulation), expert simulation sessions and the model-derived datasheet. All figures model-derived.`;
+
+/** The stage, dated: it goes stale, so it always carries its date. */
+const STAGE_DATED = `As of ${FACTS_AS_OF}, ${STAGE_LINE.charAt(0).toLowerCase()}${STAGE_LINE.slice(1)}`;
 
 export const metadata: Metadata = {
   title: "Tools",
-  description:
-    "SpectralFlow's tools: The Instrument (free in-browser mission demos, computed by our navigation digital twin), SpectralFlow Studio (the SF-QSim design engine) and expert twin sessions. All figures model-derived.",
+  description: DESCRIPTION,
   alternates: { canonical: "/tools" },
   openGraph: {
-    title: "Tools · SpectralFlow",
-    description:
-      "SpectralFlow's tools: The Instrument (free in-browser mission demos, computed by our navigation digital twin), SpectralFlow Studio (the SF-QSim design engine) and expert twin sessions. All figures model-derived.",
+    title: `Tools · ${BRAND}`,
+    description: DESCRIPTION,
     url: "/tools",
+    siteName: BRAND,
+    locale: "en_GB",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Tools · ${BRAND}`,
+    description: DESCRIPTION,
   },
 };
 
@@ -21,20 +33,14 @@ const RUNGS = [
   {
     k: "Try it · free",
     title: "The Instrument",
-    body: "Our public mission demos, computed by the navigation digital twin and live in your browser with no account. Fly a full mission where satellites cannot help, attack the instrument three ways, and watch it hold. Every figure is recomputed live and honestly labelled model-derived.",
-    cta: { href: "/instrument", label: "Fly the Instrument", internal: true },
-  },
-  {
-    k: "Go deeper",
-    title: "SpectralFlow Studio",
-    body: "The design engine behind the sensor. SF-QSim predicts coherence and magnetic sensitivity from first principles, so a lean team can explore the parameter space in software before the cleanroom. Studio is where that engine is put to work.",
-    cta: { href: "https://studio.spectralflow.ai", label: "Open Studio", internal: false },
+    body: "Our public mission demos, computed live in simulation, in your browser and with no account. Fly a full mission where satellites cannot help, attack the instrument three ways, and watch it hold. Every figure is recomputed live and labelled model-derived.",
+    cta: { href: "/instrument", label: "Fly the Instrument" },
   },
   {
     k: "Talk to us",
-    title: "Expert twin session",
-    body: "A guided session on the full engineering digital twin, under agreement: the complete sensor model, the navigation filter and the design targets, walked through with our team. For partners and technical evaluators who need to go past the public layer.",
-    cta: { href: CTA_TWIN, label: "Request an expert session", internal: false },
+    title: "Expert simulation session",
+    body: "A guided session on our full engineering simulation, under agreement: the sensor model, the navigation filter and the design targets, walked through with our team. For partners and technical evaluators who need to go past the public layer.",
+    cta: { href: CTA_SIMULATION, label: "Request an expert session" },
   },
 ];
 
@@ -49,7 +55,7 @@ export default function Tools() {
             <br className="hidden md:block" /> Fly it in the browser.
           </>
         }
-        intro="We validate the sensor in software before it exists. Three ways in, from free in-browser mission demos to the full engineering twin, each honest about the fact that every figure is model-derived and no hardware exists yet."
+        intro={`We design the sensor in software first. There are two ways in: free mission demos in the browser, and expert simulation sessions with our team. Every figure in both is model-derived. ${STAGE_DATED}`}
       />
 
       <Prose>
@@ -65,15 +71,9 @@ export default function Tools() {
                   <Body>{r.body}</Body>
                 </div>
                 <div className="md:pt-1">
-                  {r.cta.internal ? (
-                    <Link href={r.cta.href} className="btn-primary whitespace-nowrap">
-                      {r.cta.label} <span>→</span>
-                    </Link>
-                  ) : (
-                    <a href={r.cta.href} className="btn-ghost whitespace-nowrap">
-                      {r.cta.label} <span>→</span>
-                    </a>
-                  )}
+                  <Link href={r.cta.href} className="btn-primary whitespace-nowrap">
+                    {r.cta.label} <span>→</span>
+                  </Link>
                 </div>
               </div>
             </Reveal>
@@ -81,16 +81,18 @@ export default function Tools() {
         </div>
       </Prose>
 
-      {/* The engine, in one line */}
+      {/* The simulation, in one paragraph */}
       <Prose>
         <Reveal>
-          <Eyebrow>The engine behind it all</Eyebrow>
-          <H2 className="max-w-3xl mb-6">SF-QSim: the sensor, simulated first.</H2>
+          <Eyebrow>Simulation first</Eyebrow>
+          <H2 className="max-w-3xl mb-6">The sensor, simulated before it is made.</H2>
           <Lead className="max-w-3xl">
-            SF-QSim is our first-principles simulation engine. It predicts coherence and magnetic
-            sensitivity across independent decoherence channels, benchmarked against a registry of
-            more than 100 published experimental results. It is the layer that lets us design, and
-            be measured, in software before committing to fabrication.
+            Our first-principles simulation models the diamond&rsquo;s spin coherence and magnetic
+            sensitivity across independent decoherence channels. Its validation register covers more
+            than a hundred published results; quantitative validation covers the subset whose
+            experimental conditions are documented well enough, and the list is available. It is
+            still to be calibrated against our own hardware and is useful in relative terms: it lets
+            us design, and be checked, in software before committing to fabrication.
           </Lead>
         </Reveal>
       </Prose>
@@ -100,11 +102,17 @@ export default function Tools() {
         <Reveal>
           <H2 className="max-w-2xl mb-6">Evaluating the technology?</H2>
           <Lead className="max-w-2xl mb-9">
-            Start with the Instrument, then talk to us about an expert session on the full twin.
+            Start with the Instrument, then ask for the model-derived datasheet or an expert
+            simulation session.
           </Lead>
-          <Link href="/contact" className="btn-primary">
-            Get in touch <span>→</span>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3.5">
+            <Link href={CTA_DATASHEET} className="btn-primary">
+              Request the model-derived datasheet <span>→</span>
+            </Link>
+            <Link href="/contact" className="btn-ghost">
+              Get in touch <span>→</span>
+            </Link>
+          </div>
         </Reveal>
       </Prose>
     </main>

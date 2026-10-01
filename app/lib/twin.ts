@@ -1,16 +1,16 @@
 /**
- * Typed client for the SF100 twin compute API (Railway backend).
+ * Typed client for the mission-demo compute API.
  * Base URL from NEXT_PUBLIC_TWIN_API; falls back to localhost in dev only.
  * A production build without the variable gets the empty-string sentinel:
  * requests short-circuit and the UI reports the service offline instead
  * of blaming the visitor's network.
- * All figures returned are model-derived (digital twin).
+ * All figures returned are model-derived.
  */
 export const TWIN_API =
   process.env.NEXT_PUBLIC_TWIN_API ??
   (process.env.NODE_ENV === "development" ? "http://127.0.0.1:8611" : "");
 
-/** True when no twin backend is configured for this build. */
+/** True when no compute backend is configured for this build. */
 export const TWIN_OFFLINE = TWIN_API === "";
 
 export type Attack = ["gain" | "burst" | "spoof", number];
@@ -30,10 +30,6 @@ export interface Fault {
   t0: number;
   t1: number;
   mag: number;
-  /** UK17 network attribution: seen by the wingman too (environmental)
-   *  or ownship-only (instrument-local). Present on gain/burst faults. */
-  fleet?: "coincident" | "local";
-  wing_scale?: number;
   /** spoof faults: truth-free passage-profile detection of the emitter */
   detected?: boolean;
   det?: number;

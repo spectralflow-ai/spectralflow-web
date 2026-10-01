@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================
-   SpectralFlow : V4 "L'instrument"
+   Spectral Flow : V4 "L'instrument"
    Porcelain ground, deep ink, ONE blue used rarely. Giant sans
    display. No neon, no glows, no grids, no mono eyebrows.
    1.5% paper grain. Dark exists only as scoped cinema moments
@@ -267,7 +267,6 @@ body::after {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 4px;
 }
 ::selection {
   background: rgba(11, 95, 255, 0.15);
@@ -311,4 +310,148 @@ body::after {
     background: #FFFFFF;
   }
   .card, .plate { border: 1px solid #DDDDDD !important; }
+}
+
+/* ============================================================
+   V3 additions : menu panels, duotone photographs, small
+   utilities. Additive only : nothing above is overridden.
+   ============================================================ */
+
+/* ----- Menu ------------------------------------------------- */
+.nav-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 0.5rem 0.15rem;
+  transition: color 0.2s ease;
+}
+.nav-trigger:hover,
+.nav-trigger[aria-expanded="true"],
+.nav-trigger[data-active="true"] {
+  color: var(--text-primary);
+}
+.nav-trigger .nav-chevron {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-trigger[aria-expanded="true"] .nav-chevron {
+  transform: rotate(180deg);
+}
+
+.nav-panel {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow:
+    0 1px 2px rgba(11, 15, 26, 0.04),
+    0 24px 48px -24px rgba(11, 15, 26, 0.18);
+}
+@keyframes nav-panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+.nav-panel-in {
+  animation: nav-panel-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nav-panel-link {
+  display: block;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+.nav-panel-link:hover,
+.nav-panel-link:focus-visible {
+  background: var(--surface-2);
+}
+.nav-panel-link .nav-link-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.nav-panel-link .nav-link-blurb {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Mobile menu : full screen under the header. */
+.nav-mobile {
+  position: fixed;
+  inset: 4rem 0 0 0;
+  z-index: 60;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--background);
+  border-top: 1px solid var(--border);
+}
+
+/* ----- Duotone photographs ---------------------------------- */
+/* Ink and porcelain only : the photograph is turned to grey, then
+   its darkest tones are lifted to ink and its lightest held at
+   porcelain, so no raw colour ever reaches the page. */
+.duotone {
+  position: relative;
+  overflow: hidden;
+  background: #0B0F1A;
+  isolation: isolate;
+}
+.duotone img {
+  filter: grayscale(1) contrast(1.08) brightness(0.97);
+}
+.duotone::before,
+.duotone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.duotone::before {
+  background: #0B0F1A;
+  mix-blend-mode: lighten;
+}
+.duotone::after {
+  background: #FAFAF8;
+  mix-blend-mode: darken;
+}
+
+/* ----- Utilities -------------------------------------------- */
+/* A figure label in sentence case, for dates and sources. */
+.figure-label.is-plain {
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+/* Source note under a quoted figure. */
+.source-note {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.source-note a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--border-strong);
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+.source-note a:hover {
+  color: var(--text-primary);
+  text-decoration-color: currentColor;
+}
+
+/* Anchored sections clear the sticky header. */
+section[id],
+div[id] {
+  scroll-margin-top: 5rem;
+}
+
+/* Revealed blocks print and render without JS. */
+@media print {
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
 }

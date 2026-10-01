@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "SpectralFlow",
-    short_name: "SpectralFlow",
+    name: "Spectral Flow",
+    short_name: "Spectral Flow",
     description:
-      "NV-diamond quantum sensors: quantum sensing, out of the lab. Resilient navigation where GPS is jammed or denied.",
+      "Spectral Flow designs diamond quantum sensors. First, navigation you can trust without GPS.",
     start_url: "/",
     display: "standalone",
     background_color: "#FAFAF8",

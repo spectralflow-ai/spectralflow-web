@@ -4,7 +4,17 @@ import "./globals.css";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import { CONTACT_EMAIL } from "./lib/contact";
-import { PATENT_FAMILIES } from "./lib/facts";
+import {
+  ADDRESS,
+  BRAND,
+  DESCRIPTOR,
+  FOUNDER,
+  LEGAL_NAME,
+  LINKEDIN_URL,
+  REGISTERED,
+  SITE_URL,
+} from "./lib/facts";
+import { SUPPORTERS } from "./lib/supporters";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,36 +26,36 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "SpectralFlow · Quantum sensing, out of the lab";
-const DESCRIPTION = `NV-diamond magnetometers for resilient navigation where GPS is jammed or denied: room temperature, chip-scale, designed for the vehicle, not the lab. Sovereign European deep tech. ${PATENT_FAMILIES} patent families filed.`;
-
-const SITE_URL = "https://www.spectralflow.ai";
+const TITLE = `${BRAND} · ${DESCRIPTOR} for navigation`;
+const DESCRIPTION =
+  "Spectral Flow designs diamond quantum sensors. The first application is navigation you can trust without GPS: the instrument reads the Earth's magnetic field and returns each position with its error bound.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: TITLE,
-    template: "%s · SpectralFlow",
+    template: `%s · ${BRAND}`,
   },
   description: DESCRIPTION,
   alternates: { canonical: "/" },
-  applicationName: "SpectralFlow",
+  applicationName: BRAND,
   verification: { google: "oyPBoJQ-UcuzTdlAquK44i-meA0AANU_CIDZ7uHeIDw" },
   keywords: [
-    "NV-diamond",
+    "diamond quantum sensors",
+    "NV centres in diamond",
+    "quantum magnetometer",
+    "magnetic navigation",
+    "navigation without GPS",
+    "GNSS-denied navigation",
+    "alternative PNT",
     "quantum sensing",
-    "magnetometer",
-    "GPS-denied navigation",
-    "inertial navigation",
-    "deep tech",
-    "sovereign",
   ],
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
     url: "/",
-    siteName: "SpectralFlow",
-    locale: "en_US",
+    siteName: BRAND,
+    locale: "en_GB",
     type: "website",
   },
   twitter: {
@@ -60,39 +70,51 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
+/** Programmes we are a member of, from the same source as the page blocks. */
+const MEMBER_OF = SUPPORTERS.filter((s) => s.kind === "Member of").map((s) => ({
+  "@type": "Organization",
+  name: s.name,
+}));
+
 const SITE_JSONLD = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "Organization",
       "@id": `${SITE_URL}/#org`,
-      name: "SpectralFlow",
-      legalName: "Spectral Flow SAS",
+      name: BRAND,
+      legalName: LEGAL_NAME,
+      description: DESCRIPTION,
+      slogan: DESCRIPTOR,
       url: SITE_URL,
       logo: `${SITE_URL}/icon.svg`,
-      description: DESCRIPTION,
-      foundingDate: "2026",
-      foundingLocation: { "@type": "Country", name: "France" },
+      foundingDate: REGISTERED,
+      foundingLocation: { "@type": "Place", name: `${ADDRESS.locality}, ${ADDRESS.country}` },
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: ADDRESS.street,
+        postalCode: ADDRESS.postalCode,
+        addressLocality: ADDRESS.locality,
+        addressCountry: ADDRESS.countryCode,
+      },
       email: CONTACT_EMAIL,
       founder: { "@id": `${SITE_URL}/#founder` },
       knowsAbout: [
-        "NV-diamond quantum sensors",
-        "Magnetometry",
-        "GPS-denied navigation",
+        "Diamond quantum sensors",
+        "Nitrogen-vacancy centres in diamond",
+        "Quantum magnetometry",
         "Magnetic navigation",
+        "Navigation without GNSS",
         "Quantum sensing",
-        "Chip-scale NMR",
-        "Quantum biosensing",
-        "Semiconductor failure analysis",
       ],
-      memberOf: { "@type": "Organization", name: "NVIDIA Inception" },
-      sameAs: ["https://www.linkedin.com/company/spectralflow"],
+      memberOf: MEMBER_OF,
+      sameAs: [LINKEDIN_URL],
     },
     {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
-      name: "SpectralFlow",
+      name: BRAND,
       description: DESCRIPTION,
       publisher: { "@id": `${SITE_URL}/#org` },
       inLanguage: "en",
@@ -100,8 +122,8 @@ const SITE_JSONLD = {
     {
       "@type": "Person",
       "@id": `${SITE_URL}/#founder`,
-      name: "Alexandre Papa",
-      jobTitle: "Founder",
+      name: FOUNDER.name,
+      jobTitle: FOUNDER.role,
       worksFor: { "@id": `${SITE_URL}/#org` },
     },
   ],
@@ -115,6 +137,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <noscript>
+          <style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style>
+        </noscript>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_JSONLD) }}

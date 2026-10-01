@@ -46,6 +46,7 @@ export default function Reveal({
   return (
     <Tag
       ref={ref}
+      data-reveal=""
       className={className}
       style={{
         opacity: shown ? 1 : 0,

@@ -7,7 +7,7 @@
  * Falls back to a simple stacked list on mobile.
  */
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export type StepItem = { n: string; t: string; d: string };
@@ -23,6 +23,7 @@ function Step({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { margin: "-45% 0px -45% 0px" });
+  const reduce = useReducedMotion();
   useEffect(() => {
     if (inView) onActive(index);
   }, [inView, index, onActive]);
@@ -31,7 +32,7 @@ function Step({
     <div ref={ref} className="min-h-[34vh] lg:min-h-[46vh] flex items-center">
       <motion.div
         className="w-full py-10 hairline"
-        initial={{ opacity: 0, y: 20 }}
+        initial={reduce ? false : { opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-10% 0px" }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}

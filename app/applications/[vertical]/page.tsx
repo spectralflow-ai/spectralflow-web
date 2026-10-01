@@ -2,23 +2,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Reveal from "../../components/Reveal";
-import { Prose, Plate, Eyebrow, H2, Lead, Body, PageHeader } from "../../components/kit";
+import { Prose, Plate, Strip, Eyebrow, H2, Lead, Body, Strong, PageHeader } from "../../components/kit";
 import VerticalGlyph from "../../components/VerticalGlyph";
+import VerticalIcon from "../../components/VerticalIcon";
 import {
-  VERTICAL_SLUGS,
+  ADJACENT_VERTICALS,
   VERTICALS_ORDERED,
   getVertical,
+  verticalHref,
 } from "../../lib/verticals";
+import { BRAND, SITE_URL } from "../../lib/facts";
 
-const GLYPH_CAPTION: Record<string, string> = {
-  navigation: "Matching a magnetometer reading to the magnetic map to hold a true heading.",
-  "life-sciences": "One NV sensor, two reads: a molecule at the diamond surface, and radical noise inside a cell.",
-  semiconductors: "An NV sensor images the magnetic field of a buried current path, non-destructively.",
-  "quantum-computing": "An NV electron spin coupled to a neighbouring nuclear spin: a room-temperature register.",
-};
+/**
+ * Navigation has a static route of its own (app/applications/navigation),
+ * so only the other applications are generated here, and any other slug
+ * is a 404.
+ */
+export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return VERTICAL_SLUGS.map((vertical) => ({ vertical }));
+  return ADJACENT_VERTICALS.map((v) => ({ vertical: v.slug }));
 }
 
 export async function generateMetadata({
@@ -29,15 +32,24 @@ export async function generateMetadata({
   const { vertical } = await params;
   const v = getVertical(vertical);
   if (!v) return {};
+  const url = verticalHref(v.slug);
+  const shareTitle = `${v.metaTitle} · ${BRAND}`;
   return {
     title: v.metaTitle,
     description: v.metaDescription,
-    alternates: { canonical: `/applications/${v.slug}` },
+    alternates: { canonical: url },
     openGraph: {
-      title: `${v.metaTitle} · SpectralFlow`,
+      title: shareTitle,
       description: v.metaDescription,
-      url: `/applications/${v.slug}`,
-      type: "article",
+      url,
+      siteName: BRAND,
+      locale: "en_GB",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: shareTitle,
+      description: v.metaDescription,
     },
   };
 }
@@ -63,16 +75,40 @@ export default async function VerticalPage({
     })),
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "Applications", item: `${SITE_URL}/applications` },
+      { "@type": "ListItem", position: 3, name: v.navLabel, item: `${SITE_URL}${verticalHref(v.slug)}` },
+    ],
+  };
+
   return (
     <main>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
 
       <PageHeader eyebrow={v.eyebrow} title={v.title} intro={v.intro} />
 
-      {/* Beat 1 : teach the domain, with the signature engraving under it */}
+      {/* Where this application stands, before anything else */}
+      <Strip>
+        <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-8">
+          <p className="figure-label shrink-0">Where we stand</p>
+          <p className="text-[15px] leading-7" style={{ color: "var(--text-secondary)" }}>
+            <Strong>{v.horizon.label}.</Strong> {v.horizon.note}
+          </p>
+        </div>
+      </Strip>
+
+      {/* The domain, with its engraving */}
       <Prose>
         <Reveal>
           <Eyebrow>{v.teach.eyebrow}</Eyebrow>
@@ -82,14 +118,14 @@ export default async function VerticalPage({
         </Reveal>
         <Reveal delay={120}>
           <div className="mt-12 max-w-3xl">
-            <Plate caption={GLYPH_CAPTION[v.slug]}>
+            <Plate caption={v.glyphCaption}>
               <VerticalGlyph slug={v.slug} />
             </Plate>
           </div>
         </Reveal>
       </Prose>
 
-      {/* Beat 2 : why NV-diamond */}
+      {/* Why NV centres in diamond */}
       <Prose>
         <Reveal>
           <Eyebrow>{v.whyNV.eyebrow}</Eyebrow>
@@ -99,9 +135,9 @@ export default async function VerticalPage({
           {v.whyNV.points.map((c, i) => (
             <Reveal key={c.h} delay={i * 80}>
               <div className="hairline pt-6 h-full">
-                <p className="font-semibold mb-2.5" style={{ color: "var(--text-primary)" }}>
+                <h3 className="font-semibold mb-2.5" style={{ color: "var(--text-primary)" }}>
                   {c.h}
-                </p>
+                </h3>
                 <Body>{c.p}</Body>
               </div>
             </Reveal>
@@ -109,33 +145,48 @@ export default async function VerticalPage({
         </div>
       </Prose>
 
-      {/* Beat 3 : our approach (allusive) */}
+      {/* What carries over, and how the work would be done */}
       <Prose>
-        <Reveal>
-          <Eyebrow>{v.approach.eyebrow}</Eyebrow>
-          <H2 className="max-w-3xl mb-6">{v.approach.h}</H2>
-          <Lead className="max-w-3xl">{v.approach.body}</Lead>
-        </Reveal>
+        {v.proof ? (
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-16 items-start">
+            <Reveal>
+              <Eyebrow>{v.approach.eyebrow}</Eyebrow>
+              <H2 className="mb-6">{v.approach.h}</H2>
+              <Lead>{v.approach.body}</Lead>
+            </Reveal>
+            <Reveal delay={100}>
+              <div className="card p-6 md:p-8 flex flex-col gap-3">
+                <p className="figure-label">{v.proof.eyebrow}</p>
+                <h3
+                  className="display text-xl font-semibold"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  {v.proof.h}
+                </h3>
+                <Body>{v.proof.body}</Body>
+                {v.proof.cta && (
+                  <Link href={v.proof.cta.href} className="textlink pt-1">
+                    {v.proof.cta.label} <span aria-hidden>→</span>
+                  </Link>
+                )}
+              </div>
+            </Reveal>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16 items-end">
+            <Reveal>
+              <Eyebrow>{v.approach.eyebrow}</Eyebrow>
+              <H2>{v.approach.h}</H2>
+            </Reveal>
+            <Reveal delay={100}>
+              <Lead>{v.approach.body}</Lead>
+            </Reveal>
+          </div>
+        )}
       </Prose>
 
-      {/* Beat 4 : proof / tools (optional) */}
-      {v.proof && (
-        <Prose>
-          <Reveal>
-            <Eyebrow>{v.proof.eyebrow}</Eyebrow>
-            <H2 className="max-w-3xl mb-6">{v.proof.h}</H2>
-            <Lead className="max-w-3xl mb-8">{v.proof.body}</Lead>
-            {v.proof.cta && (
-              <Link href={v.proof.cta.href} className="btn-primary">
-                {v.proof.cta.label} <span>→</span>
-              </Link>
-            )}
-          </Reveal>
-        </Prose>
-      )}
-
-      {/* FAQ : pedagogy + AI-citability */}
-      <Prose>
+      {/* Questions, also published as FAQPage data */}
+      <Prose id="faq">
         <Reveal>
           <Eyebrow>Questions</Eyebrow>
           <H2 className="max-w-3xl mb-12">The basics, answered.</H2>
@@ -154,41 +205,52 @@ export default async function VerticalPage({
         </div>
       </Prose>
 
-      {/* Beat 5 : CTA */}
+      {/* Call to action */}
       <Prose>
         <Reveal>
           <H2 className="max-w-2xl mb-6">{v.cta.h}</H2>
           <Lead className="max-w-2xl mb-9">{v.cta.body}</Lead>
           <Link href="/contact" className="btn-primary">
-            Get in touch <span>→</span>
+            Get in touch <span aria-hidden>→</span>
           </Link>
         </Reveal>
       </Prose>
 
-      {/* Cross-links to other verticals (internal linking) */}
+      {/* The other applications of the same platform */}
       <Prose>
         <Reveal>
-          <Eyebrow>The platform goes further</Eyebrow>
-          <H2 className="max-w-3xl mb-10">One core, other worlds.</H2>
+          <Eyebrow>One diamond platform</Eyebrow>
+          <H2 className="max-w-3xl mb-10">Other applications of the same diamond.</H2>
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {others.map((o, i) => (
-            <Reveal key={o.slug} delay={i * 70}>
+            <Reveal key={o.slug} delay={i * 70} className="h-full">
               <Link
-                href={`/applications/${o.slug}`}
-                className="card p-6 h-full flex flex-col gap-2 group"
+                href={verticalHref(o.slug)}
+                className="card p-6 h-full flex flex-col gap-2.5 group"
               >
-                <p className="eyebrow">{o.navLabel}</p>
+                <div className="flex items-center gap-2.5">
+                  <VerticalIcon slug={o.slug} />
+                  <h3 className="eyebrow">{o.navLabel}</h3>
+                </div>
                 <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
                   {o.tagline}
                 </p>
-                <span className="textlink mt-auto pt-3">
-                  Explore <span>→</span>
+                <p className="figure-label mt-auto pt-3">{o.horizon.label}</p>
+                <span className="textlink" style={{ color: "var(--text-primary)" }}>
+                  Explore <span aria-hidden>→</span>
                 </span>
               </Link>
             </Reveal>
           ))}
         </div>
+        <Reveal delay={200}>
+          <div className="mt-10">
+            <Link href="/applications" className="textlink">
+              All applications <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </Reveal>
       </Prose>
     </main>
   );

@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "The Instrument · fly the SF100 through live mission demos";
+export const alt = "The Instrument · fly a simulated diamond quantum sensor through live mission demos";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -57,7 +57,7 @@ export default function Og() {
             }}
           />
           <div style={{ display: "flex", fontSize: 30, color: "#AEB4C0" }}>
-            SpectralFlow · The Instrument
+            Spectral Flow · The Instrument
           </div>
         </div>
 
@@ -78,26 +78,24 @@ export default function Og() {
               lineHeight: 1.05,
             }}
           >
-            GPS is jammed. You still get home.
+            Fly a mission without GPS.
           </div>
           <div
             style={{
               display: "flex",
               fontSize: 32,
-              color: "#8CA6D9",
+              color: "#AEB4C0",
               lineHeight: 1.35,
             }}
           >
-            Fly a diamond quantum sensor through a full mission, attack it,
-            and watch it refuse to be fooled. Live mission demos, in your
-            browser.
+            Fly a simulated diamond quantum sensor through a full mission,
+            attack it, and watch it hold. Live mission demos, in your browser.
           </div>
         </div>
 
         {/* Footer pills */}
-        <div style={{ display: "flex", gap: 16, fontSize: 24 }}>
+        <div style={{ display: "flex", gap: 16, fontSize: 22 }}>
           {pill("navigation without GNSS")}
-          {pill("noise as signal")}
           {pill("every figure model-derived")}
           {pill("spectralflow.ai/instrument")}
         </div>
