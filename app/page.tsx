@@ -6,6 +6,7 @@ import Steps from "./components/Steps";
 import MissionChart from "./components/MissionChart";
 import ErrorBound from "./components/ErrorBound";
 import DuotonePhoto from "./components/DuotonePhoto";
+import HeroVideo from "./components/HeroVideo";
 import SourceNote from "./components/SourceNote";
 import GnssMap from "./components/GnssMap";
 import NewsCard from "./components/NewsCard";
@@ -87,8 +88,11 @@ const heroPortrait = getImageProps({
  * screen size. On landscape screens the track stays in the right part of the
  * photograph, clear of the text column down to 1024 px wide; below that it
  * is hidden. The line draws itself once, then the last fix appears and its
- * dashed bound tightens. All motion ends within five seconds. Reduced motion
- * (the global rule strips animations) shows the finished drawing.
+ * dashed bound tightens; the drawing itself lasts under five seconds. Where
+ * the video may play, the still track starts later and waits while the
+ * video is on its way (data-hold), so the two scenes never draw at once.
+ * Reduced motion (the global rule strips animations) shows the finished
+ * drawing.
  */
 const LANDSCAPE_TRACK = {
   viewBox: "0 0 2560 1097",
@@ -101,6 +105,47 @@ const PORTRAIT_TRACK = {
   end: { x: 780, y: 700 },
 };
 
+/*
+ * The moving background, for wide landscape screens only (see HeroVideo).
+ * Its track uses the video frame: it comes in from the right edge over the
+ * dark flats and stops short of the main channel, clear of the text column
+ * down to 1024 px wide and above the pause button on very wide screens.
+ * The camera drifts slowly, so the track does not follow any one channel.
+ */
+const HERO_VIDEO = {
+  poster: "/video/hero-estuary-poster.jpg",
+  sources: [
+    { src: "/video/hero-estuary.webm", type: "video/webm" },
+    { src: "/video/hero-estuary.mp4", type: "video/mp4" },
+  ],
+};
+const HERO_VIDEO_TRACK = {
+  viewBox: "0 0 1920 1080",
+  d: "M1990 840 C1860 835 1770 800 1700 780 S1600 730 1540 720",
+  end: { x: 1540, y: 720 },
+};
+
+/*
+ * The video is much brighter than the photograph on its left side, under
+ * the text. This veil sits on the video only, on top of the shared scrims,
+ * and is shaped per width so that the text keeps its contrast on the
+ * brightest frames while the sky and the right side stay light. From
+ * 1024 px, a second layer follows the text column rather than the screen,
+ * for the end of the longest title line.
+ */
+const heroInk = (pct: number) => `color-mix(in srgb, var(--background) ${pct}%, transparent)`;
+const HERO_COL = "max(0px, 50% - 36rem)";
+const HERO_TITLE_INK = `linear-gradient(90deg,transparent calc(${HERO_COL} + 30rem),${heroInk(40)} calc(${HERO_COL} + 40rem),${heroInk(40)} calc(${HERO_COL} + 47rem),transparent calc(${HERO_COL} + 58rem))`;
+const heroVeil = (stops: [number, number][], from: number, to: number, extra?: string) => `
+background:${extra ? `${extra},` : ""}linear-gradient(90deg,${stops.map(([a, x]) => `${heroInk(a)} ${x}%`).join(",")});
+-webkit-mask-image:linear-gradient(to bottom,transparent ${from}%,#000 ${to}%);
+mask-image:linear-gradient(to bottom,transparent ${from}%,#000 ${to}%)`;
+const HERO_VEIL_CSS = `
+.sf-hero-veil{${heroVeil([[12, 0], [22, 30], [54, 42], [62, 50], [70, 60], [72, 70], [68, 100]], 10, 35)}}
+@media (min-width:1024px){.sf-hero-veil{${heroVeil([[12, 0], [22, 30], [52, 42], [60, 52], [56, 60], [34, 67], [0, 76]], 4, 28, HERO_TITLE_INK)}}}
+@media (min-width:1280px){.sf-hero-veil{${heroVeil([[12, 0], [18, 30], [44, 40], [50, 50], [26, 57], [0, 68]], 5, 36, HERO_TITLE_INK)}}}
+`;
+
 const HERO_CSS = `
 .sf-hero-path{stroke-dasharray:1 1;stroke-dashoffset:0;animation:sf-hero-draw 2.8s cubic-bezier(.65,0,.35,1) .45s both}
 .sf-hero-fix{transform-box:fill-box;transform-origin:center;animation:sf-hero-fix .7s cubic-bezier(.22,1,.36,1) 3.1s both}
@@ -111,10 +156,16 @@ const HERO_CSS = `
 .sf-hero-portrait .sf-hero-path{stroke-width:3.6}
 .sf-hero-portrait .sf-hero-scale{transform:scale(.62)}
 }
+@media (min-width:768px) and (min-height:480px) and (orientation:landscape) and (prefers-reduced-motion:no-preference){
+.sf-hero-still .sf-hero-path{animation-delay:1.95s}
+.sf-hero-still .sf-hero-fix{animation-delay:4.6s}
+.sf-hero-still .sf-hero-bound{animation-delay:4.8s}
+}
+.sf-hero-still[data-hold] :is(.sf-hero-path,.sf-hero-fix,.sf-hero-bound){animation-play-state:paused}
 @keyframes sf-hero-draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 @keyframes sf-hero-fix{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
 @keyframes sf-hero-bound{from{transform:scale(1.6)}to{transform:none}}
-`;
+${HERO_VEIL_CSS}`;
 
 function HeroTrack({
   track,
@@ -179,8 +230,9 @@ function Hero() {
         {HERO_CSS}
       </style>
 
-      {/* Photograph, track and scrims. Portrait screens stack the photograph
-          above the text; landscape screens set the text over its left side. */}
+      {/* Photograph, video, track and scrims. Portrait screens stack the
+          photograph above the text; landscape screens set the text over its
+          left side. */}
       <div className="relative portrait:flex-1 portrait:min-h-[16rem] landscape:absolute landscape:inset-0">
         <div className="duotone" style={{ position: "absolute", inset: 0 }}>
           <picture>
@@ -189,13 +241,30 @@ function Hero() {
           </picture>
         </div>
 
-        <HeroTrack
-          track={LANDSCAPE_TRACK}
-          stroke={2.6}
-          dot={7}
-          bound={40}
-          dash="7 7"
-          className="portrait:hidden max-lg:hidden [@media(max-height:479px)]:hidden"
+        <HeroVideo
+          sources={HERO_VIDEO.sources}
+          poster={HERO_VIDEO.poster}
+          veilClassName="sf-hero-veil"
+          still={
+            <HeroTrack
+              track={LANDSCAPE_TRACK}
+              stroke={2.6}
+              dot={7}
+              bound={40}
+              dash="7 7"
+              className="portrait:hidden max-lg:hidden [@media(max-height:479px)]:hidden"
+            />
+          }
+          track={
+            <HeroTrack
+              track={HERO_VIDEO_TRACK}
+              stroke={2.4}
+              dot={6.5}
+              bound={37}
+              dash="6.5 6.5"
+              className="portrait:hidden max-lg:hidden [@media(max-height:479px)]:hidden"
+            />
+          }
         />
         <HeroTrack
           track={PORTRAIT_TRACK}
