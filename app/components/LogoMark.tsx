@@ -12,8 +12,8 @@ export type Logo = {
 
 /**
  * A third-party logo at a common optical size: the height is fixed, and very
- * wide wordmarks are capped so that no mark dominates a row. Logos are shown
- * in greyscale to sit within the site's ink palette.
+ * wide wordmarks are capped so that no mark dominates a row. Logos keep their
+ * official colours.
  */
 export default function LogoMark({
   logo,

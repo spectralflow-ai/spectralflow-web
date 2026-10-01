@@ -456,5 +456,5 @@ div[id] {
   [data-reveal] { opacity: 1 !important; transform: none !important; }
 }
 
-/* Third-party logos, in the ink palette. */
-.logo-mono { filter: grayscale(1) contrast(1.15); opacity: 0.85; }
+/* Third-party logos are shown in their official colours. */
+.logo-mono { filter: none; }
