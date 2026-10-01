@@ -80,6 +80,7 @@ const siteHost = SITE_URL.replace(/^https?:\/\//, "");
 
 const FACT_LABEL: Record<SupporterKind, string> = {
   Recognised: "Recognition",
+  "Pre-incubated at": "Incubation",
   "Member of": "Memberships",
   "Selected for": "Selection",
 };
@@ -110,7 +111,7 @@ const FACTS: { k: string; v: ReactNode }[] = [
         {supportersByKind(kind).map((s) => (
           <li key={s.name}>
             {s.statement}
-            {kind !== "Selected for" && (
+            {kind !== "Selected for" && s.since && (
               <span className="block text-sm" style={{ color: "var(--muted)" }}>
                 Since {s.since}
               </span>
@@ -386,9 +387,6 @@ export default function PressPage() {
               sizes="144px"
               className="w-36"
             />
-            <p className="figure-label is-plain mt-4 max-w-[9rem]">
-              High-resolution portrait on request.
-            </p>
           </Reveal>
 
           <Reveal delay={100} className="grid grid-cols-1 gap-6 max-w-3xl">

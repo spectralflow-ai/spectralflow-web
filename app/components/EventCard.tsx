@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LogoMark from "./LogoMark";
 import type { SiteEvent } from "../lib/events";
 
 /**
@@ -30,6 +31,12 @@ export default function EventCard({
         </p>
         <span className="pill">{past ? "Past" : event.role}</span>
       </div>
+
+      {event.logo && (
+        <div className="mt-5 h-11 flex items-center">
+          <LogoMark logo={event.logo} height={40} maxWidth={150} />
+        </div>
+      )}
 
       <H className="text-lg font-semibold display mt-4" style={{ color: "var(--text-primary)" }}>
         {event.name}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Image from "next/image";
+import LogoMark from "../components/LogoMark";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import DuotonePhoto from "../components/DuotonePhoto";
@@ -420,6 +421,7 @@ function Dot({ status }: { status: Status }) {
 
 const KIND_FR: Record<SupporterKind, string> = {
   Recognised: "Qualification",
+  "Pre-incubated at": "Pré-incubation",
   "Member of": "Adhésions",
   "Selected for": "Sélection",
 };
@@ -427,6 +429,12 @@ const KIND_FR: Record<SupporterKind, string> = {
 /** French wording of each entry in supporters.ts, keyed by name. */
 const STATEMENT_FR: Record<string, ReactNode> = {
   Bpifrance: "Qualifiée Deeptech par Bpifrance",
+  "Incubateur Provence Côte d'Azur": "Pré-incubée à l'Incubateur Provence Côte d'Azur",
+  QuIC: (
+    <>
+      Membre de QuIC, le consortium européen de l&apos;industrie quantique (<span lang="en">European Quantum Industry Consortium</span>)
+    </>
+  ),
   "NVIDIA Inception": (
     <>
       Membre de <span lang="en">NVIDIA Inception</span>
@@ -449,7 +457,8 @@ const LOGO_ALT_FR: Record<string, string> = {
   "NVIDIA Inception": "Membre de NVIDIA Inception",
 };
 
-function sinceFr(s: Supporter): string {
+function sinceFr(s: Supporter): string | null {
+  if (!s.since) return null;
   const m = monthYearFr(s.since);
   return s.kind === "Selected for" ? cap(m) : `Depuis ${m}`;
 }
@@ -695,7 +704,7 @@ export default function EnBref() {
             <h3 className="eyebrow">Laboratoires de recherche</h3>
             <Body className="max-w-2xl">
               {fr(
-                "Nous travaillons avec des laboratoires de recherche européens, en croissance et nanofabrication du diamant, en photonique et en physique du spin. Nous nommerons chacun d'eux dès qu'il aura donné son accord."
+                "Nous travaillons avec les meilleurs laboratoires de recherche européens, en croissance et nanofabrication du diamant, en photonique et en physique du spin. Leurs noms sont communiqués sur demande."
               )}
             </Body>
           </div>
@@ -951,7 +960,7 @@ export default function EnBref() {
         <Reveal>
           <H2 className="max-w-3xl mb-10">{fr("Reconnaissance et adhésions.")}</H2>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {SUPPORTER_KINDS.map((kind, i) => {
             const items = supportersByKind(kind);
             if (items.length === 0) return null;
@@ -966,14 +975,10 @@ export default function EnBref() {
                         <li key={s.name}>
                           {s.logo && (
                             <div className="mb-3">
-                              <Image
-                                src={s.logo.src}
-                                alt={LOGO_ALT_FR[s.name] ?? s.logo.alt}
-                                width={Math.round((s.logo.width / s.logo.height) * 52)}
-                                height={52}
-                                className="w-auto"
-                                style={{ height: 52 }}
-                                unoptimized
+                              <LogoMark
+                                logo={{ ...s.logo, alt: LOGO_ALT_FR[s.name] ?? s.logo.alt }}
+                                height={40}
+                                maxWidth={170}
                               />
                             </div>
                           )}
@@ -994,7 +999,7 @@ export default function EnBref() {
                               statement
                             )}
                           </p>
-                          <p className="figure-label is-plain mt-1">{fr(sinceFr(s))}</p>
+                          {sinceFr(s) && <p className="figure-label is-plain mt-1">{fr(sinceFr(s) as string)}</p>}
                         </li>
                       );
                     })}

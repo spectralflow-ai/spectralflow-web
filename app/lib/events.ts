@@ -1,3 +1,5 @@
+import type { Logo } from "../components/LogoMark";
+
 /**
  * Events we attend or speak at. Only confirmed participations are listed.
  */
@@ -23,6 +25,8 @@ export type SiteEvent = {
   ask?: string;
   /** Official event page. */
   href?: string;
+  /** Logo of the event or of its organiser. */
+  logo?: Logo;
 };
 
 export const EVENTS: SiteEvent[] = [
@@ -40,6 +44,28 @@ export const EVENTS: SiteEvent[] = [
       "We were selected to pitch to investors and experts in quantum and defence technologies. Ask us for the live mission demo.",
     ask: "Meet us in Berlin",
     href: "https://techtour.com/ttqd26/",
+    logo: { src: "/logos/tech-tour.svg", alt: "Tech Tour", width: 577.5, height: 101.6 },
+  },
+  {
+    slug: "blue-day-maritime-spatial-2026",
+    name: "Blue Day Maritime & Space",
+    city: "Paris",
+    country: "France",
+    venue: "CNES",
+    start: "2026-10-13",
+    end: "2026-10-13",
+    dateLabel: "13 October 2026",
+    role: "Speaking",
+    blurb:
+      "A day on space for the maritime world, organised by CNES, GICAN, GIFAS, the SAFE cluster and Pôle Mer Bretagne Atlantique. We speak about quantum magnetic navigation at sea and in space.",
+    ask: "Meet us in Paris",
+    href: "https://www.pole-mer-bretagne-atlantique.com/agenda-actualites/blue-day-maritime-spatial",
+    logo: {
+      src: "/logos/pole-mer-bretagne-atlantique.svg",
+      alt: "Pôle Mer Bretagne Atlantique",
+      width: 102.297,
+      height: 49.183,
+    },
   },
   {
     slug: "rencontres-du-spatial-region-sud-2026",
@@ -54,6 +80,7 @@ export const EVENTS: SiteEvent[] = [
     blurb:
       "The space community of the Région Sud meets in Cannes. Ask us to fly the space profile of our mission demo with you.",
     ask: "Meet us in Cannes",
+    logo: { src: "/logos/safe-cluster.png", alt: "SAFE cluster", width: 1001, height: 348 },
   },
 ];
 

@@ -485,7 +485,9 @@ export default function Company() {
           <H2 className="max-w-3xl mb-6">Internships and engineering roles, from 2027.</H2>
           <Lead className="max-w-2xl">
             We are a small team. In 2027 we will open internships in diamond nanofabrication and
-            quantum sensing, and engineering roles.{" "}
+            quantum sensing, and engineering roles. We also welcome spontaneous applications from
+            researchers and postdocs whose work is closely aligned with ours: diamond growth and
+            nanofabrication, spin physics, photonics and magnetic navigation.{" "}
             <Link
               href="/contact"
               className="underline underline-offset-4 decoration-[var(--border-strong)] hover:decoration-current"

@@ -1153,10 +1153,7 @@ export default function Home() {
       </Prose>
 
       {/* ============ RECOGNITIONS, MEMBERSHIPS AND SELECTIONS ============ */}
-      <section aria-labelledby="support-title">
-        <h2 id="support-title" className="sr-only">
-          Recognitions, memberships and selections
-        </h2>
+      <section aria-label="Recognitions, memberships and selections">
         <Supporters
           variant="strip"
           id="support"

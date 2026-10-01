@@ -28,7 +28,7 @@ export function GET() {
     .map((l) => `- [${l.label}](${BASE}${l.href}): ${l.blurb ?? ""}`.trimEnd())
     .join("\n");
 
-  const supportLines = SUPPORTERS.map((s) => `- ${s.statement} (${s.since}).`).join("\n");
+  const supportLines = SUPPORTERS.map((s) => `- ${s.statement}${s.since ? ` (${s.since})` : ""}.`).join("\n");
   const newsLines = POSTS.slice(0, 6)
     .map((p) => `- [${p.title}](${BASE}/news/${p.slug}) (${p.dateLabel}): ${p.excerpt}`)
     .join("\n");

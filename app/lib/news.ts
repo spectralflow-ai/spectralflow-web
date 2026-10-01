@@ -46,6 +46,20 @@ const OCTOBER_2026_RELEASE = "2026-10-01";
 const ENTRIES: Post[] = [
   /* ----- October 2026 ---------------------------------------------- */
   {
+    slug: "member-of-quic",
+    date: OCTOBER_2026_RELEASE,
+    dateLabel: "October 2026",
+    tag: "Milestone",
+    title: "Spectral Flow joins QuIC, the European Quantum Industry Consortium",
+    excerpt:
+      "Spectral Flow is now a member of QuIC, the association of Europe's quantum technology industry.",
+    body: [
+      "Spectral Flow is now a member of QuIC, the European Quantum Industry Consortium. QuIC brings together the companies and research organisations that build Europe's quantum technology industry.",
+      "Membership gives us a seat in its working groups, where the industry discusses standards, roadmaps and the uses of quantum sensing.",
+    ],
+    cta: { href: "/company#support", label: "Recognitions and memberships" },
+  },
+  {
     slug: "first-mobile-prototype-designed",
     date: OCTOBER_2026_RELEASE,
     dateLabel: "October 2026",
