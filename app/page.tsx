@@ -65,13 +65,21 @@ export const revalidate = 86400;
 const HERO_ALT = "Aerial view of a tidal estuary.";
 
 const heroLandscape = getImageProps({
+  src: "/img/v3/hero-estuary-frame.webp",
+  alt: HERO_ALT,
+  width: 1920,
+  height: 1080,
+  sizes: "100vw",
+  loading: "eager",
+  fetchPriority: "high",
+}).props;
+
+const heroSmallLandscape = getImageProps({
   src: "/img/v3/estuary-21x9.webp",
   alt: HERO_ALT,
   width: 2560,
   height: 1097,
   sizes: "100vw",
-  loading: "eager",
-  fetchPriority: "high",
 }).props;
 
 const heroPortrait = getImageProps({
@@ -94,11 +102,7 @@ const heroPortrait = getImageProps({
  * Reduced motion (the global rule strips animations) shows the finished
  * drawing.
  */
-const LANDSCAPE_TRACK = {
-  viewBox: "0 0 2560 1097",
-  d: "M1780 -30 C1800 220 2140 300 2120 500 S1990 730 1930 790",
-  end: { x: 1930, y: 790 },
-};
+type Track = { viewBox: string; d: string; end: { x: number; y: number } };
 const PORTRAIT_TRACK = {
   viewBox: "0 0 1200 1607",
   d: "M-20 560 C300 500 520 760 780 700",
@@ -113,7 +117,7 @@ const PORTRAIT_TRACK = {
  * The camera drifts slowly, so the track does not follow any one channel.
  */
 const HERO_VIDEO = {
-  poster: "/video/hero-estuary-poster.jpg",
+  poster: "/img/v3/hero-estuary-frame.webp",
   sources: [
     { src: "/video/hero-estuary.webm", type: "video/webm" },
     { src: "/video/hero-estuary.mp4", type: "video/mp4" },
@@ -175,7 +179,7 @@ function HeroTrack({
   dash,
   className,
 }: {
-  track: typeof LANDSCAPE_TRACK;
+  track: Track;
   stroke: number;
   dot: number;
   bound: number;
@@ -237,6 +241,7 @@ function Hero() {
         <div className="duotone" style={{ position: "absolute", inset: 0 }}>
           <picture>
             <source media="(orientation: portrait)" srcSet={heroPortrait.srcSet} sizes="100vw" />
+            <source media="(max-width: 767px)" srcSet={heroSmallLandscape.srcSet} sizes="100vw" />
             <img {...heroLandscape} alt={HERO_ALT} className="absolute inset-0 h-full w-full object-cover" />
           </picture>
         </div>
@@ -244,27 +249,23 @@ function Hero() {
         <HeroVideo
           sources={HERO_VIDEO.sources}
           poster={HERO_VIDEO.poster}
-          veilClassName="sf-hero-veil"
-          still={
-            <HeroTrack
-              track={LANDSCAPE_TRACK}
-              stroke={2.6}
-              dot={7}
-              bound={40}
-              dash="7 7"
-              className="portrait:hidden max-lg:hidden [@media(max-height:479px)]:hidden"
-            />
-          }
-          track={
-            <HeroTrack
-              track={HERO_VIDEO_TRACK}
-              stroke={2.4}
-              dot={6.5}
-              bound={37}
-              dash="6.5 6.5"
-              className="portrait:hidden max-lg:hidden [@media(max-height:479px)]:hidden"
-            />
-          }
+          veilClassName=""
+          still={null}
+          track={null}
+        />
+        {/* The still frame is the first frame of the video: one veil and one
+            track serve both, so nothing changes when the video takes over. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 sf-hero-veil hidden [@media(min-width:768px)_and_(orientation:landscape)]:block"
+        />
+        <HeroTrack
+          track={HERO_VIDEO_TRACK}
+          stroke={2.4}
+          dot={6.5}
+          bound={37}
+          dash="6.5 6.5"
+          className="portrait:hidden max-lg:hidden [@media(max-height:479px)]:hidden"
         />
         <HeroTrack
           track={PORTRAIT_TRACK}
