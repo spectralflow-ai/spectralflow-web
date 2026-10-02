@@ -75,53 +75,43 @@ const heroLandscape = getImageProps({
   fetchPriority: "high",
 }).props;
 
-const heroSmallLandscape = getImageProps({
-  src: "/img/v3/estuary-21x9.webp",
-  alt: HERO_ALT,
-  width: 2560,
-  height: 1097,
-  sizes: "100vw",
-}).props;
-
-const heroPortrait = getImageProps({
-  src: "/img/v3/estuary-portrait.webp",
-  alt: HERO_ALT,
-  width: 1200,
-  height: 1607,
-  sizes: "100vw",
-}).props;
-
 /*
- * The track over the estuary. Each SVG uses the pixel frame of its photo and
- * the same centred cover crop, so the line stays on the same ground at every
- * screen size. On landscape screens the track stays in the right part of the
- * photograph, clear of the text column down to 1024 px wide; below that it
- * is hidden. The line draws itself once, then the last fix appears and its
- * dashed bound tightens; the drawing itself lasts under five seconds. Where
- * the video may play, the still track starts later and waits while the
- * video is on its way (data-hold), so the two scenes never draw at once.
- * Reduced motion (the global rule strips animations) shows the finished
- * drawing.
+ * The track over the estuary. The still photograph is the first frame of the
+ * video at every screen size, so both tracks use the video frame and its
+ * centred cover crop, and the line stays on the same ground whether the
+ * photograph or the video is showing. On landscape screens the track stays
+ * in the right part of the frame, clear of the text column down to 1024 px
+ * wide; below that it is hidden. On portrait screens, where the frame is
+ * cropped to its middle, it comes in from the left edge over the bright
+ * sea and stops on the dark flats. The line draws itself once, then the last fix
+ * appears and its dashed bound tightens; the drawing itself lasts under five
+ * seconds. Reduced motion (the global rule strips animations) shows the
+ * finished drawing.
  */
 type Track = { viewBox: string; d: string; end: { x: number; y: number } };
 const PORTRAIT_TRACK = {
-  viewBox: "0 0 1200 1607",
-  d: "M-20 560 C300 500 520 760 780 700",
-  end: { x: 780, y: 700 },
+  viewBox: "0 0 1920 1080",
+  d: "M-40 452 C300 446 640 462 860 540 S960 590 1000 596",
+  end: { x: 1000, y: 596 },
 };
 
 /*
- * The moving background, for wide landscape screens only (see HeroVideo).
- * Its track uses the video frame: it comes in from the right edge over the
- * dark flats and stops short of the main channel, clear of the text column
- * down to 1024 px wide and above the pause button on very wide screens.
- * The camera drifts slowly, so the track does not follow any one channel.
+ * The moving background (see HeroVideo), at every screen size; small or
+ * portrait screens get a lighter 960 px file. The landscape track comes in
+ * from the right edge over the dark flats and stops short of the main
+ * channel, clear of the text column down to 1024 px wide and above the
+ * pause button on very wide screens. The camera drifts slowly, so the track
+ * does not follow any one channel.
  */
 const HERO_VIDEO = {
   poster: "/img/v3/hero-estuary-frame.webp",
   sources: [
     { src: "/video/hero-estuary.webm", type: "video/webm" },
     { src: "/video/hero-estuary.mp4", type: "video/mp4" },
+  ],
+  smallSources: [
+    { src: "/video/hero-estuary-960.webm", type: "video/webm" },
+    { src: "/video/hero-estuary-960.mp4", type: "video/mp4" },
   ],
 };
 const HERO_VIDEO_TRACK = {
@@ -156,10 +146,10 @@ const HERO_CSS = `
 .sf-hero-fix{transform-box:fill-box;transform-origin:center;animation:sf-hero-fix .7s cubic-bezier(.22,1,.36,1) 3.1s both}
 .sf-hero-bound{transform-box:fill-box;transform-origin:center;animation:sf-hero-bound 1.4s cubic-bezier(.22,1,.36,1) 3.3s both}
 .sf-hero-scale{transform-box:fill-box;transform-origin:center}
-.sf-hero-portrait .sf-hero-path{stroke-width:6}
+.sf-hero-portrait .sf-hero-path{stroke-width:4.4}
 @media (min-width:640px){
-.sf-hero-portrait .sf-hero-path{stroke-width:3.6}
-.sf-hero-portrait .sf-hero-scale{transform:scale(.62)}
+.sf-hero-portrait .sf-hero-path{stroke-width:3}
+.sf-hero-portrait .sf-hero-scale{transform:scale(.7)}
 }
 @media (min-width:768px) and (min-height:480px) and (orientation:landscape) and (prefers-reduced-motion:no-preference){
 .sf-hero-still .sf-hero-path{animation-delay:1.95s}
@@ -240,15 +230,12 @@ function Hero() {
           left side. */}
       <div className="relative portrait:flex-1 portrait:min-h-[16rem] landscape:absolute landscape:inset-0">
         <div className="duotone" style={{ position: "absolute", inset: 0 }}>
-          <picture>
-            <source media="(orientation: portrait)" srcSet={heroPortrait.srcSet} sizes="100vw" />
-            <source media="(max-width: 767px)" srcSet={heroSmallLandscape.srcSet} sizes="100vw" />
-            <img {...heroLandscape} alt={HERO_ALT} className="absolute inset-0 h-full w-full object-cover" />
-          </picture>
+          <img {...heroLandscape} alt={HERO_ALT} className="absolute inset-0 h-full w-full object-cover" />
         </div>
 
         <HeroVideo
           sources={HERO_VIDEO.sources}
+          smallSources={HERO_VIDEO.smallSources}
           poster={HERO_VIDEO.poster}
           veilClassName=""
           still={null}
@@ -270,10 +257,10 @@ function Hero() {
         />
         <HeroTrack
           track={PORTRAIT_TRACK}
-          stroke={6}
-          dot={14}
-          bound={72}
-          dash="12 12"
+          stroke={4.4}
+          dot={10}
+          bound={52}
+          dash="9 9"
           className="sf-hero-portrait landscape:hidden"
         />
 
@@ -355,7 +342,7 @@ const SITUATIONS = [
     text: "Vessels, and the drones that survey ports and coasts, rely on satellite positioning. When it fails, they need a reference they carry with them.",
     src: "/img/v3/port-drone.webp",
     alt: "A research vessel crossing open sea, seen from above.",
-    clip: { poster: "/video/situations/sea-poster.webp", sources: [{ src: "/video/situations/sea.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/sea-poster.webp", sources: [{ src: "/video/situations/sea.webm", type: "video/webm" }, { src: "/video/situations/sea.mp4", type: "video/mp4" }] },
   },
   {
     title: "In space",

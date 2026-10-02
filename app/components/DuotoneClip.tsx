@@ -6,9 +6,10 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 /**
  * A short illustrative clip in ink duotone, on the frame of a DuotonePhoto.
  * The poster (first frame) is painted first. The clip is fetched only when
- * the frame comes near the screen, plays while it is visible, and at its end
- * fades back to the poster before playing again, so no cut is ever seen.
- * Reduced motion or data saving: the poster alone.
+ * the frame comes near the screen and plays while it is visible. Each file is
+ * built as a seamless loop (a dissolve inside the file, or a slowed
+ * back-and-forth), so the native loop never shows a cut and the motion never
+ * stops. Reduced motion or data saving: the poster alone.
  */
 
 const QUERY = "(prefers-reduced-motion: no-preference)";
@@ -65,23 +66,15 @@ export default function DuotoneClip({
     return () => io.disconnect();
   }, [motionOk, near]);
 
-  // play while visible; at the end, fade to the poster, then play again
+  // play while visible; the file loops on itself
   useEffect(() => {
     const v = videoRef.current;
     const el = frameRef.current;
     if (!near || !v || !el) return;
     v.muted = true;
     let visible = false;
-    let timer = 0;
     const play = () => {
       if (visible && !document.hidden) v.play().catch(() => undefined);
-    };
-    const onEnded = () => {
-      setShown(false);
-      timer = window.setTimeout(() => {
-        v.currentTime = 0;
-        play();
-      }, FADE_MS);
     };
     const onPlaying = () => setShown(true);
     const io = new IntersectionObserver(
@@ -93,14 +86,11 @@ export default function DuotoneClip({
       { threshold: [0, 0.3] }
     );
     const onVis = () => (document.hidden ? v.pause() : play());
-    v.addEventListener("ended", onEnded);
     v.addEventListener("playing", onPlaying);
     document.addEventListener("visibilitychange", onVis);
     io.observe(el);
     return () => {
-      window.clearTimeout(timer);
       io.disconnect();
-      v.removeEventListener("ended", onEnded);
       v.removeEventListener("playing", onPlaying);
       document.removeEventListener("visibilitychange", onVis);
     };
@@ -123,6 +113,7 @@ export default function DuotoneClip({
               transition: `opacity ${FADE_MS}ms ease`,
             }}
             muted
+            loop
             playsInline
             preload="auto"
             poster={poster}

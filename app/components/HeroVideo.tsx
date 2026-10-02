@@ -6,10 +6,11 @@ import type { ReactNode } from "react";
 /**
  * HeroVideo : the moving background of the home hero.
  *
- * The still photograph stays the first thing painted. The video is only
- * mounted on wide landscape screens, when the visitor has not asked for
- * reduced motion or reduced data, and only once the page has loaded, so it
- * never competes with the photograph. It fades in once it actually plays.
+ * The still photograph (the first frame of the video) stays the first thing
+ * painted. The video is mounted at every screen size, unless the visitor
+ * has asked for reduced motion or reduced data, and only once the page has
+ * loaded, so it never competes with the photograph. Small or portrait
+ * screens get the lighter file. It fades in once it actually plays.
  * It pauses when the hero leaves the screen or the tab is hidden, and a
  * small button lets the visitor stop it (WCAG 2.2.2).
  *
@@ -20,8 +21,9 @@ import type { ReactNode } from "react";
  * hydration never differs; the video arrives on a later render.
  */
 
-const QUERY =
-  "(min-width: 768px) and (min-height: 480px) and (orientation: landscape) and (prefers-reduced-motion: no-preference)";
+const QUERY = "(prefers-reduced-motion: no-preference)";
+/** Screens that get the lighter file. */
+const SMALL = "(max-width: 1023px), (orientation: portrait)";
 
 /** How long the still track waits for the video before drawing anyway. */
 const HOLD_MS = 3500;
@@ -52,6 +54,18 @@ function subscribe(onChange: () => void) {
 const getSnapshot = () => query().matches && !connection()?.saveData;
 const getServerSnapshot = () => false;
 
+let smallMql: MediaQueryList | null = null;
+function smallQuery(): MediaQueryList {
+  if (!smallMql) smallMql = window.matchMedia(SMALL);
+  return smallMql;
+}
+function subscribeSmall(onChange: () => void) {
+  const mq = smallQuery();
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+const getSmall = () => smallQuery().matches;
+
 function subscribeLoad(onChange: () => void) {
   window.addEventListener("load", onChange);
   return () => window.removeEventListener("load", onChange);
@@ -63,6 +77,7 @@ const FADE = "opacity 1.2s cubic-bezier(0.22, 1, 0.36, 1)";
 
 export default function HeroVideo({
   sources,
+  smallSources,
   poster,
   veilClassName,
   still,
@@ -70,6 +85,8 @@ export default function HeroVideo({
 }: {
   /** In order of preference. */
   sources: { src: string; type: string }[];
+  /** The same video, lighter, for small or portrait screens. */
+  smallSources?: { src: string; type: string }[];
   poster: string;
   /** Ink veil laid over the video only, for the legibility of the text. */
   veilClassName: string;
@@ -99,6 +116,10 @@ export default function HeroVideo({
   }
 
   const mounted = allowed && loaded;
+  // Known before the video mounts (it only mounts after hydration); a change
+  // of size or orientation mounts a new video element with the other file.
+  const small = useSyncExternalStore(subscribeSmall, getSmall, getServerSnapshot);
+  const files = small && smallSources ? smallSources : sources;
   const shown = mounted && playedOnce;
   // Hidden behind the video, the still track stays where it is.
   const hold = allowed && (shown || !gaveUp);
@@ -143,7 +164,7 @@ export default function HeroVideo({
       io.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, [mounted, userPaused]);
+  }, [mounted, userPaused, files]);
 
   return (
     <>
@@ -164,6 +185,7 @@ export default function HeroVideo({
         >
           <div className="duotone" style={{ position: "absolute", inset: 0 }}>
             <video
+              key={files[0].src}
               ref={videoRef}
               className="absolute inset-0 h-full w-full object-cover"
               poster={poster}
@@ -177,7 +199,7 @@ export default function HeroVideo({
               onPlaying={() => setPlayedOnce(true)}
               onError={() => setGaveUp(true)}
             >
-              {sources.map((s) => (
+              {files.map((s) => (
                 <source key={s.src} src={s.src} type={s.type} />
               ))}
             </video>
@@ -192,7 +214,7 @@ export default function HeroVideo({
           type="button"
           onClick={() => setUserPaused((p) => !p)}
           aria-label={userPaused ? "Play the background video" : "Pause the background video"}
-          className="absolute z-20 bottom-5 right-5 md:right-8 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[color-mix(in_srgb,var(--background)_55%,transparent)] text-[var(--text-secondary)] transition-colors duration-200 hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]"
+          className="absolute z-20 bottom-5 right-5 md:right-8 portrait:bottom-auto portrait:top-5 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[color-mix(in_srgb,var(--background)_55%,transparent)] text-[var(--text-secondary)] transition-colors duration-200 hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]"
           style={{ animation: "fade-in-slow 0.6s ease-out 0.6s both" }}
         >
           {userPaused ? (

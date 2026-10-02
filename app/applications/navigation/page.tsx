@@ -170,7 +170,7 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/port-drone.webp",
       alt: "A research vessel crossing open sea, seen from above.",
     },
-    clip: { poster: "/video/situations/sea-poster.webp", sources: [{ src: "/video/situations/sea.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/sea-poster.webp", sources: [{ src: "/video/situations/sea.webm", type: "video/webm" }, { src: "/video/situations/sea.mp4", type: "video/mp4" }] },
   },
   {
     label: "In the air",
