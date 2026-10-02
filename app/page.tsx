@@ -5,7 +5,7 @@ import Reveal from "./components/Reveal";
 import Steps from "./components/Steps";
 import MissionChart from "./components/MissionChart";
 import ErrorBound from "./components/ErrorBound";
-import DuotonePhoto from "./components/DuotonePhoto";
+import DuotoneClip from "./components/DuotoneClip";
 import HeroVideo from "./components/HeroVideo";
 import SourceNote from "./components/SourceNote";
 import GnssMap from "./components/GnssMap";
@@ -347,18 +347,21 @@ const SITUATIONS = [
     text: "Aircraft cross areas of jamming and spoofing every day. Crews need to know how far to trust the position on their screens.",
     src: "/img/v3/air.webp",
     alt: "An airliner flying above a layer of cloud.",
+    clip: { poster: "/video/situations/air-poster.webp", sources: [{ src: "/video/situations/air.webm", type: "video/webm" }, { src: "/video/situations/air.mp4", type: "video/mp4" }] },
   },
   {
     title: "At sea and in port",
     text: "Vessels, and the drones that survey ports and coasts, rely on satellite positioning. When it fails, they need a reference they carry with them.",
     src: "/img/v3/port-drone.webp",
-    alt: "A fixed-wing drone flying over a container port, with vessels at the quay.",
+    alt: "A research vessel crossing open sea, seen from above.",
+    clip: { poster: "/video/situations/sea-poster.webp", sources: [{ src: "/video/situations/sea.mp4", type: "video/mp4" }] },
   },
   {
     title: "In space",
     text: "In orbit, satellite positioning cannot always be counted on. Around Mars there is none at all: a spacecraft has to work out where it is on its own.",
     src: "/img/v3/smallsat.webp",
     alt: "Illustration of a small satellite in orbit above the Earth.",
+    clip: { poster: "/video/situations/space-poster.webp", sources: [{ src: "/video/situations/space.webm", type: "video/webm" }, { src: "/video/situations/space.mp4", type: "video/mp4" }] },
   },
 ];
 
@@ -715,8 +718,9 @@ export default function Home() {
         <ul className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 mt-14">
           {SITUATIONS.map((s, i) => (
             <Reveal key={s.title} as="li" delay={i * 90}>
-              <DuotonePhoto
-                src={s.src}
+              <DuotoneClip
+                poster={s.clip.poster}
+                sources={s.clip.sources}
                 alt={s.alt}
                 aspect="4/3"
                 sizes="(min-width: 768px) 33vw, 100vw"

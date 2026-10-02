@@ -414,7 +414,8 @@ body::after {
   background: #0B0F1A;
   isolation: isolate;
 }
-.duotone img {
+.duotone img,
+.duotone video {
   filter: grayscale(1) contrast(1.08) brightness(0.97);
 }
 .duotone::before,

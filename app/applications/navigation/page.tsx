@@ -7,7 +7,7 @@ import Steps from "../../components/Steps";
 import GnssMap from "../../components/GnssMap";
 import ErrorBound from "../../components/ErrorBound";
 import SourceNote from "../../components/SourceNote";
-import DuotonePhoto from "../../components/DuotonePhoto";
+import DuotoneClip from "../../components/DuotoneClip";
 import NewsCard from "../../components/NewsCard";
 import VerticalGlyph from "../../components/VerticalGlyph";
 import { Prose, Cinema, Plate, Eyebrow, H2, Lead, Body } from "../../components/kit";
@@ -143,6 +143,7 @@ type Situation = {
   body: string;
   status: string[];
   photo: { src: string; alt: string; position?: string };
+  clip: { poster: string; sources: { src: string; type: string }[] };
   link?: { href: string; label: string };
 };
 
@@ -155,8 +156,9 @@ const SITUATIONS: Situation[] = [
     status: ["Mission demo available", "Model-derived"],
     photo: {
       src: "/img/v3/estuary-16x9.webp",
-      alt: "Aerial view of an estuary, its channels and sandbanks.",
+      alt: "A civilian survey drone flying low over a desert plain.",
     },
+    clip: { poster: "/video/situations/survey-poster.webp", sources: [{ src: "/video/situations/survey.webm", type: "video/webm" }, { src: "/video/situations/survey.mp4", type: "video/mp4" }] },
     link: { href: "/instrument?profile=geo", label: "Fly the survey" },
   },
   {
@@ -166,8 +168,9 @@ const SITUATIONS: Situation[] = [
     status: ["In our design scope", "No mission demo yet"],
     photo: {
       src: "/img/v3/port-drone.webp",
-      alt: "A fixed-wing drone flying over a container port, with ships at the quay.",
+      alt: "A research vessel crossing open sea, seen from above.",
     },
+    clip: { poster: "/video/situations/sea-poster.webp", sources: [{ src: "/video/situations/sea.mp4", type: "video/mp4" }] },
   },
   {
     label: "In the air",
@@ -178,6 +181,7 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/air.webp",
       alt: "An airliner above the clouds at dusk.",
     },
+    clip: { poster: "/video/situations/air-poster.webp", sources: [{ src: "/video/situations/air.webm", type: "video/webm" }, { src: "/video/situations/air.mp4", type: "video/mp4" }] },
     link: { href: "/instrument", label: "Fly a mission" },
   },
   {
@@ -189,6 +193,7 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/smallsat.webp",
       alt: "A small spacecraft above a planet.",
     },
+    clip: { poster: "/video/situations/space-poster.webp", sources: [{ src: "/video/situations/space.webm", type: "video/webm" }, { src: "/video/situations/space.mp4", type: "video/mp4" }] },
     link: { href: "/instrument?profile=space", label: "Fly the Mars scout" },
   },
 ];
@@ -573,12 +578,12 @@ export default function NavigationPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-14">
           {SITUATIONS.map((s, i) => (
             <Reveal key={s.label} delay={(i % 2) * 90} as="article" className="flex flex-col h-full">
-              <DuotonePhoto
-                src={s.photo.src}
+              <DuotoneClip
+                poster={s.clip.poster}
+                sources={s.clip.sources}
                 alt={s.photo.alt}
                 aspect="16/9"
                 sizes="(min-width: 768px) 50vw, 100vw"
-                objectPosition={s.photo.position}
               />
               <p className="eyebrow mt-6 mb-2">{s.label}</p>
               <h3
