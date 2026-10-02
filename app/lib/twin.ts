@@ -2,9 +2,9 @@
  * Data layer of the Instrument. The interface sees one data model, whatever
  * the source:
  *  - by default, mission files served with the site (public/instrument/data);
- *  - with ?live=1 (expert sessions), the compute API, normalised on arrival
- *    by the same rules the mission files were written with (mission-live.ts,
- *    loaded on demand only).
+ *  - with ?live=1 (expert sessions), the public v2 routes of the compute
+ *    API, which return the same model (mission-live.ts, loaded on demand
+ *    only).
  * Every value is relative and unitless: positions in map coordinates (0..1,
  * y downward), errors and bounds divided by one fixed reference of the
  * world. All of it is model-derived, computed in simulation.

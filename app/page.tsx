@@ -6,6 +6,7 @@ import Steps from "./components/Steps";
 import MissionChart from "./components/MissionChart";
 import ErrorBound from "./components/ErrorBound";
 import DuotoneClip from "./components/DuotoneClip";
+import DiamondPlate from "./components/DiamondPlate";
 import HeroVideo from "./components/HeroVideo";
 import SourceNote from "./components/SourceNote";
 import GnssMap from "./components/GnssMap";
@@ -430,123 +431,7 @@ const DIAMOND_POINTS = [
   },
 ];
 
-/*
- * Schematic: the four bond directions of the diamond lattice (a tetrahedron
- * seen at an angle) and one magnetic field vector, computed once.
- */
-const AXES = (() => {
-  const yaw = (30 * Math.PI) / 180;
-  const pitch = (-28 * Math.PI) / 180;
-  const scale = 118 / Math.sqrt(3);
-  const cx = 200;
-  const cy = 150;
-  const project = ([x, y, z]: [number, number, number]) => {
-    const x1 = x * Math.cos(yaw) + z * Math.sin(yaw);
-    const z1 = -x * Math.sin(yaw) + z * Math.cos(yaw);
-    const y1 = y * Math.cos(pitch) - z1 * Math.sin(pitch);
-    return { x: cx + scale * x1, y: cy - scale * y1 };
-  };
-  const tips = (
-    [
-      [1, 1, 1],
-      [1, -1, -1],
-      [-1, 1, -1],
-      [-1, -1, 1],
-    ] as [number, number, number][]
-  ).map(project);
-  const edges: [number, number][] = [
-    [0, 1],
-    [0, 2],
-    [0, 3],
-    [1, 2],
-    [1, 3],
-    [2, 3],
-  ];
-  const b: [number, number, number] = [-0.7, 0.65, 0.3];
-  const n = Math.hypot(...b);
-  const len = Math.sqrt(3);
-  const field = project([(b[0] / n) * len, (b[1] / n) * len, (b[2] / n) * len]);
-  const center = { x: cx, y: cy };
-  const dx = field.x - center.x;
-  const dy = field.y - center.y;
-  const l = Math.hypot(dx, dy) || 1;
-  const ux = dx / l;
-  const uy = dy / l;
-  const head = [
-    `${field.x.toFixed(1)},${field.y.toFixed(1)}`,
-    `${(field.x - 10 * ux - 4.5 * uy).toFixed(1)},${(field.y - 10 * uy + 4.5 * ux).toFixed(1)}`,
-    `${(field.x - 10 * ux + 4.5 * uy).toFixed(1)},${(field.y - 10 * uy - 4.5 * ux).toFixed(1)}`,
-  ].join(" ");
-  return { tips, edges, center, field, shaft: { x: field.x - 8 * ux, y: field.y - 8 * uy }, head };
-})();
 
-function CrystalAxes() {
-  const { tips, edges, center, field, shaft, head } = AXES;
-  return (
-    <svg
-      viewBox="0 0 400 300"
-      className="w-full h-auto max-w-[26rem]"
-      role="img"
-      aria-label="Schematic: the four bond directions of the diamond lattice meet at one point, with one magnetic field vector drawn in blue between them."
-    >
-      {edges.map(([a, b]) => (
-        <line
-          key={`e${a}${b}`}
-          x1={tips[a].x}
-          y1={tips[a].y}
-          x2={tips[b].x}
-          y2={tips[b].y}
-          stroke="var(--border-strong)"
-          strokeWidth="1"
-          strokeDasharray="3 4"
-        />
-      ))}
-      {tips.map((t, i) => (
-        <line
-          key={`a${i}`}
-          x1={center.x}
-          y1={center.y}
-          x2={t.x}
-          y2={t.y}
-          stroke="var(--text-secondary)"
-          strokeWidth="1.4"
-        />
-      ))}
-      {tips.map((t, i) => (
-        <circle
-          key={`t${i}`}
-          cx={t.x}
-          cy={t.y}
-          r="4.5"
-          fill="var(--surface-2)"
-          stroke="var(--text-secondary)"
-          strokeWidth="1.2"
-        />
-      ))}
-      <line
-        x1={center.x}
-        y1={center.y}
-        x2={shaft.x}
-        y2={shaft.y}
-        stroke="var(--accent)"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <polygon points={head} fill="var(--accent)" />
-      <circle cx={center.x} cy={center.y} r="4.5" fill="var(--accent)" />
-      <text
-        x={field.x + 10}
-        y={field.y + 6}
-        fontSize="15"
-        fontWeight="600"
-        fill="var(--accent)"
-        fontFamily="var(--font-geist-sans)"
-      >
-        B
-      </text>
-    </svg>
-  );
-}
 
 /* ----- The Instrument: mission profiles, in neutral order --------------- */
 
@@ -871,14 +756,7 @@ export default function Home() {
             </Reveal>
           </div>
           <Reveal delay={120}>
-            <figure>
-              <div className="plate p-6 md:p-10 flex items-center justify-center">
-                <CrystalAxes />
-              </div>
-              <figcaption className="figure-label is-plain mt-4">
-                Schematic: four crystal axes, one field vector.
-              </figcaption>
-            </figure>
+            <DiamondPlate />
           </Reveal>
         </div>
       </Prose>

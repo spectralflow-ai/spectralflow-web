@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import NVDiagram, { NVAxes } from "../components/NVDiagram";
+import DiamondPlate from "../components/DiamondPlate";
 import Principle from "../components/Principle";
 import { Prose, Eyebrow, H2, Lead, Body } from "../components/kit";
 import { BRAND, SITE_URL, STAGE_LINE } from "../lib/facts";
@@ -169,6 +170,9 @@ export default function Technology() {
           <H2 className="max-w-3xl mb-14">
             Room temperature. Survives the platform. Four crystal axes.
           </H2>
+        </Reveal>
+        <Reveal>
+          <DiamondPlate aspect="21/9" sizes="(min-width: 1024px) 1100px, 100vw" className="mb-16" />
         </Reveal>
 
         <Reveal>
