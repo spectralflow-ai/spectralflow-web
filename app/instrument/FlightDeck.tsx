@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * FlightDeck: one mission computed live by the simulation backend, on one
- * screen: map + error chart side by side, live inertial vs aided readouts,
- * an event console, a compact mission log, a debrief overlay, and the
- * two-depth science layer one click away on every panel.
+ * FlightDeck: one mission computed in simulation, on one screen: map +
+ * error chart side by side, an event console, a compact mission log, a
+ * debrief overlay, and the two-depth science layer one click away on every
+ * panel. One attack per flight; Replay to try another.
  * All figures model-derived, and none is shown as a number: the public
  * layer reports events and counts only. Palette: ink, porcelain, greys and
  * the one cinema blue; series differ by line style (solid, dashed, dotted).
@@ -12,13 +12,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, MotionConfig } from "framer-motion";
 import {
-  fetchAblation,
-  fetchContact,
-  fetchWorld,
-  TWIN_OFFLINE,
-  type AblationResult,
-  type Attack,
-  type ContactResult,
+  loadMission,
+  nextSlot,
+  type AttackKind,
+  type BreakdownLevel,
+  type Contact,
+  type Mission,
   type World,
 } from "../lib/twin";
 import { CTA_SIMULATION } from "../lib/contact";
@@ -27,6 +26,9 @@ import { getTopic, type TopicKey } from "./science";
 
 const SPEED = 12; // mission seconds per wall second
 const T_END = 600;
+/** attacks open after the calibration prefix and close before the end */
+const ATK_OPEN = 70;
+const ATK_CLOSE = T_END - 150;
 
 // SVG paints. The deck always sits in a .cinema band, so these mirror the
 // cinema tokens (--accent, --text-primary, --muted) for attributes that
@@ -115,100 +117,87 @@ function RefLinks({ text }: { text: string }) {
   );
 }
 
+const ATTACKS: { kind: AttackKind; label: "atk1" | "atk2" | "atk3" }[] = [
+  { kind: "gain", label: "atk1" },
+  { kind: "burst", label: "atk2" },
+  { kind: "spoof", label: "atk3" },
+];
+
 export default function FlightDeck({
   profile,
   focusOnOpen = false,
+  live = false,
 }: {
   profile: ProfileKey;
   /** move keyboard focus to the cold open (set when a visitor chose the
    *  mission in the chooser, not on a deep link) */
   focusOnOpen?: boolean;
+  /** expert sessions (?live=1): computed by the API instead of the files */
+  live?: boolean;
 }) {
   const P = PROFILES[profile];
-  const [seed, setSeed] = useState(2);
-  const [attacks, setAttacks] = useState<Attack[]>([]);
-  const [world, setWorld] = useState<World | null>(null);
+
+  // the mission data: loaded once, before the first flight can start
+  const [mission, setMission] = useState<Mission | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadNonce, setLoadNonce] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    loadMission(live)
+      .then((m) => alive && setMission(m))
+      .catch(() => alive && setLoadFailed(true));
+    return () => {
+      alive = false;
+    };
+  }, [live, loadNonce]);
+
+  // debrief material, resolved as soon as the mission is in hand
+  const [abl, setAbl] = useState<BreakdownLevel[] | null>(null);
+  const [ablFailed, setAblFailed] = useState(false);
+  const [contact, setContact] = useState<Contact | null>(null);
+  const [contactFailed, setContactFailed] = useState(false);
+  useEffect(() => {
+    if (!mission) return;
+    let alive = true;
+    mission.breakdown
+      .then((b) => alive && setAbl(b))
+      .catch(() => alive && setAblFailed(true));
+    mission.contact
+      .then((c) => alive && setContact(c))
+      .catch(() => alive && setContactFailed(true));
+    return () => {
+      alive = false;
+    };
+  }, [mission]);
+
+  // one attack per flight: the attacked world replaces the nominal one.
+  // Its instant sits on the next point of the grid, and everything shown
+  // before that instant is identical in both worlds.
+  const [attack, setAttack] = useState<{
+    kind: AttackKind;
+    t0: number;
+    world: World;
+  } | null>(null);
+  const [pending, setPending] = useState<AttackKind | null>(null);
+  const [attackFailed, setAttackFailed] = useState(false);
+  const flight = useRef(0);
+  const world: World | null = attack?.world ?? mission?.nominal ?? null;
+
   const [t, setT] = useState(0);
   const [started, setStarted] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [lastAttack, setLastAttack] = useState<
-    "gain" | "burst" | "spoof" | null
-  >(null);
+  const [lastAttack, setLastAttack] = useState<AttackKind | null>(null);
   const [reviewing, setReviewing] = useState(false);
   const [topic, setTopic] = useState<TopicKey | null>(null);
-  const [ablBySeed, setAblBySeed] = useState<{
-    seed: number;
-    result: AblationResult;
-  } | null>(null);
-  const abl = ablBySeed?.seed === seed ? ablBySeed.result : null;
   const raf = useRef<number>(0);
   const last = useRef<number>(0);
   const coldCtaRef = useRef<HTMLButtonElement>(null);
   const debriefRef = useRef<HTMLDivElement>(null);
 
-  // level-by-level breakdown, fetched once the mission is over.
-  // Computed on the NOMINAL leg of this world, never on the attacked one:
-  // the waterfall is an architecture statement, and under attack the
-  // unguarded levels accept corrupted fixes, which makes their median
-  // look deceptively good while being uncertified.
-  const landedNow = t >= T_END && !!world;
+  // playback clock: never runs without a world to show
+  const hasWorld = !!world;
   useEffect(() => {
-    if (!landedNow) return;
-    let live = true;
-    fetchAblation(seed, 20, [])
-      .then((a) => live && setAblBySeed({ seed, result: a }))
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [landedNow, seed]);
-
-  // detection replay: the swept passage profile, fetched once and cached
-  const [contact, setContact] = useState<ContactResult | null>(null);
-  const [contactFailed, setContactFailed] = useState(false);
-  useEffect(() => {
-    if (!landedNow || contact || contactFailed) return;
-    let live = true;
-    fetchContact(1)
-      .then((c) => live && setContact(c))
-      .catch(() => live && setContactFailed(true));
-    return () => {
-      live = false;
-    };
-  }, [landedNow, contact, contactFailed]);
-
-  // fetch world whenever seed or attacks change. Loading and error states
-  // are derived from which request last settled, so the effect never sets
-  // state synchronously.
-  const [retryNonce, setRetryNonce] = useState(0);
-  const requestKey = `${seed}|${attacks
-    .map(([k, at]) => `${k}:${at}`)
-    .join(",")}|${retryNonce}`;
-  const [settled, setSettled] = useState<{ key: string; ok: boolean } | null>(
-    null
-  );
-  const loading = settled?.key !== requestKey;
-  const fetchError = !loading && settled?.ok === false;
-  useEffect(() => {
-    let live = true;
-    fetchWorld(seed, 20, attacks)
-      .then((w) => {
-        if (live) {
-          setWorld(w);
-          setSettled({ key: requestKey, ok: true });
-        }
-      })
-      .catch(() => {
-        if (live) setSettled({ key: requestKey, ok: false });
-      });
-    return () => {
-      live = false;
-    };
-  }, [seed, attacks, retryNonce, requestKey]);
-
-  // playback clock
-  useEffect(() => {
-    if (!playing) return;
+    if (!playing || !hasWorld) return;
     last.current = 0;
     const tick = (now: number) => {
       if (last.current) {
@@ -227,30 +216,62 @@ export default function FlightDeck({
     };
     raf.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf.current);
-  }, [playing]);
+  }, [playing, hasWorld]);
 
-  // attacks open after the 60 s calibration prefix (server clamps too)
-  const canAttack = attacks.length < 3 && t >= 70 && t <= T_END - 150;
-  const attack = (kind: "gain" | "burst" | "spoof") => {
-    if (!canAttack) return;
-    setAttacks((a) => [...a, [kind, Math.round(t * 10) / 10]]);
+  const inWindow = t >= ATK_OPEN && t <= ATK_CLOSE;
+  const canAttack = !!mission && !attack && !pending && inWindow;
+  const slotFor = (kind: AttackKind) =>
+    mission ? nextSlot(mission, kind, t) : null;
+  const launch = (kind: AttackKind) => {
+    if (!canAttack || !mission) return;
+    const t0 = slotFor(kind);
+    if (t0 === null || t0 > ATK_CLOSE) return;
     setLastAttack(kind);
     setReviewing(false);
+    setAttackFailed(false);
+    const ready = mission.attackNow(kind, t0);
+    if (ready) {
+      setAttack({ kind, t0, world: ready });
+      return;
+    }
+    // computed live: the clock waits for the attacked world, so nothing
+    // already on screen can change when it lands
+    const id = flight.current;
+    const wasPlaying = playing;
+    setPlaying(false);
+    setPending(kind);
+    mission
+      .attack(kind, t0)
+      .then((w) => {
+        if (flight.current !== id) return;
+        setAttack({ kind, t0, world: w });
+        setPending(null);
+        if (wasPlaying) setPlaying(true);
+      })
+      .catch(() => {
+        if (flight.current !== id) return;
+        setPending(null);
+        setLastAttack(null);
+        setAttackFailed(true);
+        if (wasPlaying) setPlaying(true);
+      });
   };
 
   const reset = () => {
-    setAttacks([]);
+    flight.current += 1;
+    setAttack(null);
+    setPending(null);
+    setAttackFailed(false);
     setLastAttack(null);
     setReviewing(false);
     setT(0.001);
     setPlaying(true);
   };
-  const newWorld = () => {
-    setSeed(Math.floor(Math.random() * 90000) + 10);
-    reset();
-  };
 
-  const log = useMemo(() => (world ? buildLog(world, P) : []), [world, P]);
+  const log = useMemo(
+    () => (world ? buildLog(world, P, !!contact) : []),
+    [world, P, contact]
+  );
   const phase = useMemo(
     () => [...P.phases].reverse().find(([p0]) => t >= p0)?.[1] ?? "",
     [t, P]
@@ -269,6 +290,39 @@ export default function FlightDeck({
   useEffect(() => {
     if (debriefOpen) debriefRef.current?.focus({ preventScroll: true });
   }, [debriefOpen]);
+
+  // one line of state under the attack buttons
+  const status = attack
+    ? "One attack per flight · Replay to try another"
+    : pending
+      ? "computing your attack live in simulation…"
+      : attackFailed
+        ? "That attack could not be computed just now · try again"
+        : t < ATK_OPEN
+          ? `attacks open at ${fmtClock(ATK_OPEN)} · one per flight`
+          : t > ATK_CLOSE
+            ? "attack window closed · Replay to try one"
+            : "one attack per flight";
+
+  // debrief headline: no claim the data does not carry
+  const headline = (() => {
+    if (!world) return "";
+    const c = world.counts;
+    if (c.in_bound < c.accepted) return P.headlinePlain;
+    if (!attack) return P.headline;
+    if (attack.kind === "spoof") {
+      const ev = world.events.find((e) => e.kind === "spoof");
+      return ev?.detected ? P.headlineSpoof : P.headlineHeld;
+    }
+    if (c.withheld < 1) return P.headlineHeld;
+    const n =
+      c.withheld === 1 ? `one ${P.fixWord[0]}` : `${c.withheld} ${P.fixWord[1]}`;
+    return P.headlineAttacked.replace("{n}", n);
+  })();
+  const coldSub = `${P.coldSub} ${
+    live ? "Computed live in simulation" : "Computed in simulation"
+  }; every figure model-derived.`;
+  const preparing = !mission;
 
   return (
     <MotionConfig reducedMotion="user">
@@ -316,6 +370,7 @@ export default function FlightDeck({
           max={T_END}
           step={5}
           value={t}
+          disabled={!world || !!pending}
           onChange={(e) => {
             setPlaying(false);
             setT(Number(e.target.value));
@@ -328,9 +383,18 @@ export default function FlightDeck({
           <button
             className="btn-ghost"
             style={{ padding: "0.45rem 0.9rem" }}
+            disabled={!world || !!pending || t >= T_END}
             onClick={() => setPlaying((p) => !p)}
           >
-            {playing ? "Pause" : t >= T_END ? "Replay" : "Play"}
+            {playing ? "Pause" : "Play"}
+          </button>
+          <button
+            className="btn-ghost"
+            style={{ padding: "0.45rem 0.9rem" }}
+            disabled={!world}
+            onClick={reset}
+          >
+            Replay
           </button>
           {landed && reviewing ? (
             <button
@@ -344,6 +408,7 @@ export default function FlightDeck({
             <button
               className="btn-ghost"
               style={{ padding: "0.45rem 0.9rem" }}
+              disabled={!world || !!pending}
               onClick={() => {
                 setPlaying(false);
                 setT(T_END);
@@ -355,44 +420,6 @@ export default function FlightDeck({
         </div>
       </div>
 
-      {/* service status: first compute or unreachable backend */}
-      {!world && (
-        <div
-          className="card"
-          inert={overlayOpen}
-          style={{
-            padding: "0.8rem 1rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.8rem",
-            flexWrap: "wrap",
-          }}
-        >
-          {fetchError ? (
-            <>
-              <span style={{ color: T_PRIMARY, fontSize: "0.9rem" }}>
-                {TWIN_OFFLINE
-                  ? "The simulation service is offline on our side. The mission demos will be back shortly."
-                  : "The simulation service is unreachable, probably a network hiccup on your side or ours."}
-              </span>
-              {!TWIN_OFFLINE && (
-                <button
-                  className="btn-ghost"
-                  style={{ padding: "0.4rem 0.9rem" }}
-                  onClick={() => setRetryNonce((n) => n + 1)}
-                >
-                  Retry
-                </button>
-              )}
-            </>
-          ) : (
-            <span className="figure-label" style={{ color: T_MUTED }}>
-              computing this world live in simulation, a second or two...
-            </span>
-          )}
-        </div>
-      )}
-
       {/* the two living panels */}
       <div
         className="deck-panels"
@@ -403,7 +430,7 @@ export default function FlightDeck({
           world={world}
           t={t}
           title={P.mapTitle}
-          loading={loading}
+          dimmed={!!pending}
           profile={profile}
           onTopic={setTopic}
         />
@@ -430,34 +457,38 @@ export default function FlightDeck({
               flexWrap: "wrap",
             }}
           >
-            <button
-              className="btn-ghost"
-              style={{ padding: "0.45rem 0.9rem", borderStyle: "dashed" }}
-              disabled={!canAttack}
-              onClick={() => attack("gain")}
-            >
-              {P.atk1}
-            </button>
-            <button
-              className="btn-ghost"
-              style={{ padding: "0.45rem 0.9rem", borderStyle: "dashed" }}
-              disabled={!canAttack}
-              onClick={() => attack("burst")}
-            >
-              {P.atk2}
-            </button>
-            <button
-              className="btn-ghost"
-              style={{ padding: "0.45rem 0.9rem", borderStyle: "dashed" }}
-              disabled={!canAttack}
-              onClick={() => attack("spoof")}
-            >
-              {P.atk3}
-            </button>
+            {ATTACKS.map(({ kind, label }) => {
+              const chosen = attack?.kind === kind || pending === kind;
+              return (
+                <button
+                  key={kind}
+                  className="btn-ghost"
+                  aria-pressed={chosen}
+                  style={{
+                    padding: "0.45rem 0.9rem",
+                    borderStyle: chosen ? "solid" : "dashed",
+                    ...(chosen
+                      ? { opacity: 1, borderColor: BLUE, cursor: "default" }
+                      : {}),
+                  }}
+                  disabled={!canAttack || slotFor(kind) === null}
+                  onClick={() => launch(kind)}
+                >
+                  {P[label]}
+                </button>
+              );
+            })}
             <Chip k="attack_gain" profile={profile} onOpen={setTopic} />
             <Chip k="attack_burst" profile={profile} onOpen={setTopic} />
             <Chip k="spoofing" profile={profile} onOpen={setTopic} />
           </div>
+          <span
+            className="figure-label"
+            role="status"
+            style={{ color: attack ? BLUE : T_MUTED }}
+          >
+            {status}
+          </span>
           {lastAttack ? (
             <motion.div
               initial={{ opacity: 0, y: 6 }}
@@ -478,11 +509,7 @@ export default function FlightDeck({
             </motion.div>
           ) : (
             <span className="figure-label" style={{ color: T_MUTED }}>
-              {attacks.length === 0
-                ? P.consoleIdle
-                : `${attacks.length} event${
-                    attacks.length > 1 ? "s" : ""
-                  } live · ${3 - attacks.length} remaining · watch the self-check`}
+              {P.consoleIdle}
             </span>
           )}
         </div>
@@ -567,18 +594,49 @@ export default function FlightDeck({
                 margin: "0 0 1.4rem",
               }}
             >
-              {P.coldSub}
+              {coldSub}
             </p>
-            <button
-              ref={coldCtaRef}
-              className="btn-primary"
-              onClick={() => {
-                setStarted(true);
-                setPlaying(true);
-              }}
-            >
-              {P.coldCta}
-            </button>
+            {loadFailed && !mission ? (
+              <div
+                role="alert"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "0.8rem",
+                }}
+              >
+                <p style={{ color: T_PRIMARY, fontSize: "0.9rem", margin: 0 }}>
+                  {live
+                    ? "The live computation did not answer in time. It may be a network hiccup on your side or ours."
+                    : "The mission could not be loaded. Check the connection and try again."}
+                </p>
+                <button
+                  ref={coldCtaRef}
+                  className="btn-primary"
+                  onClick={() => {
+                    setLoadFailed(false);
+                    setLoadNonce((n) => n + 1);
+                  }}
+                >
+                  Try again
+                </button>
+              </div>
+            ) : (
+              <button
+                ref={coldCtaRef}
+                className="btn-primary"
+                disabled={preparing}
+                aria-busy={preparing}
+                onClick={() => {
+                  if (!mission) return;
+                  setStarted(true);
+                  setPlaying(true);
+                }}
+              >
+                {preparing ? "Preparing the mission…" : P.coldCta}
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -629,11 +687,7 @@ export default function FlightDeck({
                 margin: "0.7rem 0 0",
               }}
             >
-              {attacks.length > 0 && world.metrics.fixes_withheld >= 2
-                ? P.headlineAttacked
-                    .replace("{k}", String(attacks.length))
-                    .replace("{n}", String(world.metrics.fixes_withheld))
-                : P.headline}
+              {headline}
             </p>
             <div
               style={{
@@ -643,21 +697,19 @@ export default function FlightDeck({
                 margin: "1rem 0 1.2rem",
               }}
             >
-              <Metric
-                label="Accepted fixes within their bound"
-                value={(() => {
-                  const acc = world.fixes.filter((f) => !f.withheld);
-                  const ok = acc.filter((f) => f.err_m <= f.bound_m);
-                  return `${ok.length} / ${acc.length}`;
-                })()}
-                tone={BLUE}
-              />
+              {world.counts.in_bound === world.counts.accepted && (
+                <Metric
+                  label="Accepted fixes within their bound"
+                  value={`${world.counts.in_bound} / ${world.counts.accepted}`}
+                  tone={BLUE}
+                />
+              )}
               <Metric
                 label="Fixes accepted / withheld"
-                value={`${world.metrics.fixes_accepted} / ${world.metrics.fixes_withheld}`}
+                value={`${world.counts.accepted} / ${world.counts.withheld}`}
               />
             </div>
-            <Waterfall abl={abl} />
+            <Waterfall abl={abl} failed={ablFailed} />
             <ContactReplay
               contact={contact}
               failed={contactFailed}
@@ -675,10 +727,7 @@ export default function FlightDeck({
                 Request an expert simulation session <span>→</span>
               </a>
               <button className="btn-ghost" onClick={reset}>
-                Replay this world
-              </button>
-              <button className="btn-ghost" onClick={newWorld}>
-                New world
+                Replay
               </button>
               <button
                 className="btn-ghost"
@@ -696,8 +745,8 @@ export default function FlightDeck({
                 maxWidth: 620,
               }}
             >
-              Expert sessions run deeper scenarios, on your own trajectories
-              and platforms.
+              One attack per flight: Replay to try another. Expert sessions
+              run deeper scenarios, on your own trajectories and platforms.
             </p>
           </div>
         </motion.div>
@@ -777,7 +826,23 @@ const LEVEL_META: Record<
   full: { label: "+ fusion observers · the full chain", color: BLUE },
 };
 
-function Waterfall({ abl }: { abl: AblationResult | null }) {
+function Waterfall({
+  abl,
+  failed,
+}: {
+  abl: BreakdownLevel[] | null;
+  failed: boolean;
+}) {
+  if (failed) {
+    return (
+      <p
+        className="figure-label"
+        style={{ color: T_MUTED, margin: "0 0 1.1rem" }}
+      >
+        the level-by-level breakdown could not be computed just now
+      </p>
+    );
+  }
   if (!abl) {
     return (
       <p
@@ -789,16 +854,16 @@ function Waterfall({ abl }: { abl: AblationResult | null }) {
       </p>
     );
   }
-  const ref = Math.max(...abl.levels.map((l) => l.median_back_m), 1);
+  const ref = Math.max(...abl.map((l) => l.rel), 1e-6);
   return (
     <div style={{ margin: "0 0 1.2rem" }}>
       <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
         Where the gain comes from, level by level
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {abl.levels.map((l) => {
+        {abl.map((l) => {
           const meta = LEVEL_META[l.key];
-          const w = Math.max((l.median_back_m / ref) * 100, 1.2);
+          const w = Math.max((l.rel / ref) * 100, 1.2);
           return (
             <div key={l.key} className="wf-row">
               <span style={{ color: T_SECONDARY, fontSize: "0.78rem" }}>
@@ -848,7 +913,7 @@ function ContactReplay({
   failed,
   profile,
 }: {
-  contact: ContactResult | null;
+  contact: Contact | null;
   failed: boolean;
   profile: ProfileKey;
 }) {
@@ -871,11 +936,11 @@ function ContactReplay({
       </div>
     );
   }
-  const m = Math.min(contact.prof?.length ?? 0, contact.pos_x?.length ?? 0);
+  const m = Math.min(contact.prof.length, contact.pos.length);
   if (m < 2) return null;
-  const xs = contact.pos_x.slice(0, m);
+  const xs = contact.pos.slice(0, m);
   const ys = contact.prof.slice(0, m);
-  const leak = Math.abs(contact.leak_nT ?? 0);
+  const leak = Math.abs(contact.leak);
   const W = 720;
   const H = 220;
   const xMin = Math.min(...xs);
@@ -1145,18 +1210,17 @@ function MapPanel({
   world,
   t,
   title,
-  loading,
+  dimmed,
   profile,
   onTopic,
 }: {
   world: World | null;
   t: number;
   title: string;
-  loading: boolean;
+  dimmed: boolean;
   profile: ProfileKey;
   onTopic: (k: TopicKey) => void;
 }) {
-  const ext = world?.map.extent_m ?? 1;
   const nShow = world ? Math.max(0.01, Math.min(t / T_END, 1)) : 0;
   return (
     <div
@@ -1193,10 +1257,10 @@ function MapPanel({
         }}
       >
         {world && (
-          // a data URI computed per world: next/image adds nothing here
+          // one image per world, already sized: next/image adds nothing here
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={`data:image/png;base64,${world.map.png_b64}`}
+            src={world.map}
             alt="Synthetic magnetic anomaly map of the mission area, with the flight track and the position fixes drawn over it"
             width={600}
             height={600}
@@ -1205,7 +1269,7 @@ function MapPanel({
               height: "100%",
               objectFit: "cover",
               borderRadius: 8,
-              opacity: loading ? 0.5 : 1,
+              opacity: dimmed ? 0.5 : 1,
               transition: "opacity 0.3s",
               display: "block",
             }}
@@ -1213,7 +1277,7 @@ function MapPanel({
         )}
         {world && (
           <svg
-            viewBox={`0 0 ${ext} ${ext}`}
+            viewBox="0 0 1 1"
             preserveAspectRatio="none"
             aria-hidden
             style={{
@@ -1230,7 +1294,7 @@ function MapPanel({
               return (
                 <polyline
                   key={si}
-                  points={pts.map((p) => `${p[0]},${ext - p[1]}`).join(" ")}
+                  points={pts.map((p) => `${p[0]},${p[1]}`).join(" ")}
                   fill="none"
                   stroke={TXT}
                   strokeWidth={1.6}
@@ -1245,27 +1309,23 @@ function MapPanel({
                 <circle
                   key={i}
                   cx={f.x}
-                  cy={ext - f.y}
-                  r={ext / 90}
+                  cy={f.y}
+                  r={1 / 90}
                   fill={f.withheld ? "none" : BLUE}
                   stroke={f.withheld ? TXT : "#0B0F1A"}
-                  strokeWidth={f.withheld ? ext / 300 : ext / 600}
+                  strokeWidth={f.withheld ? 1 / 300 : 1 / 600}
                 />
               ))}
-            {world.faults
+            {world.events
               .filter(
                 (f) =>
-                  f.kind === "spoof" &&
-                  f.detected &&
-                  f.ring &&
-                  f.t_cpa !== undefined &&
-                  t >= f.t_cpa + 20
+                  f.kind === "spoof" && f.detected && f.ring && t >= f.ring.t
               )
               .map((f, i) => (
                 <g key={`ring${i}`}>
                   <circle
                     cx={f.ring!.x}
-                    cy={ext - f.ring!.y}
+                    cy={f.ring!.y}
                     r={f.ring!.r}
                     fill={TXT}
                     fillOpacity={0.06}
@@ -1277,8 +1337,8 @@ function MapPanel({
                   />
                   <circle
                     cx={f.ring!.x}
-                    cy={ext - f.ring!.y}
-                    r={ext / 140}
+                    cy={f.ring!.y}
+                    r={1 / 140}
                     fill={TXT}
                   />
                 </g>
@@ -1308,8 +1368,8 @@ function ErrorPanel({
   const YT = 8;
   const plotW = W - X0 - 10;
   const yMax = useMemo(() => {
-    if (!world) return 300;
-    return Math.max(150, Math.max(...world.aided.e) * 1.3);
+    if (!world) return 1;
+    return Math.max(0.12, Math.max(...world.aided) * 1.3);
   }, [world]);
 
   const px = (tt: number) => X0 + (tt / T_END) * plotW;
@@ -1390,7 +1450,7 @@ function ErrorPanel({
               vectorEffect="non-scaling-stroke"
             />
           ))}
-          {world?.faults.map((f, i) => (
+          {world?.events.map((f, i) => (
             <rect
               key={i}
               x={px(f.t0)}
@@ -1404,7 +1464,7 @@ function ErrorPanel({
           {world && (
             <>
               <path
-                d={path(world.aided.t, world.aided.e)}
+                d={path(world.t, world.aided)}
                 fill="none"
                 stroke={BLUE}
                 strokeWidth={2.4}
@@ -1414,7 +1474,7 @@ function ErrorPanel({
               {/* dashed reference drawn on top: still visible when the
                   aided track falls back onto pure inertial */}
               <path
-                d={path(world.dr.t, world.dr.e)}
+                d={path(world.t, world.inertial)}
                 fill="none"
                 stroke={GREY}
                 strokeWidth={2}
@@ -1431,8 +1491,8 @@ function ErrorPanel({
                       <line
                         x1={px(f.t)}
                         x2={px(f.t)}
-                        y1={py(f.err_m)}
-                        y2={py(f.bound_m)}
+                        y1={py(f.e)}
+                        y2={py(f.b)}
                         stroke={BLUE_SOFT}
                         strokeWidth={3}
                         vectorEffect="non-scaling-stroke"
@@ -1447,15 +1507,15 @@ function ErrorPanel({
                         <line
                           x1={px(f.t) - 5}
                           x2={px(f.t) + 5}
-                          y1={py(f.err_m) - 5}
-                          y2={py(f.err_m) + 5}
+                          y1={py(f.e) - 5}
+                          y2={py(f.e) + 5}
                           vectorEffect="non-scaling-stroke"
                         />
                         <line
                           x1={px(f.t) - 5}
                           x2={px(f.t) + 5}
-                          y1={py(f.err_m) + 5}
-                          y2={py(f.err_m) - 5}
+                          y1={py(f.e) + 5}
+                          y2={py(f.e) - 5}
                           vectorEffect="non-scaling-stroke"
                         />
                       </g>
@@ -1463,8 +1523,8 @@ function ErrorPanel({
                       <line
                         x1={px(f.t)}
                         x2={px(f.t)}
-                        y1={py(f.err_m)}
-                        y2={py(f.err_m) + 0.01}
+                        y1={py(f.e)}
+                        y2={py(f.e) + 0.01}
                         stroke={BLUE}
                         strokeWidth={7}
                         strokeLinecap="round"
@@ -1600,22 +1660,24 @@ function Metric({
 /* ── log builder ────────────────────────────────────────────────────── */
 function buildLog(
   world: World,
-  P: (typeof PROFILES)[ProfileKey]
+  P: (typeof PROFILES)[ProfileKey],
+  withContact: boolean
 ): LogRow[] {
   const rows: LogRow[] = [
     { t: 0, kind: "ok", text: P.evTakeoff },
     { t: 90, kind: "info", text: "FILTER · first window: acquiring map lock" },
     { t: 150, kind: "info", text: P.evInterf },
   ];
-  for (const f of world.faults) {
+  for (const f of world.events) {
     rows.push({
       t: f.t0,
       kind: "bad",
       text: `EVENT · ${P.atkNames[f.kind]} injected`,
     });
-    if (f.kind === "spoof" && f.detected && f.t_cpa) {
-      rows.push({ t: f.t_cpa - 12, kind: "info", text: P.spoofSearching });
-      rows.push({ t: f.t_cpa + 20, kind: "contact", text: P.spoofDetected });
+    // the detection lines exist only when the source was detected
+    if (f.kind === "spoof" && f.detected && f.ring) {
+      rows.push({ t: f.ring.t - 32, kind: "info", text: P.spoofSearching });
+      rows.push({ t: f.ring.t, kind: "contact", text: P.spoofDetected });
     }
   }
   for (const f of world.fixes) {
@@ -1629,14 +1691,13 @@ function buildLog(
         : {
             t: f.t,
             kind: "ok",
-            text:
-              f.err_m <= f.bound_m
-                ? "FIX ACCEPTED · within its bound"
-                : "FIX ACCEPTED · outside its bound",
+            text: f.in_bound ? "FIX ACCEPTED · within its bound" : "FIX ACCEPTED",
           }
     );
   }
-  rows.push({ t: 430, kind: "info", text: P.evContactHint });
-  rows.push({ t: 490, kind: "contact", text: P.evContact });
+  if (withContact) {
+    rows.push({ t: 430, kind: "info", text: P.evContactHint });
+    rows.push({ t: 490, kind: "contact", text: P.evContact });
+  }
   return rows.sort((a, b) => a.t - b.t);
 }

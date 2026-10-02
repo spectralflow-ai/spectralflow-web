@@ -207,6 +207,19 @@ body::after {
   background: var(--surface);
 }
 .btn-ghost:active { transform: translateY(1px); }
+.btn-ghost:disabled,
+.btn-primary:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-ghost:disabled:hover {
+  border-color: var(--border-strong);
+  background: transparent;
+}
+.btn-primary:disabled:hover {
+  background: var(--accent);
+}
 
 /* Arrow text link : the arrow leans on hover. */
 .textlink {

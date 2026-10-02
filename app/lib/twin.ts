@@ -1,143 +1,188 @@
 /**
- * Typed client for the mission-demo compute API.
- * Base URL from NEXT_PUBLIC_TWIN_API; falls back to localhost in dev only.
- * A production build without the variable gets the empty-string sentinel:
- * requests short-circuit and the UI reports the service offline instead
- * of blaming the visitor's network.
- * All figures returned are model-derived.
+ * Data layer of the Instrument. The interface sees one data model, whatever
+ * the source:
+ *  - by default, mission files served with the site (public/instrument/data);
+ *  - with ?live=1 (expert sessions), the compute API, normalised on arrival
+ *    by the same rules the mission files were written with (mission-live.ts,
+ *    loaded on demand only).
+ * Every value is relative and unitless: positions in map coordinates (0..1,
+ * y downward), errors and bounds divided by one fixed reference of the
+ * world. All of it is model-derived, computed in simulation.
  */
-export const TWIN_API =
-  process.env.NEXT_PUBLIC_TWIN_API ??
-  (process.env.NODE_ENV === "development" ? "http://127.0.0.1:8611" : "");
 
-/** True when no compute backend is configured for this build. */
-export const TWIN_OFFLINE = TWIN_API === "";
+/** Mission files shipped with the site. */
+const DATA_DIR = "/instrument/data";
+const SEED = 2;
+const TIMEOUT_MS = 7000;
 
-export type Attack = ["gain" | "burst" | "spoof", number];
+export type AttackKind = "gain" | "burst" | "spoof";
+export const ATTACK_KINDS: AttackKind[] = ["gain", "burst", "spoof"];
 
+/** A position fix, shown from its instant `t` on. */
 export interface Fix {
   t: number;
   x: number;
   y: number;
-  err_m: number;
-  bound_m: number;
-  scale: number;
+  /** error, relative */
+  e: number;
+  /** stated bound, relative */
+  b: number;
   withheld: boolean;
+  in_bound: boolean;
 }
 
-export interface Fault {
-  kind: "gain" | "burst" | "spoof";
+export interface Ring {
+  x: number;
+  y: number;
+  r: number;
+  /** instant the ring is shown from */
+  t: number;
+}
+
+export interface MissionEvent {
+  kind: AttackKind;
   t0: number;
   t1: number;
-  mag: number;
-  /** spoof faults: truth-free passage-profile detection of the emitter */
+  /** spoof only */
   detected?: boolean;
-  det?: number;
-  range_m?: number;
-  loc_err_m?: number;
-  t_cpa?: number;
-  ring?: { x: number; y: number; r: number };
+  ring?: Ring;
+}
+
+export interface Counts {
+  accepted: number;
+  withheld: number;
+  in_bound: number;
 }
 
 export interface World {
-  meta: {
-    seed: number;
-    slow_nT: number;
-    t_end: number;
-    attacks: Attack[];
-    disclaimer: string;
-  };
-  map: { png_b64: string; extent_m: number };
-  track: number[][][]; // segments of [x,y] points in map coordinates
-  dr: { t: number[]; e: number[] };
-  aided: { t: number[]; e: number[] };
+  /** image URL of the map */
+  map: string;
+  t: number[];
+  inertial: number[];
+  aided: number[];
+  /** segments of [x, y], map frame */
+  track: [number, number][][];
   fixes: Fix[];
-  faults: Fault[];
-  metrics: {
-    dr_end_m: number;
-    fix_median_m: number;
-    bounded_back_half_m: number;
-    drift_removed_pct: number;
-    fixes_accepted: number;
-    fixes_withheld: number;
-  };
+  events: MissionEvent[];
+  counts: Counts;
 }
 
-export interface ContactResult {
-  track: number[][];
-  truth: number[];
-  est: number[];
-  det: number;
-  labels: { platform: string; contact: string };
-  leak_nT: number;
-  resolved: number;
-  n: number;
-  plat_std: number;
-  prof: number[];
-  pos_x: number[];
-}
-
-export interface CalibResult {
-  before: number[];
-  after: number[];
-  rms_before: number;
-  rms_after: number;
-}
-
-export interface AblationLevel {
+export interface BreakdownLevel {
   key: "inertial" | "raw_mag" | "ai_chain" | "full";
-  median_back_m: number;
-  end_m: number;
+  rel: number;
 }
 
-export interface AblationResult {
-  levels: AblationLevel[];
-  envelope: {
-    map_sigma_nT: number;
-    inertial: { median_back_m: number; end_m: number };
-    sf100: { median_back_m: number; end_m: number };
-    conventional: { median_back_m: number; end_m: number };
-    sf100_withheld: number;
-    conventional_withheld: number;
-    n_fixes: number;
+export interface Contact {
+  pos: number[];
+  prof: number[];
+  leak: number;
+}
+
+export interface Mission {
+  live: boolean;
+  nominal: World;
+  /** attack instants on offer, per kind, ascending */
+  slots: Record<AttackKind, number[]>;
+  /** the attacked world, when already in hand */
+  attackNow(kind: AttackKind, t0: number): World | null;
+  /** the attacked world, resolved from the files or computed live */
+  attack(kind: AttackKind, t0: number): Promise<World>;
+  breakdown: Promise<BreakdownLevel[]>;
+  contact: Promise<Contact>;
+}
+
+/** First attack instant on offer at or after `t`, or null. */
+export function nextSlot(
+  m: Mission,
+  kind: AttackKind,
+  t: number
+): number | null {
+  return m.slots[kind].find((s) => s >= t - 1e-6) ?? null;
+}
+
+/* ── fetch with a deadline and one more try ─────────────────────────── */
+
+async function fetchOnce(url: string): Promise<Response> {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal: ctl.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function getJSON<T>(url: string): Promise<T> {
+  try {
+    return (await (await fetchOnce(url)).json()) as T;
+  } catch {
+    return (await (await fetchOnce(url)).json()) as T;
+  }
+}
+
+/** Resolves once the image is in the cache, or after the deadline anyway. */
+function preload(src: string): Promise<void> {
+  if (typeof Image === "undefined") return Promise.resolve();
+  return new Promise((resolve) => {
+    const img = new Image();
+    const timer = setTimeout(resolve, TIMEOUT_MS);
+    img.onload = img.onerror = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    img.src = src;
+  });
+}
+
+/* ── static source: the mission files ───────────────────────────────── */
+
+type Leg = Pick<World, "aided" | "fixes" | "events" | "counts">;
+interface Pack {
+  map: string;
+  t: number[];
+  inertial: number[];
+  track: [number, number][][];
+  nominal: Leg;
+  attacks: Record<AttackKind, Record<string, Leg>>;
+  breakdown: BreakdownLevel[];
+  contact: Contact;
+}
+
+async function loadStatic(): Promise<Mission> {
+  const pack = await getJSON<Pack>(`${DATA_DIR}/s${SEED}.json`);
+  const map = `${DATA_DIR}/${pack.map}`;
+  await preload(map);
+  const shared = { map, t: pack.t, inertial: pack.inertial, track: pack.track };
+  const slots = {} as Record<AttackKind, number[]>;
+  for (const k of ATTACK_KINDS) {
+    slots[k] = Object.keys(pack.attacks[k] ?? {})
+      .map(Number)
+      .sort((a, b) => a - b);
+  }
+  const attackNow = (kind: AttackKind, t0: number): World | null => {
+    const leg = pack.attacks[kind]?.[String(t0)];
+    return leg ? { ...shared, ...leg } : null;
+  };
+  return {
+    live: false,
+    nominal: { ...shared, ...pack.nominal },
+    slots,
+    attackNow,
+    attack: async (kind, t0) => {
+      const w = attackNow(kind, t0);
+      if (!w) throw new Error("attack not on offer");
+      return w;
+    },
+    breakdown: Promise.resolve(pack.breakdown),
+    contact: Promise.resolve(pack.contact),
   };
 }
 
-function attacksParam(attacks: Attack[]): string {
-  return attacks.map(([k, t]) => `${k}:${t}`).join(",");
-}
-
-async function getJSON<T>(path: string): Promise<T> {
-  if (TWIN_OFFLINE) throw new Error(`twin api offline: ${path}`);
-  const res = await fetch(`${TWIN_API}${path}`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`twin api ${res.status}: ${path}`);
-  return res.json() as Promise<T>;
-}
-
-export function fetchWorld(
-  seed: number,
-  slow = 20,
-  attacks: Attack[] = []
-): Promise<World> {
-  const a = attacks.length ? `&attacks=${attacksParam(attacks)}` : "";
-  return getJSON<World>(`/api/world?seed=${seed}&slow=${slow}${a}`);
-}
-
-export function fetchContact(seed: number): Promise<ContactResult> {
-  return getJSON<ContactResult>(`/api/contact?seed=${seed}`);
-}
-
-export function fetchAblation(
-  seed: number,
-  slow = 20,
-  attacks: Attack[] = []
-): Promise<AblationResult> {
-  const a = attacks.length ? `&attacks=${attacksParam(attacks)}` : "";
-  return getJSON<AblationResult>(
-    `/api/ablation?seed=${seed}&slow=${slow}${a}`
-  );
-}
-
-export function fetchCalib(eps: number, seed: number): Promise<CalibResult> {
-  return getJSON<CalibResult>(`/api/calib?eps=${eps}&seed=${seed}`);
+/** The mission, from the files by default, from the API when `live`. */
+export async function loadMission(live: boolean): Promise<Mission> {
+  if (!live) return loadStatic();
+  const { loadLive } = await import("./mission-live");
+  return loadLive();
 }

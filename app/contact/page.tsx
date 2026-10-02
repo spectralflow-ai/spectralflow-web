@@ -117,7 +117,7 @@ const CHANNELS: {
 const CHECKS = [
   {
     t: "Fly the Instrument.",
-    d: "A full mission, computed live in your browser. Every figure labelled model-derived.",
+    d: "A full mission in your browser, computed in simulation. Every figure labelled model-derived.",
     href: "/instrument",
     label: "Open the mission demos",
   },

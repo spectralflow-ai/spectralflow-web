@@ -31,6 +31,8 @@ export default function Instrument() {
   const q = sp.get("profile");
   const initial =
     q === "defence" || q === "space" || q === "geo" ? (q as ProfileKey) : null;
+  // expert sessions: the mission is computed by the API instead of the files
+  const live = sp.get("live") === "1";
   const [profile, setProfile] = useState<ProfileKey | null>(initial);
   // true once the visitor picks a mission here: the deck then takes focus
   const [chosen, setChosen] = useState(false);
@@ -118,8 +120,8 @@ export default function Instrument() {
         }}
       >
         <p className="figure-label" style={{ color: "var(--muted)", margin: 0 }}>
-          {PROFILES[profile].chooserTitle} · mission demo · computed live in
-          simulation
+          {PROFILES[profile].chooserTitle} · mission demo ·{" "}
+          {live ? "computed live in simulation" : "computed in simulation"}
         </p>
         <button
           className="textlink"
@@ -135,7 +137,7 @@ export default function Instrument() {
           <span>Change mission</span>
         </button>
       </div>
-      <FlightDeck profile={profile} focusOnOpen={chosen} />
+      <FlightDeck profile={profile} focusOnOpen={chosen} live={live} />
     </div>
   );
 }

@@ -24,11 +24,21 @@ export interface Profile {
   spoofDetected: string;
   spoofSearching: string;
   coldTitle: string;
+  /** the deck appends how the mission is computed */
   coldSub: string;
   coldCta: string;
+  /** no attack this flight */
   headline: string;
-  /** attacked-mission variant: {k} = events injected, {n} = fixes withheld */
+  /** gain or burst attack, {n} = what was withheld, e.g. "3 fixes" */
   headlineAttacked: string;
+  /** spoof attack, source detected */
+  headlineSpoof: string;
+  /** an attack with nothing withheld and nothing detected */
+  headlineHeld: string;
+  /** fallback that makes no claim */
+  headlinePlain: string;
+  /** singular and plural of what a fix is called in this story */
+  fixWord: [string, string];
   consoleIdle: string;
   impactKicker: string;
   impact: {
@@ -70,14 +80,20 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       "DETECTION · unexpected signature building on the swept profile · resolving",
     coldTitle: "GPS is jammed.",
     coldSub:
-      "Fly a ten-minute leg on the Earth's magnetic fingerprint, attack your own instrument three different ways, and watch it withhold what it cannot vouch for. Computed live in simulation; every figure model-derived.",
+      "Fly a ten-minute leg on the Earth's magnetic fingerprint, attack your own instrument, and watch it withhold what it cannot vouch for. Three attacks to try, one per flight.",
     coldCta: "Fly the mission",
     headline:
-      "Inertial drift held in check, without GPS. Every attack named and survived.",
+      "Inertial drift held in check, without GPS, and every accepted fix within its bound.",
     headlineAttacked:
-      "You attacked {k} times. It withheld {n} fixes rather than be fooled, kept the error bounded, and said when not to trust it.",
+      "You attacked once. It withheld {n} rather than be fooled, kept the error bounded, and said when not to trust it.",
+    headlineSpoof:
+      "The emitter was detected and localised from its own passage, and every accepted fix stayed within its bound.",
+    headlineHeld:
+      "You attacked once. Every accepted fix stayed within its bound.",
+    headlinePlain: "Mission flown without GPS. Review the flight below.",
+    fixWord: ["fix", "fixes"],
     consoleIdle:
-      "you are the adversary: attack the instrument whenever you like",
+      "you are the adversary: pick one attack, whenever you like",
     impactKicker: "What your attack does",
     impact: {
       gain: {
@@ -90,7 +106,7 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       },
       spoof: {
         title: "An industrial emitter switches on ahead",
-        body: "A large magnetic installation on the ground starts emitting near your route. A magnetic field fades with the cube of distance, so even a very large source only disturbs the sensor near its closest approach, and its own passage signature gives it away. Watch the log: the attack becomes a contact report.",
+        body: "A large magnetic installation on the ground starts emitting near your route. A magnetic field fades with the cube of distance, so even a very large source only disturbs the sensor near its closest approach, where its own passage signature can give it away. Watch the log as it passes.",
       },
     },
   },
@@ -125,14 +141,20 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       "SURVEY · unexpected signature building on the swept profile · resolving",
     coldTitle: "Mars has no GPS.",
     coldSub:
-      "Help is up to twenty light-minutes away. Fly a scout on the fossil field of a dead dynamo, weather the Sun, and watch an instrument that doubts itself so the mission never has to. Computed live in simulation; every figure model-derived.",
+      "Help is up to twenty light-minutes away. Fly a scout on the fossil field of a dead dynamo, weather the Sun, and watch an instrument that doubts itself so the mission never has to. Three events to try, one per sortie.",
     coldCta: "Fly the sortie",
     headline:
-      "Inertial drift held in check. No GNSS, no ground contact, every event named and survived.",
+      "Inertial drift held in check. No GNSS, no ground contact, every accepted fix within its bound.",
     headlineAttacked:
-      "The environment struck {k} times. It withheld {n} fixes rather than guess, kept the error bounded, and never lied to the mission.",
+      "The environment struck once. It withheld {n} rather than guess, kept the error bounded, and never lied to the mission.",
+    headlineSpoof:
+      "The uncharted body was catalogued from a single pass, and every accepted fix stayed within its bound.",
+    headlineHeld:
+      "The environment struck once. Every accepted fix stayed within its bound.",
+    headlinePlain: "Sortie flown without GNSS. Review the flight below.",
+    fixWord: ["fix", "fixes"],
     consoleIdle:
-      "you are the environment: unleash radiation and space weather whenever you like",
+      "you are the environment: unleash one event per sortie, whenever you like",
     impactKicker: "What just hit the scout",
     impact: {
       gain: {
@@ -145,7 +167,7 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       },
       spoof: {
         title: "The crust hides a surprise",
-        body: "A strongly magnetised buried structure lies just off the track. As the scout sweeps past, its signature swells out of the fossil field, and the same guarded estimator that protects navigation catalogues it: position, range, significance. Every navigation pass is a survey pass.",
+        body: "A strongly magnetised buried structure lies just off the track. As the scout sweeps past, its signature swells out of the fossil field, and the same guarded estimator that protects navigation watches for it. Every navigation pass is a survey pass.",
       },
     },
   },
@@ -181,14 +203,20 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       "SURVEY · unexpected signature building on the swept profile · resolving",
     coldTitle: "Survey the ground, not the aircraft.",
     coldSub:
-      "Airborne magnetic surveys have long escaped the aircraft's own field with distance and compensation flights. Fly a survey where that field is rejected on board, the position is checked against the geology itself, and every removed signal is attributed. Computed live in simulation; every figure model-derived.",
+      "Airborne magnetic surveys have long escaped the aircraft's own field with distance and compensation flights. Fly a survey where that field is rejected on board, the position is checked against the geology itself, and every removed signal is attributed. Three events to try, one per survey.",
     coldCta: "Fly the survey",
     headline:
       "Inertial drift held in check. Every reading tied to a checked position, every anomaly attributed.",
     headlineAttacked:
-      "The survey took {k} hits. It withheld {n} readings rather than vouch for them, kept the line bounded, and every gap is honest and can be reflown.",
+      "The survey took a hit. It withheld {n} it could not vouch for, kept the line bounded, and every gap is honest and can be reflown.",
+    headlineSpoof:
+      "The uncharted body was catalogued from a single pass, and every accepted reading stayed within its bound.",
+    headlineHeld:
+      "The survey took a hit. Every accepted reading stayed within its bound.",
+    headlinePlain: "Survey flown. Review the lines below.",
+    fixWord: ["reading", "readings"],
     consoleIdle:
-      "you are the field campaign: throw drift, storms and geology at the survey whenever you like",
+      "you are the field campaign: throw one hit at the survey, whenever you like",
     impactKicker: "What just hit the survey",
     impact: {
       gain: {
@@ -201,7 +229,7 @@ export const PROFILES: Record<ProfileKey, Profile> = {
       },
       spoof: {
         title: "The ground hides a surprise",
-        body: "A compact magnetised body lies just off the flight line, absent from every chart. As the aircraft sweeps past, its signature swells out of the regional field, and the same guarded estimator that protects the position catalogues it: location, range, significance. The anomaly is not an error source; it is the deliverable.",
+        body: "A compact magnetised body lies just off the flight line, absent from every chart. As the aircraft sweeps past, its signature swells out of the regional field, and the same guarded estimator that protects the position watches for it. The anomaly is not an error source; it is the deliverable.",
       },
     },
   },

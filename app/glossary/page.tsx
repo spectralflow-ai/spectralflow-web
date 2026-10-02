@@ -247,7 +247,7 @@ const GROUPS: Group[] = [
       {
         id: "mission-demo",
         term: "Mission demo",
-        def: "A simulated mission flown in the browser: the vehicle, the magnetic terrain, the interference and the navigation chain, recomputed live, with each position and its error bound.",
+        def: "A simulated mission flown in the browser: the vehicle, the magnetic terrain, the interference and the navigation chain, computed in simulation, with each position and its error bound.",
         see: ["simulation", "error-bound"],
         more: { href: "/instrument", label: "Fly a mission" },
       },

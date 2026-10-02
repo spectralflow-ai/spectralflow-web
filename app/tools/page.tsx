@@ -5,7 +5,7 @@ import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
 import { CTA_DATASHEET, CTA_SIMULATION } from "../lib/contact";
 import { BRAND, FACTS_AS_OF, STAGE_LINE } from "../lib/facts";
 
-const DESCRIPTION = `${BRAND}'s tools: the Instrument (free mission demos in the browser, computed live in simulation), expert simulation sessions and the model-derived datasheet. All figures model-derived.`;
+const DESCRIPTION = `${BRAND}'s tools: the Instrument (free mission demos in the browser, computed in simulation), expert simulation sessions and the model-derived datasheet. All figures model-derived.`;
 
 /** The stage, dated: it goes stale, so it always carries its date. */
 const STAGE_DATED = `As of ${FACTS_AS_OF}, ${STAGE_LINE.charAt(0).toLowerCase()}${STAGE_LINE.slice(1)}`;
@@ -33,7 +33,7 @@ const RUNGS = [
   {
     k: "Try it · free",
     title: "The Instrument",
-    body: "Our public mission demos, computed live in simulation, in your browser and with no account. Fly a full mission where satellites cannot help, attack the instrument three ways, and watch it hold. Every figure is recomputed live and labelled model-derived.",
+    body: "Our public mission demos, computed in simulation, in your browser and with no account. Fly a full mission where satellites cannot help, attack the instrument, one attack per flight, and watch it hold. Every figure is labelled model-derived.",
     cta: { href: "/instrument", label: "Fly the Instrument" },
   },
   {

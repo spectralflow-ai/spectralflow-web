@@ -3,18 +3,12 @@ import { Suspense } from "react";
 import Instrument from "./Instrument";
 import { CTA_SIMULATION } from "../lib/contact";
 import { BRAND, FACTS_AS_OF, LEGAL_NAME, SITE_URL, STAGE_LINE } from "../lib/facts";
-import { TWIN_API } from "../lib/twin";
-
-/** Origin of the compute API, when configured as an absolute URL. */
-const API_ORIGIN = /^https?:\/\//.test(TWIN_API)
-  ? new URL(TWIN_API).origin
-  : null;
 
 /** The stage, dated: it goes stale, so it always carries its date. */
 const STAGE_DATED = `As of ${FACTS_AS_OF}, ${STAGE_LINE.charAt(0).toLowerCase()}${STAGE_LINE.slice(1)}`;
 
 const DESCRIPTION =
-  "Mission demos computed live in simulation: fly the full navigation chain end to end, attack it, and watch it calibrate itself, separate sources and state its own confidence. All figures model-derived.";
+  "Mission demos computed in simulation: fly the full navigation chain end to end, attack it, and watch it calibrate itself, separate sources and state its own confidence. All figures model-derived.";
 
 export const metadata: Metadata = {
   title: "The Instrument · mission demos",
@@ -56,7 +50,6 @@ const PAGE_JSONLD = {
 export default function InstrumentPage() {
   return (
     <>
-      {API_ORIGIN && <link rel="preconnect" href={API_ORIGIN} />}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -90,7 +83,7 @@ export default function InstrumentPage() {
                 margin: 0,
               }}
             >
-              Every figure model-derived, computed live.
+              Every figure model-derived, computed in simulation.
             </p>
           </div>
           <p
@@ -102,7 +95,7 @@ export default function InstrumentPage() {
               maxWidth: "52rem",
             }}
           >
-            Each mission is computed live by the simulation we design with.
+            Each mission is computed by the simulation we design with.
             Deeper scenarios run in{" "}
             <a href={CTA_SIMULATION} className="textlink">
               expert simulation sessions
