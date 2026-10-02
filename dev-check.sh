@@ -4,7 +4,7 @@ source ~/.nvm/nvm.sh 2>/dev/null
 cd ~/spectralflow-landing || exit 1
 
 if ! curl -s -m 2 -o /dev/null http://localhost:3000; then
-  export NEXT_PUBLIC_TWIN_API=http://127.0.0.1:8611
+  export NEXT_PUBLIC_INSTRUMENT_API=http://127.0.0.1:8611
   nohup npm run dev > /tmp/nextdev.log 2>&1 &
   disown
   echo "dev server starting..."

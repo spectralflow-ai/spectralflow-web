@@ -105,11 +105,11 @@ export default function Legal() {
             </a>
           </Row>
           <Row label="Compute service">
-            The compute service behind the mission demos is hosted by Railway
-            Corporation, 548 Market St PMB 68956, San Francisco, CA 94104, United
-            States, telephone +1 415 707 7675:{" "}
-            <a href="https://railway.com" style={{ color: "var(--accent)" }} target="_blank" rel="noopener noreferrer">
-              railway.com
+            The compute service behind the mission demos is hosted by Google Cloud
+            France SARL, 8 rue de Londres, 75009 Paris, France, telephone +33 1 42 68
+            53 00, on servers in the European Union:{" "}
+            <a href="https://cloud.google.com" style={{ color: "var(--accent)" }} target="_blank" rel="noopener noreferrer">
+              cloud.google.com
             </a>
           </Row>
         </dl>
