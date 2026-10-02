@@ -105,6 +105,7 @@ export function normalizeWorld(raw: RawWorld): Omit<World, "map"> {
     t: raw.dr.t.map((v) => rnd(v, 1)),
     inertial: raw.dr.e.map((v) => rnd(v / scale, 3)),
     aided: raw.aided.e.map((v) => rnd(v / scale, 3)),
+    k: rnd(scale / ext, 4),
     track: raw.track.map((seg) =>
       seg.map((p) => [px(p[0]), py(p[1])] as [number, number])
     ),

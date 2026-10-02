@@ -57,6 +57,8 @@ export interface Counts {
 export interface World {
   /** image URL of the map */
   map: string;
+  /** map units per unit of relative error: draws a bound on the map */
+  k: number;
   t: number[];
   inertial: number[];
   aided: number[];
@@ -141,6 +143,7 @@ function preload(src: string): Promise<void> {
 type Leg = Pick<World, "aided" | "fixes" | "events" | "counts">;
 interface Pack {
   map: string;
+  k: number;
   t: number[];
   inertial: number[];
   track: [number, number][][];
@@ -154,7 +157,7 @@ async function loadStatic(): Promise<Mission> {
   const pack = await getJSON<Pack>(`${DATA_DIR}/s${SEED}.json`);
   const map = `${DATA_DIR}/${pack.map}`;
   await preload(map);
-  const shared = { map, t: pack.t, inertial: pack.inertial, track: pack.track };
+  const shared = { map, k: pack.k, t: pack.t, inertial: pack.inertial, track: pack.track };
   const slots = {} as Record<AttackKind, number[]>;
   for (const k of ATTACK_KINDS) {
     slots[k] = Object.keys(pack.attacks[k] ?? {})

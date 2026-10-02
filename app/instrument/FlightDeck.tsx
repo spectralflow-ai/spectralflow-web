@@ -155,7 +155,6 @@ export default function FlightDeck({
   const [abl, setAbl] = useState<BreakdownLevel[] | null>(null);
   const [ablFailed, setAblFailed] = useState(false);
   const [contact, setContact] = useState<Contact | null>(null);
-  const [contactFailed, setContactFailed] = useState(false);
   useEffect(() => {
     if (!mission) return;
     let alive = true;
@@ -164,7 +163,7 @@ export default function FlightDeck({
       .catch(() => alive && setAblFailed(true));
     mission.contact
       .then((c) => alive && setContact(c))
-      .catch(() => alive && setContactFailed(true));
+      .catch(() => undefined);
     return () => {
       alive = false;
     };
@@ -277,10 +276,20 @@ export default function FlightDeck({
     [t, P]
   );
   const landed = t >= T_END && !!world;
+  // the final state stays on screen a moment before the debrief opens
+  const [held, setHeld] = useState(false);
+  useEffect(() => {
+    if (!landed) return;
+    const id = window.setTimeout(() => setHeld(true), 1500);
+    return () => {
+      window.clearTimeout(id);
+      setHeld(false);
+    };
+  }, [landed]);
   // one of the three overlays (cold open, debrief, science modal) is up:
   // the deck behind it leaves the tab order via `inert`.
-  const overlayOpen = !started || (landed && !reviewing) || topic !== null;
-  const debriefOpen = landed && !reviewing;
+  const debriefOpen = landed && held && !reviewing;
+  const overlayOpen = !started || debriefOpen || topic !== null;
 
   // keyboard focus follows the overlays, so it is never left on an
   // element that has just gone inert
@@ -319,6 +328,59 @@ export default function FlightDeck({
       c.withheld === 1 ? `one ${P.fixWord[0]}` : `${c.withheld} ${P.fixWord[1]}`;
     return P.headlineAttacked.replace("{n}", n);
   })();
+  const shellRef = useRef<HTMLDivElement>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  useEffect(() => {
+    const onChange = () =>
+      setFullscreen(document.fullscreenElement === shellRef.current);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+  const toggleFullscreen = () => {
+    const el = shellRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void el.requestFullscreen?.().catch(() => undefined);
+  };
+  // keys: F toggles full screen; in full screen, Space plays or pauses,
+  // R replays, 1 2 3 launch the attack (one per flight)
+  const keyActions = useRef<{
+    launch: (k: AttackKind) => void;
+    reset: () => void;
+    toggle: () => void;
+    play: () => void;
+  } | null>(null);
+  useEffect(() => {
+    keyActions.current = {
+      launch,
+      reset,
+      toggle: toggleFullscreen,
+      play: () => setPlaying((p) => !p),
+    };
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const a = keyActions.current;
+      const target = e.target as HTMLElement | null;
+      if (!a || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (e.key === "f" || e.key === "F") {
+        a.toggle();
+        return;
+      }
+      if (document.fullscreenElement !== shellRef.current) return;
+      if (e.key === " ") {
+        e.preventDefault();
+        a.play();
+      } else if (e.key === "r" || e.key === "R") a.reset();
+      else if (e.key === "1") a.launch("gain");
+      else if (e.key === "2") a.launch("burst");
+      else if (e.key === "3") a.launch("spoof");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const coldSub = `${P.coldSub} ${
     live ? "Computed live in simulation" : "Computed in simulation"
   }; every figure model-derived.`;
@@ -327,6 +389,7 @@ export default function FlightDeck({
   return (
     <MotionConfig reducedMotion="user">
     <div
+      ref={shellRef}
       className="cinema deck-shell"
       style={{
         borderRadius: 20,
@@ -361,7 +424,7 @@ export default function FlightDeck({
             {fmtClock(t)}
           </div>
           <div className="figure-label" style={{ marginTop: 4, color: BLUE }}>
-            {phase}
+            {landed && !held ? "Mission complete" : phase}
           </div>
         </div>
         <input
@@ -395,6 +458,15 @@ export default function FlightDeck({
             onClick={reset}
           >
             Replay
+          </button>
+          <button
+            className="btn-ghost deck-fs"
+            style={{ padding: "0.45rem 0.8rem" }}
+            onClick={toggleFullscreen}
+            aria-pressed={fullscreen}
+            title={fullscreen ? "Exit full screen (F)" : "Full screen (F)"}
+          >
+            {fullscreen ? "Exit full screen" : "Full screen"}
           </button>
           {landed && reviewing ? (
             <button
@@ -430,7 +502,6 @@ export default function FlightDeck({
           world={world}
           t={t}
           title={P.mapTitle}
-          dimmed={!!pending}
           profile={profile}
           onTopic={setTopic}
         />
@@ -491,6 +562,7 @@ export default function FlightDeck({
           </span>
           {lastAttack ? (
             <motion.div
+              className="deck-impact"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               style={{ minHeight: 0, overflow: "hidden" }}
@@ -646,29 +718,30 @@ export default function FlightDeck({
         <motion.div
           role="dialog"
           aria-labelledby="deck-debrief-title"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="deck-debrief"
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
           style={{
             position: "absolute",
-            inset: 0,
             zIndex: 30,
-            background: "rgba(9,12,21,0.88)",
+            background: "rgba(9,12,21,0.95)",
             backdropFilter: "blur(6px)",
+            borderRight: "1px solid var(--border)",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "1.5rem",
+            flexDirection: "column",
+            padding: "1.4rem 1.5rem 0",
           }}
         >
           <div
             ref={debriefRef}
             tabIndex={-1}
             style={{
-              maxWidth: 720,
               width: "100%",
-              maxHeight: "100%",
+              height: "100%",
               overflowY: "auto",
               outline: "none",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <div
@@ -689,38 +762,51 @@ export default function FlightDeck({
             >
               {headline}
             </p>
-            <div
+            <ul
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))",
-                gap: "0.75rem",
-                margin: "1rem 0 1.2rem",
+                listStyle: "none",
+                padding: 0,
+                margin: "1rem 0 1.3rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.4rem",
+                color: T_SECONDARY,
+                fontSize: "0.95rem",
               }}
             >
-              {world.counts.in_bound === world.counts.accepted && (
-                <Metric
-                  label="Accepted fixes within their bound"
-                  value={`${world.counts.in_bound} / ${world.counts.accepted}`}
-                  tone={BLUE}
-                />
+              <li>
+                <strong style={{ color: BLUE, fontWeight: 600 }}>
+                  {world.counts.accepted}
+                </strong>{" "}
+                {world.counts.accepted === 1 ? "fix accepted" : "fixes accepted"}
+                {world.counts.in_bound === world.counts.accepted &&
+                  world.counts.accepted > 0 &&
+                  (world.counts.accepted === 1
+                    ? ", within its bound"
+                    : ", every one within its bound")}
+              </li>
+              {world.counts.withheld > 0 && (
+                <li>
+                  <strong style={{ color: TXT, fontWeight: 600 }}>
+                    {world.counts.withheld}
+                  </strong>{" "}
+                  withheld by the self-check, while the vehicle flew on its
+                  inertial unit
+                </li>
               )}
-              <Metric
-                label="Fixes accepted / withheld"
-                value={`${world.counts.accepted} / ${world.counts.withheld}`}
-              />
-            </div>
+            </ul>
             <Waterfall abl={abl} failed={ablFailed} />
-            <ContactReplay
-              contact={contact}
-              failed={contactFailed}
-              profile={profile}
-            />
             <div
               style={{
                 display: "flex",
                 gap: "0.6rem",
                 flexWrap: "wrap",
                 alignItems: "center",
+                position: "sticky",
+                bottom: 0,
+                marginTop: "auto",
+                padding: "0.9rem 0 1.2rem",
+                background: "rgba(9,12,21,0.95)",
               }}
             >
               <a href={CTA_SIMULATION} className="btn-primary">
@@ -763,9 +849,25 @@ export default function FlightDeck({
       )}
 
       <style>{`
+        .deck-debrief {
+          top: 0;
+          left: 0;
+          bottom: 0;
+          width: min(46%, 560px);
+        }
+        .deck-shell:fullscreen {
+          height: calc(100vh / 1.12) !important;
+          max-height: none !important;
+          border-radius: 0 !important;
+          zoom: 1.12;
+        }
+        .deck-shell:fullscreen .deck-chip,
+        .deck-shell:fullscreen .deck-impact {
+          display: none !important;
+        }
         .deck-panels {
           display: grid;
-          grid-template-columns: auto minmax(0, 1fr);
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
           gap: 0.8rem;
         }
         .deck-bottom {
@@ -789,6 +891,8 @@ export default function FlightDeck({
           .wf-row { grid-template-columns: 1fr; gap: 0.3rem; }
         }
         @media (max-width: 899px) {
+          .deck-debrief { right: 0; width: auto; }
+          .deck-fs { display: none; }
           .deck-panels { grid-template-columns: 1fr; }
           .deck-bottom { grid-template-columns: 1fr; }
           .map-box { width: 100% !important; height: auto !important; }
@@ -897,124 +1001,8 @@ function Waterfall({
         className="figure-label"
         style={{ color: T_MUTED, marginTop: "0.45rem" }}
       >
-        relative position error, back half of the flight · the nominal leg
-        of this same world, each level fully recomputed · your injected
-        events are counted above, where only the full chain can vouch for
-        what it accepts
-      </p>
-    </div>
-  );
-}
-
-/* ── the detection replay ───────────────────────────────────────────── */
-
-function ContactReplay({
-  contact,
-  failed,
-  profile,
-}: {
-  contact: Contact | null;
-  failed: boolean;
-  profile: ProfileKey;
-}) {
-  if (failed) return null;
-  const header =
-    profile === "space"
-      ? "The buried body, replayed · the passage that gave it away"
-      : profile === "geo"
-        ? "The anomaly, replayed · the passage that gave it away"
-        : "The source, replayed · the passage that gave it away";
-  if (!contact) {
-    return (
-      <div style={{ margin: "0 0 1.2rem" }}>
-        <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
-          {header}
-        </div>
-        <p className="figure-label" style={{ color: T_MUTED, margin: 0 }}>
-          replaying the detection...
-        </p>
-      </div>
-    );
-  }
-  const m = Math.min(contact.prof.length, contact.pos.length);
-  if (m < 2) return null;
-  const xs = contact.pos.slice(0, m);
-  const ys = contact.prof.slice(0, m);
-  const leak = Math.abs(contact.leak);
-  const W = 720;
-  const H = 220;
-  const xMin = Math.min(...xs);
-  const xMax = Math.max(...xs);
-  const lo = Math.min(...ys, -leak, 0);
-  const hi = Math.max(...ys, leak, 0);
-  const pad = (hi - lo || 1) * 0.2;
-  const yTop = hi + pad;
-  const yBot = lo - pad;
-  const px = (x: number) => ((x - xMin) / (xMax - xMin || 1)) * W;
-  const py = (y: number) => ((yTop - y) / (yTop - yBot)) * H;
-  const body =
-    profile === "space"
-      ? "A buried magnetised body, far weaker at the sensor than the scout's own field, catalogued from a single pass while navigation ran uninterrupted."
-      : profile === "geo"
-        ? "A compact magnetised body, far weaker at the sensor than the aircraft's own field, catalogued from a single pass while navigation ran uninterrupted."
-        : "A large steel object, far weaker at the sensor than the platform's own field, localised from a single fly-by while navigation ran uninterrupted.";
-  return (
-    <div style={{ margin: "0 0 1.2rem" }}>
-      <div className="figure-label" style={{ marginBottom: "0.5rem" }}>
-        {header}
-      </div>
-      <div className="card" style={{ padding: "0.7rem 0.9rem" }}>
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          preserveAspectRatio="none"
-          role="img"
-          aria-label="The field profile swept along the track as the source passed, rising and fading around the closest approach"
-          style={{ width: "100%", height: 150, display: "block" }}
-        >
-          <rect
-            x={0}
-            y={py(leak)}
-            width={W}
-            height={Math.max(py(-leak) - py(leak), 0)}
-            fill="rgba(255,255,255,0.05)"
-          />
-          <line
-            x1={0}
-            x2={W}
-            y1={py(0)}
-            y2={py(0)}
-            stroke="rgba(255,255,255,0.15)"
-            vectorEffect="non-scaling-stroke"
-          />
-          <polyline
-            points={xs
-              .map((x, i) => `${px(x).toFixed(1)},${py(ys[i]).toFixed(1)}`)
-              .join(" ")}
-            fill="none"
-            stroke={BLUE}
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-      </div>
-      <p
-        className="figure-label"
-        style={{ color: T_MUTED, margin: "0.45rem 0 0" }}
-      >
-        detected · localised from a single pass · shaded band: what remains
-        of the platform&rsquo;s own field after on-board rejection
-      </p>
-      <p
-        style={{
-          color: T_SECONDARY,
-          fontSize: "0.8rem",
-          lineHeight: 1.55,
-          margin: "0.35rem 0 0",
-        }}
-      >
-        {body} All model-derived.
+        error remaining in the back half of the flight · shorter is better ·
+        the same flight without attack, each level recomputed in simulation
       </p>
     </div>
   );
@@ -1034,6 +1022,7 @@ function Chip({
   const t = getTopic(k, profile);
   return (
     <button
+      className="deck-chip"
       onClick={() => onOpen(k)}
       aria-label={`${t.short}, science note: ${t.title}`}
       style={{
@@ -1206,22 +1195,73 @@ function ScienceModal({
 
 /* ── panels ─────────────────────────────────────────────────────────── */
 
+/** Width over height of the map band: the track crosses the whole map. */
+const MAP_ASPECT = 2.2;
+
+const EVENT_LABEL: Record<AttackKind, string> = {
+  gain: "gain fault",
+  burst: "burst",
+  spoof: "emitter",
+};
+
+/** The part of the track flown by time t, segments in time order. */
+function trackUpTo(track: [number, number][][], t: number) {
+  const total = track.reduce((n, s) => n + s.length, 0);
+  let left = Math.round(total * Math.max(0, Math.min(t / T_END, 1)));
+  const out: [number, number][][] = [];
+  for (const seg of track) {
+    if (left <= 0) break;
+    const n = Math.min(seg.length, left);
+    if (n >= 2) out.push(seg.slice(0, n));
+    left -= n;
+  }
+  return out;
+}
+
 function MapPanel({
   world,
   t,
   title,
-  dimmed,
   profile,
   onTopic,
 }: {
   world: World | null;
   t: number;
   title: string;
-  dimmed: boolean;
   profile: ProfileKey;
   onTopic: (k: TopicKey) => void;
 }) {
-  const nShow = world ? Math.max(0.01, Math.min(t / T_END, 1)) : 0;
+  // the box takes the room it is given; the map is cropped to it, never
+  // stretched: a band of the square map, centred on the track
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [aspect, setAspect] = useState(MAP_ASPECT);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width > 0 && height > 0) setAspect(Math.max(1, width / height));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const trackMid = useMemo(() => {
+    if (!world) return 0.5;
+    const ys = world.track.flat().map((p) => p[1]);
+    return (Math.min(...ys) + Math.max(...ys)) / 2;
+  }, [world]);
+  const bandH = Math.min(1, 1 / aspect);
+  const y0 = Math.min(Math.max(trackMid - bandH / 2, 0), 1 - bandH);
+
+  const drawn = world ? trackUpTo(world.track, t) : [];
+  const lastSeg = drawn[drawn.length - 1];
+  const head = lastSeg ? lastSeg[lastSeg.length - 1] : null;
+  const shown = world ? world.fixes.filter((f) => f.t <= t) : [];
+  let latest = -1;
+  shown.forEach((f, i) => {
+    if (!f.withheld) latest = i;
+  });
+
   return (
     <div
       className="card"
@@ -1246,105 +1286,178 @@ function MapPanel({
         <Chip k="rejection" profile={profile} onOpen={onTopic} />
       </div>
       <div
-        className="map-box"
         style={{
-          position: "relative",
           flex: 1,
           minHeight: 0,
-          aspectRatio: "1 / 1",
-          margin: "0 auto",
-          maxWidth: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          gap: "0.6rem",
         }}
       >
-        {world && (
-          // one image per world, already sized: next/image adds nothing here
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={world.map}
-            alt="Synthetic magnetic anomaly map of the mission area, with the flight track and the position fixes drawn over it"
-            width={600}
-            height={600}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              borderRadius: 8,
-              opacity: dimmed ? 0.5 : 1,
-              transition: "opacity 0.3s",
-              display: "block",
-            }}
-          />
-        )}
-        {world && (
-          <svg
-            viewBox="0 0 1 1"
-            preserveAspectRatio="none"
-            aria-hidden
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            {world.track.map((seg, si) => {
-              const cut = Math.floor(seg.length * nShow);
-              const pts = seg.slice(0, Math.max(2, cut));
-              if (pts.length < 2) return null;
-              return (
-                <polyline
-                  key={si}
-                  points={pts.map((p) => `${p[0]},${p[1]}`).join(" ")}
-                  fill="none"
-                  stroke={TXT}
-                  strokeWidth={1.6}
-                  vectorEffect="non-scaling-stroke"
-                  opacity={0.85}
-                />
-              );
-            })}
-            {world.fixes
-              .filter((f) => f.t <= t)
-              .map((f, i) => (
-                <circle
-                  key={i}
-                  cx={f.x}
-                  cy={f.y}
-                  r={1 / 90}
-                  fill={f.withheld ? "none" : BLUE}
-                  stroke={f.withheld ? TXT : "#0B0F1A"}
-                  strokeWidth={f.withheld ? 1 / 300 : 1 / 600}
-                />
-              ))}
-            {world.events
-              .filter(
-                (f) =>
-                  f.kind === "spoof" && f.detected && f.ring && t >= f.ring.t
-              )
-              .map((f, i) => (
-                <g key={`ring${i}`}>
-                  <circle
-                    cx={f.ring!.x}
-                    cy={f.ring!.y}
-                    r={f.ring!.r}
-                    fill={TXT}
-                    fillOpacity={0.06}
+        <div
+          ref={boxRef}
+          className="map-box"
+          style={{
+            position: "relative",
+            width: "100%",
+            maxHeight: "100%",
+            aspectRatio: `${MAP_ASPECT} / 1`,
+            overflow: "hidden",
+            borderRadius: 8,
+            background: "var(--surface-2)",
+          }}
+        >
+          {world && (
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                width: "100%",
+                height: `${aspect * 100}%`,
+                top: `${-y0 * aspect * 100}%`,
+              }}
+            >
+              {/* one image per mission, already sized: next/image adds nothing */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={world.map}
+                alt="Synthetic magnetic anomaly map of the mission area, with the flight track, the position fixes and their error bounds drawn over it"
+                width={600}
+                height={600}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "block",
+                  filter: "grayscale(1) brightness(1.2) contrast(1.05)",
+                }}
+              />
+              <svg
+                viewBox="0 0 1 1"
+                preserveAspectRatio="none"
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                {drawn.map((seg, si) => (
+                  <polyline
+                    key={si}
+                    points={seg.map((p) => `${p[0]},${p[1]}`).join(" ")}
+                    fill="none"
                     stroke={TXT}
-                    strokeWidth={1.4}
-                    strokeDasharray="1.5 4"
-                    strokeLinecap="round"
+                    strokeWidth={1.6}
                     vectorEffect="non-scaling-stroke"
+                    opacity={0.85}
                   />
+                ))}
+                {/* each accepted fix with its error bound, the latest one held */}
+                {shown.map((f, i) =>
+                  f.withheld ? null : (
+                    <circle
+                      key={`b${i}`}
+                      cx={f.x}
+                      cy={f.y}
+                      r={f.b * world.k}
+                      fill={BLUE}
+                      fillOpacity={i === latest ? 0.12 : 0}
+                      stroke={BLUE}
+                      strokeOpacity={i === latest ? 0.95 : 0.3}
+                      strokeWidth={1.3}
+                      strokeDasharray="3 3"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  )
+                )}
+                {shown.map((f, i) =>
+                  f.withheld ? (
+                    <g
+                      key={`f${i}`}
+                      stroke={TXT}
+                      strokeWidth={1.6}
+                      strokeLinecap="round"
+                    >
+                      <line
+                        x1={f.x - 0.006}
+                        x2={f.x + 0.006}
+                        y1={f.y - 0.006}
+                        y2={f.y + 0.006}
+                        vectorEffect="non-scaling-stroke"
+                      />
+                      <line
+                        x1={f.x - 0.006}
+                        x2={f.x + 0.006}
+                        y1={f.y + 0.006}
+                        y2={f.y - 0.006}
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    </g>
+                  ) : (
+                    <circle
+                      key={`f${i}`}
+                      cx={f.x}
+                      cy={f.y}
+                      r={1 / 170}
+                      fill={BLUE}
+                    />
+                  )
+                )}
+                {world.events
+                  .filter(
+                    (f) =>
+                      f.kind === "spoof" && f.detected && f.ring && t >= f.ring.t
+                  )
+                  .map((f, i) => (
+                    <g key={`ring${i}`}>
+                      <circle
+                        cx={f.ring!.x}
+                        cy={f.ring!.y}
+                        r={f.ring!.r}
+                        fill={TXT}
+                        fillOpacity={0.06}
+                        stroke={TXT}
+                        strokeWidth={1.4}
+                        strokeDasharray="1.5 4"
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                      <circle
+                        cx={f.ring!.x}
+                        cy={f.ring!.y}
+                        r={1 / 220}
+                        fill={TXT}
+                      />
+                    </g>
+                  ))}
+                {head && (
                   <circle
-                    cx={f.ring!.x}
-                    cy={f.ring!.y}
+                    cx={head[0]}
+                    cy={head[1]}
                     r={1 / 140}
                     fill={TXT}
+                    stroke="#0B0F1A"
+                    strokeWidth={1}
+                    vectorEffect="non-scaling-stroke"
                   />
-                </g>
-              ))}
-          </svg>
-        )}
+                )}
+              </svg>
+            </div>
+          )}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.4rem 1rem",
+          }}
+        >
+          <Readout color={TXT} label="track" />
+          <Readout color={BLUE} variant="ring" label="fix and its error bound" />
+          <Readout color={TXT} variant="cross" label="withheld fix" />
+        </div>
       </div>
     </div>
   );
@@ -1367,13 +1480,11 @@ function ErrorPanel({
   const Y0 = 292;
   const YT = 8;
   const plotW = W - X0 - 10;
-  const yMax = useMemo(() => {
-    if (!world) return 1;
-    return Math.max(0.12, Math.max(...world.aided) * 1.3);
-  }, [world]);
+  // the inertial curve tops out at 1 by construction: the scale never moves
+  const yMax = 1.05;
 
   const px = (tt: number) => X0 + (tt / T_END) * plotW;
-  const py = (e: number) => Math.max(Y0 - (e / yMax) * (Y0 - YT), YT);
+  const py = (e: number) => Y0 - (Math.min(e, yMax) / yMax) * (Y0 - YT);
 
   const path = (ts: number[], es: number[]) => {
     const pts: string[] = [];
@@ -1385,6 +1496,24 @@ function ErrorPanel({
     }
     return pts.join(" ");
   };
+
+  // the bound stated at each accepted fix, held until the next fix
+  const steps: { t0: number; t1: number; b: number }[] = [];
+  if (world) {
+    world.fixes.forEach((f, i) => {
+      if (f.withheld || f.t > t) return;
+      const next = world.fixes[i + 1]?.t ?? T_END;
+      const t1 = Math.min(next, t);
+      if (t1 > f.t) steps.push({ t0: f.t, t1, b: f.b });
+    });
+  }
+  let stepPath = "";
+  steps.forEach((s, i) => {
+    const joined = i > 0 && Math.abs(steps[i - 1].t1 - s.t0) < 1e-6;
+    stepPath += joined
+      ? ` V${py(s.b).toFixed(1)} H${px(s.t1).toFixed(1)}`
+      : ` M${px(s.t0).toFixed(1)},${py(s.b).toFixed(1)} H${px(s.t1).toFixed(1)}`;
+  });
 
   return (
     <div
@@ -1400,14 +1529,16 @@ function ErrorPanel({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "0.9rem",
+          gap: "0.45rem 0.9rem",
           marginBottom: "0.45rem",
           flexWrap: "wrap",
         }}
       >
         <span className="figure-label">Position error</span>
-        <Readout color={GREY} dashed label="inertial only" />
+        <Readout color={GREY} variant="dashed" label="inertial only" />
         <Readout color={BLUE} label="with magnetic fixes" />
+        <Readout color={BLUE} variant="dotted" label="error bound" />
+        <Readout color={TXT} variant="cross" label="withheld fix" />
         <span style={{ flex: 1 }} />
         <Chip k="drift" profile={profile} onOpen={onTopic} />
         <Chip k="selfcheck" profile={profile} onOpen={onTopic} />
@@ -1421,7 +1552,7 @@ function ErrorPanel({
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="none"
           role="img"
-          aria-label="Position error over the mission: inertial only, dashed, keeps growing; with magnetic fixes, solid, drops back at each accepted fix. Crosses mark withheld fixes."
+          aria-label="Position error over the mission, on a relative scale. Inertial only, dashed, keeps growing. With magnetic fixes, solid, stays low. The dotted steps are the error bound stated at each accepted fix, and the error stays under them. Crosses mark withheld fixes."
           style={{
             width: "100%",
             height: "100%",
@@ -1430,7 +1561,6 @@ function ErrorPanel({
             inset: 0,
           }}
         >
-          {/* frame + quarter gridlines */}
           <line
             x1={X0}
             x2={X0 + plotW}
@@ -1439,17 +1569,6 @@ function ErrorPanel({
             stroke="rgba(255,255,255,0.18)"
             vectorEffect="non-scaling-stroke"
           />
-          {[0.25, 0.5, 0.75].map((f) => (
-            <line
-              key={f}
-              x1={X0}
-              x2={X0 + plotW}
-              y1={Y0 - f * (Y0 - YT)}
-              y2={Y0 - f * (Y0 - YT)}
-              stroke="rgba(255,255,255,0.06)"
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
           {world?.events.map((f, i) => (
             <rect
               key={i}
@@ -1461,6 +1580,30 @@ function ErrorPanel({
               opacity={f.kind === "spoof" ? 0.08 : 0.05}
             />
           ))}
+          {/* the bound: a light band under each stated value */}
+          {steps.map((s, i) => (
+            <rect
+              key={`band${i}`}
+              x={px(s.t0)}
+              y={py(s.b)}
+              width={px(s.t1) - px(s.t0)}
+              height={Y0 - py(s.b)}
+              fill={BLUE}
+              opacity={0.07}
+            />
+          ))}
+          {stepPath && (
+            <path
+              d={stepPath}
+              fill="none"
+              stroke={BLUE}
+              strokeWidth={1.6}
+              strokeDasharray="2 4"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              opacity={0.9}
+            />
+          )}
           {world && (
             <>
               <path
@@ -1471,8 +1614,6 @@ function ErrorPanel({
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
               />
-              {/* dashed reference drawn on top: still visible when the
-                  aided track falls back onto pure inertial */}
               <path
                 d={path(world.t, world.inertial)}
                 fill="none"
@@ -1485,57 +1626,66 @@ function ErrorPanel({
               />
               {world.fixes
                 .filter((f) => f.t <= t)
-                .map((f, i) => (
-                  <g key={i}>
-                    {!f.withheld && (
+                .map((f, i) =>
+                  f.withheld ? (
+                    <g
+                      key={i}
+                      stroke={TXT}
+                      strokeWidth={2}
+                      vectorEffect="non-scaling-stroke"
+                    >
                       <line
-                        x1={px(f.t)}
-                        x2={px(f.t)}
-                        y1={py(f.e)}
-                        y2={py(f.b)}
-                        stroke={BLUE_SOFT}
-                        strokeWidth={3}
+                        x1={px(f.t) - 5}
+                        x2={px(f.t) + 5}
+                        y1={py(f.e) - 5}
+                        y2={py(f.e) + 5}
                         vectorEffect="non-scaling-stroke"
                       />
-                    )}
-                    {f.withheld ? (
-                      <g
-                        stroke={TXT}
-                        strokeWidth={2}
-                        vectorEffect="non-scaling-stroke"
-                      >
-                        <line
-                          x1={px(f.t) - 5}
-                          x2={px(f.t) + 5}
-                          y1={py(f.e) - 5}
-                          y2={py(f.e) + 5}
-                          vectorEffect="non-scaling-stroke"
-                        />
-                        <line
-                          x1={px(f.t) - 5}
-                          x2={px(f.t) + 5}
-                          y1={py(f.e) + 5}
-                          y2={py(f.e) - 5}
-                          vectorEffect="non-scaling-stroke"
-                        />
-                      </g>
-                    ) : (
                       <line
-                        x1={px(f.t)}
-                        x2={px(f.t)}
-                        y1={py(f.e)}
-                        y2={py(f.e) + 0.01}
-                        stroke={BLUE}
-                        strokeWidth={7}
-                        strokeLinecap="round"
+                        x1={px(f.t) - 5}
+                        x2={px(f.t) + 5}
+                        y1={py(f.e) + 5}
+                        y2={py(f.e) - 5}
                         vectorEffect="non-scaling-stroke"
                       />
-                    )}
-                  </g>
-                ))}
+                    </g>
+                  ) : (
+                    <line
+                      key={i}
+                      x1={px(f.t)}
+                      x2={px(f.t)}
+                      y1={py(f.e)}
+                      y2={py(f.e) + 0.01}
+                      stroke={BLUE}
+                      strokeWidth={7}
+                      strokeLinecap="round"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  )
+                )}
             </>
           )}
         </svg>
+        {/* event names, in HTML so that the stretched chart does not distort them */}
+        {world?.events
+          .filter((f) => f.t0 <= t)
+          .map((f, i) => (
+            <span
+              key={`lab${i}`}
+              className="figure-label"
+              style={{
+                position: "absolute",
+                top: 2,
+                left: `${(px(f.t0) / W) * 100}%`,
+                paddingLeft: 4,
+                color: T_MUTED,
+                pointerEvents: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {EVENT_LABEL[f.kind]}
+            </span>
+          ))}
       </div>
       <div
         className="figure-label"
@@ -1549,7 +1699,7 @@ function ErrorPanel({
         }}
       >
         <span>mission time →</span>
-        <span>relative scale · the dashed curve continues off scale</span>
+        <span>relative scale · model-derived</span>
       </div>
     </div>
   );
@@ -1558,12 +1708,12 @@ function ErrorPanel({
 function Readout({
   color,
   label,
-  dashed = false,
+  variant = "line",
 }: {
   color: string;
   label: string;
-  /** legend swatch drawn dashed, matching the curve it names */
-  dashed?: boolean;
+  /** legend swatch, drawn like the mark it names */
+  variant?: "line" | "dashed" | "dotted" | "ring" | "cross";
 }) {
   return (
     <span
@@ -1576,21 +1726,44 @@ function Readout({
     >
       <svg
         width="18"
-        height="8"
-        viewBox="0 0 18 8"
+        height="10"
+        viewBox="0 0 18 10"
         aria-hidden
         style={{ alignSelf: "center", flexShrink: 0 }}
       >
-        <line
-          x1="1"
-          x2="17"
-          y1="4"
-          y2="4"
-          stroke={color}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeDasharray={dashed ? "4 3" : undefined}
-        />
+        {variant === "ring" ? (
+          <>
+            <circle
+              cx="9"
+              cy="5"
+              r="4"
+              fill={color}
+              fillOpacity={0.12}
+              stroke={color}
+              strokeWidth="1.2"
+              strokeDasharray="2 2"
+            />
+            <circle cx="9" cy="5" r="1.4" fill={color} />
+          </>
+        ) : variant === "cross" ? (
+          <g stroke={color} strokeWidth="1.6" strokeLinecap="round">
+            <line x1="5.5" x2="12.5" y1="1.5" y2="8.5" />
+            <line x1="5.5" x2="12.5" y1="8.5" y2="1.5" />
+          </g>
+        ) : (
+          <line
+            x1="1"
+            x2="17"
+            y1="5"
+            y2="5"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray={
+              variant === "dashed" ? "4 3" : variant === "dotted" ? "1 3" : undefined
+            }
+          />
+        )}
       </svg>
       <span className="figure-label" style={{ color: T_MUTED }}>
         {label}
@@ -1631,31 +1804,6 @@ function LogLine({ row }: { row: LogRow }) {
   );
 }
 
-function Metric({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone?: string;
-}) {
-  return (
-    <div className="card" style={{ padding: "0.8rem 1rem" }}>
-      <div className="figure-label">{label}</div>
-      <div
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          fontSize: "1.35rem",
-          color: tone ?? T_PRIMARY,
-          marginTop: 4,
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
 
 /* ── log builder ────────────────────────────────────────────────────── */
 function buildLog(
