@@ -75,11 +75,13 @@ export default function Privacy() {
           Legal basis: our legitimate interest in the security and proper operation of the site.
         </Body>
         <Body className="max-w-3xl mb-4">
-          <strong style={strong}>Mission demos.</strong> When you open the Instrument, your
-          browser connects to our compute service, hosted by Railway Corporation (United States), which
-          computes each simulated mission. That service receives your IP address and standard
-          technical data needed to answer the request. You do not type any personal data into
-          the demos, and we do not use these requests to identify visitors.
+          <strong style={strong}>Mission demos.</strong> The Instrument plays missions computed in
+          advance and served with this site. Only in expert sessions, opened from a dedicated link,
+          does your browser connect to our compute service, hosted by Google Cloud France SARL on
+          servers in the European Union, which computes each simulated mission. That service
+          receives your IP address and standard technical data needed to answer the request. You
+          do not type any personal data into the demos, and we do not use these requests to
+          identify visitors.
         </Body>
         <Body className="max-w-3xl mb-4">
           <strong style={strong}>Live GNSS interference map.</strong> Some pages show a live map
