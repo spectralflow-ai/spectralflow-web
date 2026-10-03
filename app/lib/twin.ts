@@ -5,9 +5,10 @@
  *  - with ?live=1 (expert sessions), the public v2 routes of the compute
  *    API, which return the same model (mission-live.ts, loaded on demand
  *    only).
- * Every value is relative and unitless: positions in map coordinates (0..1,
- * y downward), errors and bounds divided by one fixed reference of the
- * world. All of it is model-derived, computed in simulation.
+ * Positions are in map coordinates (0..1, y downward), errors and bounds are
+ * divided by one fixed reference of the world; two figures give the physical
+ * scale of the simulated mission (metres per unit of error, side of the
+ * synthetic map). All of it is model-derived, computed in simulation.
  */
 
 /** Mission files shipped with the site. */
@@ -59,6 +60,10 @@ export interface World {
   map: string;
   /** map units per unit of relative error: draws a bound on the map */
   k: number;
+  /** metres per unit of relative error (the largest inertial drift) */
+  unit_m: number;
+  /** side of the synthetic map, in metres */
+  map_m: number;
   t: number[];
   inertial: number[];
   aided: number[];
@@ -144,6 +149,8 @@ type Leg = Pick<World, "aided" | "fixes" | "events" | "counts">;
 interface Pack {
   map: string;
   k: number;
+  unit_m: number;
+  map_m: number;
   t: number[];
   inertial: number[];
   track: [number, number][][];
@@ -157,7 +164,15 @@ async function loadStatic(): Promise<Mission> {
   const pack = await getJSON<Pack>(`${DATA_DIR}/s${SEED}.json`);
   const map = `${DATA_DIR}/${pack.map}`;
   await preload(map);
-  const shared = { map, k: pack.k, t: pack.t, inertial: pack.inertial, track: pack.track };
+  const shared = {
+    map,
+    k: pack.k,
+    unit_m: pack.unit_m,
+    map_m: pack.map_m,
+    t: pack.t,
+    inertial: pack.inertial,
+    track: pack.track,
+  };
   const slots = {} as Record<AttackKind, number[]>;
   for (const k of ATTACK_KINDS) {
     slots[k] = Object.keys(pack.attacks[k] ?? {})

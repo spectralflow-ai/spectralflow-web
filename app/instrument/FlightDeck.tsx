@@ -5,9 +5,11 @@
  * error chart side by side, an event console, a compact mission log, a
  * debrief overlay, and the two-depth science layer one click away on every
  * panel. One attack per flight; Replay to try another.
- * All figures model-derived, and none is shown as a number: the public
- * layer reports events and counts only. Palette: ink, porcelain, greys and
- * the one cinema blue; series differ by line style (solid, dashed, dotted).
+ * All figures model-derived, on a synthetic map, with their physical scale
+ * (metres, kilometres, minutes) so that a visitor can read them; the debrief
+ * says how the precision of a fix depends on the map and the terrain.
+ * Palette: ink, porcelain, greys and the one cinema blue; series differ by
+ * line style (solid, dashed, dotted).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, MotionConfig } from "framer-motion";
@@ -785,6 +787,17 @@ export default function FlightDeck({
                     ? ", within its bound"
                     : ", every one within its bound")}
               </li>
+              <li>
+                Inertial drift at the end of the flight{" "}
+                <strong style={{ color: TXT, fontWeight: 600 }}>
+                  {dist(world.unit_m)}
+                </strong>
+                ; with magnetic fixes, on this synthetic map, a typical position error of{" "}
+                <strong style={{ color: BLUE, fontWeight: 600 }}>
+                  {dist(medianSecondHalf(world.aided) * world.unit_m)}
+                </strong>{" "}
+                over the second half
+              </li>
               {world.counts.withheld > 0 && (
                 <li>
                   <strong style={{ color: TXT, fontWeight: 600 }}>
@@ -795,6 +808,25 @@ export default function FlightDeck({
                 </li>
               )}
             </ul>
+            <p
+              style={{
+                color: T_SECONDARY,
+                fontSize: "0.85rem",
+                lineHeight: 1.55,
+                margin: "0 0 1.2rem",
+                maxWidth: 620,
+              }}
+            >
+              <strong style={{ color: T_PRIMARY, fontWeight: 600 }}>
+                Reading the numbers.
+              </strong>{" "}
+              This flight crosses a synthetic map. On a real mission, the
+              precision of each fix depends on the map and the terrain, and it
+              comes with the fix: about a metre over magnetically rich terrain
+              with a fine map, tens of metres over ordinary terrain; over flat
+              terrain or with a coarse map, the instrument refuses the fix and
+              says so.
+            </p>
             <Waterfall abl={abl} failed={ablFailed} />
             <div
               style={{
@@ -849,6 +881,36 @@ export default function FlightDeck({
       )}
 
       <style>{`
+        .map-tag {
+          position: absolute;
+          transform: translate(7px, -50%);
+          font-size: 11px;
+          line-height: 1;
+          padding: 3px 5px;
+          border-radius: 4px;
+          background: rgba(9, 12, 21, 0.72);
+          color: #f4f5f2;
+          white-space: nowrap;
+          pointer-events: none;
+        }
+        .map-scale {
+          position: absolute;
+          left: 10px;
+          bottom: 8px;
+          font-size: 11px;
+          line-height: 1;
+          color: #f4f5f2;
+          text-shadow: 0 0 3px rgba(9, 12, 21, 0.9);
+          pointer-events: none;
+        }
+        .map-scale span {
+          display: block;
+          height: 5px;
+          margin-bottom: 4px;
+          border: 1.5px solid #f4f5f2;
+          border-top: none;
+          box-shadow: 0 1px 2px rgba(9, 12, 21, 0.6);
+        }
         .deck-debrief {
           top: 0;
           left: 0;
@@ -1198,6 +1260,33 @@ function ScienceModal({
 /** Width over height of the map band: the track crosses the whole map. */
 const MAP_ASPECT = 2.2;
 
+/** A distance for a visitor: km above a kilometre, rounded metres below. */
+function dist(m: number): string {
+  if (m >= 1000) return `${(m / 1000).toFixed(1)} km`;
+  if (m >= 100) return `${Math.round(m / 10) * 10} m`;
+  if (m >= 5) return `${Math.round(m / 5) * 5} m`;
+  return "under 5 m";
+}
+
+/** Value of a series at time t (last sample at or before t). */
+function at(ts: number[], vs: number[], t: number): number {
+  let v = vs[0] ?? 0;
+  for (let i = 0; i < ts.length && ts[i] <= t; i++) v = vs[i];
+  return v;
+}
+
+/** Median of the second half of a series. */
+function medianSecondHalf(vs: number[]): number {
+  const h = vs.slice(Math.floor(vs.length / 2)).sort((a, b) => a - b);
+  return h.length ? h[Math.floor(h.length / 2)] : 0;
+}
+
+/** A round step giving three or four ticks up to max. */
+function tickStep(max: number): number {
+  for (const st of [50, 100, 200, 250, 500, 1000, 2000, 2500, 5000]) if (max / st <= 4) return st;
+  return 10000;
+}
+
 const EVENT_LABEL: Record<AttackKind, string> = {
   gain: "gain fault",
   burst: "burst",
@@ -1254,6 +1343,9 @@ function MapPanel({
   const y0 = Math.min(Math.max(trackMid - bandH / 2, 0), 1 - bandH);
 
   const drawn = world ? trackUpTo(world.track, t) : [];
+  const start = world?.track[0]?.[0] ?? null;
+  // a scale bar about a quarter of the map's width, in whole kilometres
+  const barKm = world ? Math.max(1, Math.round(world.map_m / 4000)) : 5;
   const lastSeg = drawn[drawn.length - 1];
   const head = lastSeg ? lastSeg[lastSeg.length - 1] : null;
   const shown = world ? world.fixes.filter((f) => f.t <= t) : [];
@@ -1443,7 +1535,59 @@ function MapPanel({
                     vectorEffect="non-scaling-stroke"
                   />
                 )}
+                {start && (
+                  <circle
+                    cx={start[0]}
+                    cy={start[1]}
+                    r={1 / 150}
+                    fill="none"
+                    stroke={TXT}
+                    strokeWidth={1.4}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                )}
               </svg>
+              {/* reference points, in HTML so that they keep their size */}
+              {start && (
+                <span
+                  className="map-tag"
+                  style={{ left: `${start[0] * 100}%`, top: `${start[1] * 100}%` }}
+                >
+                  start
+                </span>
+              )}
+              {latest >= 0 && (
+                <span
+                  className="map-tag"
+                  style={
+                    // beside the disc, on the side where there is room
+                    shown[latest].x + shown[latest].b * world.k < 0.8
+                      ? {
+                          left: `${(shown[latest].x + shown[latest].b * world.k) * 100}%`,
+                          top: `${shown[latest].y * 100}%`,
+                          color: BLUE,
+                        }
+                      : {
+                          left: `${(shown[latest].x - shown[latest].b * world.k) * 100}%`,
+                          top: `${shown[latest].y * 100}%`,
+                          color: BLUE,
+                          transform: "translate(calc(-100% - 7px), -50%)",
+                        }
+                  }
+                >
+                  bound {dist(shown[latest].b * world.unit_m)}
+                </span>
+              )}
+            </div>
+          )}
+          {world && (
+            <div
+              className="map-scale"
+              aria-hidden
+              style={{ width: `${(barKm * 1000 * 100) / world.map_m}%` }}
+            >
+              <span />
+              {barKm} km
             </div>
           )}
         </div>
@@ -1482,6 +1626,17 @@ function ErrorPanel({
   const plotW = W - X0 - 10;
   // the inertial curve tops out at 1 by construction: the scale never moves
   const yMax = 1.05;
+
+  const unit = world?.unit_m ?? 0;
+  const yStep = unit ? tickStep(yMax * unit) : 0;
+  const yTicks: number[] = [];
+  for (let v = yStep; yStep && v <= yMax * unit; v += yStep) yTicks.push(v);
+  const nowInertial = world ? at(world.t, world.inertial, t) * unit : 0;
+  const nowAided = world ? at(world.t, world.aided, t) * unit : 0;
+  let nowBound = -1;
+  world?.fixes.forEach((f) => {
+    if (!f.withheld && f.t <= t) nowBound = f.b * unit;
+  });
 
   const px = (tt: number) => X0 + (tt / T_END) * plotW;
   const py = (e: number) => Y0 - (Math.min(e, yMax) / yMax) * (Y0 - YT);
@@ -1535,9 +1690,23 @@ function ErrorPanel({
         }}
       >
         <span className="figure-label">Position error</span>
-        <Readout color={GREY} variant="dashed" label="inertial only" />
-        <Readout color={BLUE} label="with magnetic fixes" />
-        <Readout color={BLUE} variant="dotted" label="error bound" />
+        <Readout
+          color={GREY}
+          variant="dashed"
+          label="inertial only"
+          value={world && t > 0 ? dist(nowInertial) : undefined}
+        />
+        <Readout
+          color={BLUE}
+          label="with magnetic fixes"
+          value={world && t > 0 ? dist(nowAided) : undefined}
+        />
+        <Readout
+          color={BLUE}
+          variant="dotted"
+          label="error bound"
+          value={nowBound >= 0 ? dist(nowBound) : undefined}
+        />
         <Readout color={TXT} variant="cross" label="withheld fix" />
         <span style={{ flex: 1 }} />
         <Chip k="drift" profile={profile} onOpen={onTopic} />
@@ -1552,7 +1721,7 @@ function ErrorPanel({
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="none"
           role="img"
-          aria-label="Position error over the mission, on a relative scale. Inertial only, dashed, keeps growing. With magnetic fixes, solid, stays low. The dotted steps are the error bound stated at each accepted fix, and the error stays under them. Crosses mark withheld fixes."
+          aria-label="Position error over the ten-minute mission, in metres. Inertial only, dashed, keeps growing past a kilometre. With magnetic fixes, solid, stays low. The dotted steps are the error bound stated at each accepted fix, and the error stays under them. Crosses mark withheld fixes."
           style={{
             width: "100%",
             height: "100%",
@@ -1569,6 +1738,17 @@ function ErrorPanel({
             stroke="rgba(255,255,255,0.18)"
             vectorEffect="non-scaling-stroke"
           />
+          {yTicks.map((v) => (
+            <line
+              key={`g${v}`}
+              x1={X0}
+              x2={X0 + plotW}
+              y1={py(v / unit)}
+              y2={py(v / unit)}
+              stroke="rgba(255,255,255,0.08)"
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
           {world?.events.map((f, i) => (
             <rect
               key={i}
@@ -1666,6 +1846,23 @@ function ErrorPanel({
             </>
           )}
         </svg>
+        {/* distance scale, in HTML so that the stretched chart does not distort it */}
+        {yTicks.map((v) => (
+          <span
+            key={`y${v}`}
+            className="figure-label is-plain"
+            style={{
+              position: "absolute",
+              right: 4,
+              top: `${(py(v / unit) / H) * 100}%`,
+              transform: "translateY(-115%)",
+              color: T_MUTED,
+              pointerEvents: "none",
+            }}
+          >
+            {dist(v)}
+          </span>
+        ))}
         {/* event names, in HTML so that the stretched chart does not distort them */}
         {world?.events
           .filter((f) => f.t0 <= t)
@@ -1687,19 +1884,41 @@ function ErrorPanel({
             </span>
           ))}
       </div>
+      {/* mission time, under its ticks */}
+      <div
+        className="figure-label is-plain"
+        aria-hidden
+        style={{ position: "relative", height: "1.1em", marginTop: "0.3rem", color: T_MUTED }}
+      >
+        {[0, 2, 4, 6, 8, 10].map((m) => (
+          <span
+            key={m}
+            style={{
+              position: "absolute",
+              left: `${(px(m * 60) / W) * 100}%`,
+              transform: m === 0 ? "none" : m === 10 ? "translateX(-100%)" : "translateX(-50%)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {m === 0 ? "0" : `${m} min`}
+          </span>
+        ))}
+      </div>
       <div
         className="figure-label"
         style={{
           color: T_MUTED,
-          marginTop: "0.35rem",
+          marginTop: "0.25rem",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           gap: "1rem",
           flexWrap: "wrap",
         }}
       >
-        <span>mission time →</span>
-        <span>relative scale · model-derived</span>
+        <span>
+          simulated 10-minute flight · synthetic{" "}
+          {world ? Math.round(world.map_m / 1000) : 20} km map · model-derived
+        </span>
       </div>
     </div>
   );
@@ -1708,10 +1927,13 @@ function ErrorPanel({
 function Readout({
   color,
   label,
+  value,
   variant = "line",
 }: {
   color: string;
   label: string;
+  /** current value, shown after the label */
+  value?: string;
   /** legend swatch, drawn like the mark it names */
   variant?: "line" | "dashed" | "dotted" | "ring" | "cross";
 }) {
@@ -1768,6 +1990,14 @@ function Readout({
       <span className="figure-label" style={{ color: T_MUTED }}>
         {label}
       </span>
+      {value && (
+        <span
+          className="figure-label is-plain"
+          style={{ color: T_PRIMARY, fontVariantNumeric: "tabular-nums" }}
+        >
+          {value}
+        </span>
+      )}
     </span>
   );
 }

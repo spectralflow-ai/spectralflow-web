@@ -66,7 +66,7 @@ export const revalidate = 86400;
 const HERO_ALT = "Aerial view of a tidal estuary.";
 
 const heroLandscape = getImageProps({
-  src: "/img/v3/hero-estuary-frame.webp",
+  src: "/img/v3/hero-estuary-v3.webp",
   alt: HERO_ALT,
   width: 1920,
   height: 1080,
@@ -91,8 +91,8 @@ const heroLandscape = getImageProps({
 type Track = { viewBox: string; d: string; end: { x: number; y: number } };
 const PORTRAIT_TRACK = {
   viewBox: "0 0 1920 1080",
-  d: "M-40 452 C300 446 640 462 860 540 S960 590 1000 596",
-  end: { x: 1000, y: 596 },
+  d: "M-138 477 C234 475 605 496 845 583 S954 639 997 646",
+  end: { x: 997, y: 646 },
 };
 
 /*
@@ -100,24 +100,25 @@ const PORTRAIT_TRACK = {
  * portrait screens get a lighter 960 px file. The landscape track comes in
  * from the right edge over the dark flats and stops short of the main
  * channel, clear of the text column down to 1024 px wide and above the
- * pause button on very wide screens. The camera drifts slowly, so the track
- * does not follow any one channel.
+ * pause button on very wide screens. The camera breathes slowly in and out
+ * (a closed path, so the loop has no seam), so the track does not follow any
+ * one channel.
  */
 const HERO_VIDEO = {
-  poster: "/img/v3/hero-estuary-frame.webp",
+  poster: "/img/v3/hero-estuary-v3.webp",
   sources: [
-    { src: "/video/hero-estuary.webm", type: "video/webm" },
-    { src: "/video/hero-estuary.mp4", type: "video/mp4" },
+    { src: "/video/hero-estuary-v3.webm", type: "video/webm" },
+    { src: "/video/hero-estuary-v3.mp4", type: "video/mp4" },
   ],
   smallSources: [
-    { src: "/video/hero-estuary-960.webm", type: "video/webm" },
-    { src: "/video/hero-estuary-960.mp4", type: "video/mp4" },
+    { src: "/video/hero-estuary-v3-960.webm", type: "video/webm" },
+    { src: "/video/hero-estuary-v3-960.mp4", type: "video/mp4" },
   ],
 };
 const HERO_VIDEO_TRACK = {
   viewBox: "0 0 1920 1080",
-  d: "M1990 840 C1860 835 1770 800 1700 780 S1600 730 1540 720",
-  end: { x: 1540, y: 720 },
+  d: "M2078 923 C1936 917 1837 877 1761 855 S1652 799 1587 787",
+  end: { x: 1587, y: 787 },
 };
 
 /*
@@ -335,21 +336,21 @@ const SITUATIONS = [
     text: "Aircraft cross areas of jamming and spoofing every day. Crews need to know how far to trust the position on their screens.",
     src: "/img/v3/air.webp",
     alt: "An airliner flying above a layer of cloud.",
-    clip: { poster: "/video/situations/air-poster.webp", sources: [{ src: "/video/situations/air.webm", type: "video/webm" }, { src: "/video/situations/air.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/air-v3-poster.webp", sources: [{ src: "/video/situations/air-v3.webm", type: "video/webm" }, { src: "/video/situations/air-v3.mp4", type: "video/mp4" }] },
   },
   {
     title: "At sea and in port",
     text: "Vessels, and the drones that survey ports and coasts, rely on satellite positioning. When it fails, they need a reference they carry with them.",
     src: "/img/v3/port-drone.webp",
     alt: "A research vessel crossing open sea, seen from above.",
-    clip: { poster: "/video/situations/sea-poster.webp", sources: [{ src: "/video/situations/sea.webm", type: "video/webm" }, { src: "/video/situations/sea.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/sea-v3-poster.webp", sources: [{ src: "/video/situations/sea-v3.webm", type: "video/webm" }, { src: "/video/situations/sea-v3.mp4", type: "video/mp4" }] },
   },
   {
     title: "In space",
     text: "In orbit, satellite positioning cannot always be counted on. Around Mars there is none at all: a spacecraft has to work out where it is on its own.",
     src: "/img/v3/smallsat.webp",
     alt: "Illustration of a small satellite in orbit above the Earth.",
-    clip: { poster: "/video/situations/space-poster.webp", sources: [{ src: "/video/situations/space.webm", type: "video/webm" }, { src: "/video/situations/space.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/space-v3-poster.webp", sources: [{ src: "/video/situations/space-v3.webm", type: "video/webm" }, { src: "/video/situations/space-v3.mp4", type: "video/mp4" }] },
   },
 ];
 

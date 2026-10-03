@@ -158,7 +158,7 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/estuary-16x9.webp",
       alt: "A civilian survey drone flying low over a desert plain.",
     },
-    clip: { poster: "/video/situations/survey-poster.webp", sources: [{ src: "/video/situations/survey.webm", type: "video/webm" }, { src: "/video/situations/survey.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/survey-v3-poster.webp", sources: [{ src: "/video/situations/survey-v3.webm", type: "video/webm" }, { src: "/video/situations/survey-v3.mp4", type: "video/mp4" }] },
     link: { href: "/instrument?profile=geo", label: "Fly the survey" },
   },
   {
@@ -170,7 +170,7 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/port-drone.webp",
       alt: "A research vessel crossing open sea, seen from above.",
     },
-    clip: { poster: "/video/situations/sea-poster.webp", sources: [{ src: "/video/situations/sea.webm", type: "video/webm" }, { src: "/video/situations/sea.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/sea-v3-poster.webp", sources: [{ src: "/video/situations/sea-v3.webm", type: "video/webm" }, { src: "/video/situations/sea-v3.mp4", type: "video/mp4" }] },
   },
   {
     label: "In the air",
@@ -181,7 +181,7 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/air.webp",
       alt: "An airliner above the clouds at dusk.",
     },
-    clip: { poster: "/video/situations/air-poster.webp", sources: [{ src: "/video/situations/air.webm", type: "video/webm" }, { src: "/video/situations/air.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/air-v3-poster.webp", sources: [{ src: "/video/situations/air-v3.webm", type: "video/webm" }, { src: "/video/situations/air-v3.mp4", type: "video/mp4" }] },
     link: { href: "/instrument", label: "Fly a mission" },
   },
   {
@@ -193,7 +193,7 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/smallsat.webp",
       alt: "A small spacecraft above a planet.",
     },
-    clip: { poster: "/video/situations/space-poster.webp", sources: [{ src: "/video/situations/space.webm", type: "video/webm" }, { src: "/video/situations/space.mp4", type: "video/mp4" }] },
+    clip: { poster: "/video/situations/space-v3-poster.webp", sources: [{ src: "/video/situations/space-v3.webm", type: "video/webm" }, { src: "/video/situations/space-v3.mp4", type: "video/mp4" }] },
     link: { href: "/instrument?profile=space", label: "Fly the Mars scout" },
   },
 ];
