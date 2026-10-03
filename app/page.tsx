@@ -345,6 +345,7 @@ const SITUATIONS: HomeSituation[] = [
     text: "Aircraft cross areas of jamming and spoofing every day. Crews need to know how far to trust the position on their screens.",
     src: "/img/v3/air.webp",
     alt: "An airliner flying above a layer of cloud.",
+    clip: { poster: "/video/situations/air-v4-poster.webp", sources: [{ src: "/video/situations/air-v4.webm", type: "video/webm" }, { src: "/video/situations/air-v4.mp4", type: "video/mp4" }] },
   },
   {
     title: "At sea and in port",
@@ -358,6 +359,7 @@ const SITUATIONS: HomeSituation[] = [
     text: "In orbit, satellite positioning cannot always be counted on. Around Mars there is none at all: a spacecraft has to work out where it is on its own.",
     src: "/img/v3/smallsat.webp",
     alt: "Illustration of a small satellite in orbit above the Earth.",
+    clip: { poster: "/video/situations/space-v4-poster.webp", sources: [{ src: "/video/situations/space-v4.webm", type: "video/webm" }, { src: "/video/situations/space-v4.mp4", type: "video/mp4" }] },
   },
 ];
 
