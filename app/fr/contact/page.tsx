@@ -19,7 +19,7 @@ import { BRAND, LEGAL_NAME, ADDRESS, SITE_URL } from "../../lib/facts";
 import { SHARE_IMAGE } from "../../lib/fr/facts";
 import { RESEARCH_PARTNERS_LINE } from "../../lib/fr/supporters";
 
-const DESCRIPTION = `Parlez avec ${BRAND} des capteurs quantiques à diamant : programmes de navigation, collaborations de recherche, fiche technique issue du modèle, sessions de simulation expertes, presse et recrutement. Écrivez à ${CONTACT_EMAIL}.`;
+const DESCRIPTION = `Parlez avec ${BRAND} des capteurs quantiques à diamant : programmes de navigation, collaborations de recherche, fiche technique issue du modèle, sessions de simulation expertes, presse et carrières. Écrivez à ${CONTACT_EMAIL}.`;
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -77,7 +77,7 @@ const CHANNELS: {
     eyebrow: "Partenaires de programme",
     label: "Parler d’un programme",
     href: CTA_PROGRAMME,
-    body: "Pour les intégrateurs de navigation et les responsables de programme : études de faisabilité et d’intégration, et sessions de simulation sur vos propres scénarios.",
+    body: "Pour les intégrateurs de navigation et les porteurs de programme : études de faisabilité et d’intégration, et sessions de simulation sur vos propres scénarios.",
   },
   {
     eyebrow: "Laboratoires de recherche",
@@ -113,7 +113,7 @@ const CHANNELS: {
     ),
   },
   {
-    eyebrow: "Recrutement",
+    eyebrow: "Carrières",
     label: "Nous écrire",
     href: CTA_CAREERS,
     body: "Nous sommes une petite équipe. En 2027, nous ouvrirons des stages en nanofabrication du diamant et en capteurs quantiques, ainsi que des postes d’ingénieur.",

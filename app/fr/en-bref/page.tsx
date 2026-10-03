@@ -279,7 +279,7 @@ const POINTS = [
 const OFFERS = [
   {
     t: "Des programmes",
-    d: "Nous proposons aux intégrateurs de navigation et aux maîtres d'œuvre de développer l'instrument pour une plateforme et une mission données, dans le cadre de leurs programmes.",
+    d: "Nous proposons aux intégrateurs de navigation et aux porteurs de programme de développer l'instrument pour une plateforme et une mission données, dans le cadre de leurs programmes.",
   },
   {
     t: "Des études de faisabilité et d'intégration",

@@ -272,7 +272,7 @@ const OFFERS = [
   {
     t: fr("Des programmes"),
     d: fr(
-      "Avec les intégrateurs de navigation et les maîtres d'œuvre, nous développons l'instrument pour votre plateforme et votre mission, au sein de votre programme."
+      "Avec les intégrateurs de navigation et les porteurs de programme, nous développons l'instrument pour votre plateforme et votre mission, au sein de votre programme."
     ),
   },
   {
@@ -326,7 +326,7 @@ const FAQ: FaqItem[] = [
   {
     q: fr("Que vendez-vous aujourd'hui ?"),
     a: fr(
-      "Des études et des travaux de programme, pas des unités. Nous proposons des études de faisabilité et d'intégration sur votre profil de mission et des sessions de simulation expertes, et nous cherchons des programmes à rejoindre avec des intégrateurs de navigation et des maîtres d'œuvre. Les unités viennent ensuite, issues de ces programmes."
+      "Des études et des travaux de programme, pas des unités. Nous proposons des études de faisabilité et d'intégration sur votre profil de mission et des sessions de simulation expertes, et nous cherchons des programmes à rejoindre avec des intégrateurs de navigation et des porteurs de programme. Les unités viennent ensuite, issues de ces programmes."
     ),
   },
   {
@@ -743,7 +743,7 @@ export default function NavigationPage() {
           </H2>
           <Lead className="max-w-3xl mb-14">
             {fr(
-              "La navigation sans satellites s'achète par programmes avant de s'acheter à l'unité. C'est par là que nous commençons, avec les intégrateurs de navigation et les maîtres d'œuvre."
+              "La navigation sans satellites s'achète par programmes avant de s'acheter à l'unité. C'est par là que nous commençons, avec les intégrateurs de navigation et les porteurs de programme."
             )}
           </Lead>
         </Reveal>

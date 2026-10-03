@@ -50,7 +50,7 @@ const TEXT: Record<Intent, { label: string; subject: string }> = {
     subject: "Demande presse",
   },
   careers: {
-    label: "Emplois et stages",
+    label: "Carrières",
     subject: "Demande sur les emplois et les stages",
   },
 };
