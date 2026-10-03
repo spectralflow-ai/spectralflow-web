@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { langOf } from "../lib/i18n";
 
 /**
  * HeroVideo : the moving background of the home hero.
@@ -101,6 +103,7 @@ export default function HeroVideo({
 }) {
   const allowed = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const loaded = useSyncExternalStore(subscribeLoad, getLoaded, getServerLoaded);
+  const fr = langOf(usePathname()) === "fr";
   const [playedOnce, setPlayedOnce] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
   const [gaveUp, setGaveUp] = useState(false);
@@ -213,7 +216,15 @@ export default function HeroVideo({
         <button
           type="button"
           onClick={() => setUserPaused((p) => !p)}
-          aria-label={userPaused ? "Play the background video" : "Pause the background video"}
+          aria-label={
+            fr
+              ? userPaused
+                ? "Lire la vidéo d’arrière-plan"
+                : "Mettre en pause la vidéo d’arrière-plan"
+              : userPaused
+                ? "Play the background video"
+                : "Pause the background video"
+          }
           className="absolute z-20 bottom-5 right-5 md:right-8 portrait:bottom-auto portrait:top-5 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[color-mix(in_srgb,var(--background)_55%,transparent)] text-[var(--text-secondary)] transition-colors duration-200 hover:border-[var(--text-primary)] hover:text-[var(--text-primary)]"
           style={{ animation: "fade-in-slow 0.6s ease-out 0.6s both" }}
         >

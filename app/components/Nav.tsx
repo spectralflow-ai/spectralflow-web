@@ -4,6 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { NAV, NAV_CTA, activeSection, type NavSection } from "../lib/nav";
+import { NAV as NAV_FR, NAV_CTA as NAV_CTA_FR } from "../lib/fr/nav";
+import { counterpart, langOf, type Lang } from "../lib/i18n";
+
+/** The header's own words, in each language. */
+const UI = {
+  en: { main: "Main", home: "home", open: "Open menu", close: "Close menu", overview: (l: string) => `${l} overview`, other: "fr", switchLabel: "FR", switchAria: "Version française" },
+  fr: { main: "Principal", home: "accueil", open: "Ouvrir le menu", close: "Fermer le menu", overview: (l: string) => `${l} : vue d'ensemble`, other: "en", switchLabel: "EN", switchAria: "English version" },
+} as const;
 import { BRAND } from "../lib/facts";
 
 /** The mark: ink diamond with the blue point at its centre, as in the app icon. */
@@ -42,7 +50,11 @@ function DesktopSection({
   onOpen,
   onClose,
   onToggle,
+  count,
+  overview,
 }: {
+  count: number;
+  overview: (label: string) => string;
   section: NavSection;
   index: number;
   open: boolean;
@@ -59,7 +71,7 @@ function DesktopSection({
   // panel open instead of toggling it shut.
   const hoverOpenedAt = useRef(0);
   // The last two sections open towards the left so the panel stays on screen.
-  const alignRight = index >= NAV.length - 2;
+  const alignRight = index >= count - 2;
 
   const cancelClose = () => {
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
@@ -165,7 +177,7 @@ function DesktopSection({
               className="textlink px-3 pt-2 pb-3"
               onClick={onClose}
             >
-              {section.label} overview <span>→</span>
+              {overview(section.label)} <span>→</span>
             </Link>
           )}
           <ul className="grid grid-cols-2 gap-1">
@@ -196,7 +208,11 @@ export default function Nav() {
   const toggleRef = useRef<HTMLButtonElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
-  const current = activeSection(pathname);
+  const lang: Lang = langOf(pathname);
+  const ui = UI[lang];
+  const nav = lang === "fr" ? NAV_FR : NAV;
+  const cta = lang === "fr" ? NAV_CTA_FR : NAV_CTA;
+  const current = activeSection(pathname, nav);
 
   // Close every menu on route change (covers back and forward navigation).
   if (pathname !== lastPath) {
@@ -306,15 +322,15 @@ export default function Nav() {
     >
       <nav
         ref={navRef}
-        aria-label="Main"
+        aria-label={ui.main}
         className="max-w-6xl mx-auto px-6 md:px-8 h-16 flex items-center justify-between gap-6"
       >
         {/* Brand */}
         <Link
-          href="/"
+          href={lang === "fr" ? "/fr" : "/"}
           className="flex items-center gap-2.5 shrink-0"
           onClick={() => setMobileOpen(false)}
-          aria-label={`${BRAND}, home`}
+          aria-label={`${BRAND}, ${ui.home}`}
         >
           <BrandMark />
           <span className="font-semibold tracking-tight text-[15px]" style={{ color: "var(--text-primary)" }}>
@@ -324,11 +340,13 @@ export default function Nav() {
 
         {/* Desktop menu */}
         <ul className="hidden lg:flex items-center gap-6">
-          {NAV.map((s, i) => (
+          {nav.map((s, i) => (
             <DesktopSection
               key={s.label}
               section={s}
               index={i}
+              count={nav.length}
+              overview={ui.overview}
               open={openIndex === i}
               active={current === s.label}
               onOpen={openDesktop}
@@ -338,9 +356,19 @@ export default function Nav() {
           ))}
         </ul>
 
-        <div className="hidden lg:block shrink-0">
-          <Link href={NAV_CTA.href} className="btn-ghost" style={{ padding: "0.45rem 1rem" }}>
-            {NAV_CTA.label} <span>→</span>
+        <div className="hidden lg:flex items-center gap-4 shrink-0">
+          <Link
+            href={counterpart(pathname)}
+            hrefLang={ui.other}
+            lang={ui.other}
+            aria-label={ui.switchAria}
+            className="text-sm font-medium"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {ui.switchLabel}
+          </Link>
+          <Link href={cta.href} className="btn-ghost" style={{ padding: "0.45rem 1rem" }}>
+            {cta.label} <span>→</span>
           </Link>
         </div>
 
@@ -348,7 +376,7 @@ export default function Nav() {
         <button
           ref={toggleRef}
           type="button"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-label={mobileOpen ? ui.close : ui.open}
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
           className="lg:hidden flex flex-col justify-center gap-1.5 p-2 h-10 w-10 -mr-2"
@@ -380,14 +408,24 @@ export default function Nav() {
       >
         <div className="px-6 pt-4 pb-16">
           <Link
-            href={NAV_CTA.href}
+            href={cta.href}
             onClick={() => setMobileOpen(false)}
-            className="btn-primary w-full mb-6"
+            className="btn-primary w-full mb-3"
           >
-            {NAV_CTA.label} <span>→</span>
+            {cta.label} <span>→</span>
+          </Link>
+          <Link
+            href={counterpart(pathname)}
+            hrefLang={ui.other}
+            lang={ui.other}
+            onClick={() => setMobileOpen(false)}
+            className="block text-center text-sm font-medium mb-6"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {ui.switchAria}
           </Link>
           <ul>
-            {NAV.map((s, i) => {
+            {nav.map((s, i) => {
               const expanded = mobileSection === i;
               const listId = `mobile-section-${i}`;
               return (
@@ -418,7 +456,7 @@ export default function Nav() {
                           className="block py-2 text-sm font-medium"
                           style={{ color: "var(--accent)" }}
                         >
-                          {s.label} overview →
+                          {ui.overview(s.label)} →
                         </Link>
                       </li>
                     )}

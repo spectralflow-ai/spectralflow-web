@@ -3,6 +3,51 @@
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 
+/** The words of the drawings and of the three steps, in each language. */
+const WORDS = {
+  en: {
+    resAria: "Green light enters a diamond and red light comes out, while microwaves drive the defect. Below, the red glow plotted against microwave frequency shows two dips. The dashed curve is a weaker field; in a stronger field the dips move apart.",
+    cohAria: "A spin drawn as an arrow turning around the direction of the magnetic field, like a spinning top. Below, its oscillation over time stays regular at first, then fades: that fading is the loss of coherence.",
+    reliefAlt: "Contour lines of a magnetic relief, with a blue route crossing it.",
+    reliefCap: "Illustration: a magnetic relief, and a route across it.",
+    microwaves: "microwaves",
+    green: "green light",
+    red: "red glow",
+    moves: "the field moves the dips",
+    freq: "microwave frequency",
+    weaker: "weaker field",
+    field: "field",
+    spin1: "the spin, like a top,",
+    spin2: "turns around the field,",
+    spin3: "faster when it is stronger",
+    keeps: "keeps the beat",
+    loses: "loses it",
+    time: "time",
+    step: "Step",
+  },
+  fr: {
+    resAria: "La lumière verte entre dans un diamant et la lumière rouge en sort, pendant que des micro-ondes excitent le défaut. En dessous, la lueur rouge en fonction de la fréquence micro-onde montre deux creux. La courbe en tirets correspond à un champ plus faible ; dans un champ plus fort, les creux s’écartent.",
+    cohAria: "Un spin dessiné comme une flèche qui tourne autour de la direction du champ magnétique, comme une toupie. En dessous, son oscillation dans le temps reste régulière au début, puis s’atténue : cette atténuation est la perte de cohérence.",
+    reliefAlt: "Lignes de niveau d’un relief magnétique, traversé par une route bleue.",
+    reliefCap: "Illustration : un relief magnétique, et une route qui le traverse.",
+    microwaves: "micro-ondes",
+    green: "lumière verte",
+    red: "lueur rouge",
+    moves: "le champ déplace les creux",
+    freq: "fréquence micro-onde",
+    weaker: "champ plus faible",
+    field: "champ",
+    spin1: "le spin, comme une toupie,",
+    spin2: "tourne autour du champ,",
+    spin3: "plus vite s’il est plus fort",
+    keeps: "garde le rythme",
+    loses: "le perd",
+    time: "temps",
+    step: "Étape",
+  },
+};
+type Words = (typeof WORDS)["en"];
+
 /**
  * Principle: how a diamond reads a magnetic field, as a short lesson in
  * three steps.
@@ -70,7 +115,7 @@ function wave(xa: number, xb: number, y: number, amp: number, periods: number): 
   return pts.join(" ");
 }
 
-function Resonance() {
+function Resonance({ t }: { t: Words }) {
   const cx = 160;
   const cy = 62;
   const d = 26;
@@ -79,18 +124,18 @@ function Resonance() {
       viewBox="0 0 320 200"
       className="w-full h-auto"
       role="img"
-      aria-label="Green light enters a diamond and red light comes out, while microwaves drive the defect. Below, the red glow plotted against microwave frequency shows two dips. The dashed curve is a weaker field; in a stronger field the dips move apart."
+      aria-label={t.resAria}
       data-motion=""
     >
       {/* microwaves */}
       <text x={cx} y={12} textAnchor="middle" fontSize="13" fontWeight="500" fill={MUT} fontFamily={FONT}>
-        microwaves
+        {t.microwaves}
       </text>
       <path d={wave(cx - 24, cx + 24, 26, 4, 3)} fill="none" stroke={MUT} strokeWidth="1.6" />
 
       {/* green light in */}
       <text x={12} y={50} fontSize="13" fontWeight="600" fill={LASER} fontFamily={FONT}>
-        green light
+        {t.green}
       </text>
       <line x1={12} y1={cy} x2={cx - d - 10} y2={cy} stroke={LASER} strokeWidth="2.2" />
       <polygon points={`${cx - d - 12},${cy - 5} ${cx - d - 12},${cy + 5} ${cx - d - 2},${cy}`} fill={LASER} />
@@ -119,28 +164,28 @@ function Resonance() {
         />
       ))}
       <text x={cx + d + 68} y={cy + 4} fontSize="13" fontWeight="600" fill={GLOW} fontFamily={FONT}>
-        red glow
+        {t.red}
       </text>
 
       {/* the plot */}
       <text x={PLOT.x0} y={110} fontSize="13" fontWeight="600" fill={GLOW} fontFamily={FONT}>
-        red glow
+        {t.red}
       </text>
       <text x={PLOT.x1} y={110} textAnchor="end" fontSize="13" fontWeight="500" fill={MUT} fontFamily={FONT}>
-        the field moves the dips
+        {t.moves}
       </text>
       <line x1={40} y1={118} x2={40} y2={178} stroke="var(--border-strong)" strokeWidth="1" />
       <line x1={40} y1={178} x2={PLOT.x1 - 4} y2={178} stroke="var(--border-strong)" strokeWidth="1" />
       <polygon points={`${PLOT.x1 - 6},174 ${PLOT.x1 - 6},182 ${PLOT.x1 + 2},178`} fill="var(--border-strong)" />
       <text x={PLOT.x1} y={195} textAnchor="end" fontSize="13" fontWeight="500" fill={MUT} fontFamily={FONT}>
-        microwave frequency
+        {t.freq}
       </text>
 
       {/* reference: a weaker field, with its legend */}
       <path d={GLOW_REF} fill="none" stroke={MUT} strokeWidth="1.2" strokeDasharray="3 4" />
       <line x1={44} y1={190.5} x2={62} y2={190.5} stroke={MUT} strokeWidth="1.2" strokeDasharray="3 4" />
       <text x={68} y={195} fontSize="13" fontWeight="500" fill={MUT} fontFamily={FONT}>
-        weaker field
+        {t.weaker}
       </text>
 
       {/* the field changes, the dips move */}
@@ -214,20 +259,20 @@ const BEAT_D = beatPath();
 const ENV_UP = envelopePath(1);
 const ENV_DOWN = envelopePath(-1);
 
-function Coherence() {
+function Coherence({ t }: { t: Words }) {
   return (
     <svg
       viewBox="0 0 320 200"
       className="w-full h-auto"
       role="img"
-      aria-label="A spin drawn as an arrow turning around the direction of the magnetic field, like a spinning top. Below, its oscillation over time stays regular at first, then fades: that fading is the loss of coherence."
+      aria-label={t.cohAria}
       data-motion=""
     >
       {/* the field direction */}
       <line x1={TOP.px} y1={TOP.py} x2={TOP.px} y2={22} stroke={MUT} strokeWidth="1.2" strokeDasharray="3 4" />
       <polygon points={`${TOP.px - 4},${24} ${TOP.px + 4},${24} ${TOP.px},${15}`} fill={MUT} />
       <text x={TOP.px + 9} y={22} fontSize="13" fontWeight="500" fill={MUT} fontFamily={FONT}>
-        field
+        {t.field}
       </text>
 
       {/* the cone the spin sweeps */}
@@ -259,27 +304,27 @@ function Coherence() {
       </g>
 
       <text x={122} y={48} fontSize="13" fontWeight="600" fill={INK} fontFamily={FONT}>
-        the spin, like a top,
+        {t.spin1}
       </text>
       <text x={122} y={65} fontSize="13" fontWeight="500" fill={SEC} fontFamily={FONT}>
-        turns around the field,
+        {t.spin2}
       </text>
       <text x={122} y={82} fontSize="13" fontWeight="500" fill={SEC} fontFamily={FONT}>
-        faster when it is stronger
+        {t.spin3}
       </text>
 
       {/* keeping the beat, then losing it */}
       <text x={BEAT.x0} y={136} fontSize="13" fontWeight="600" fill={SEC} fontFamily={FONT}>
-        keeps the beat
+        {t.keeps}
       </text>
       <text x={BEAT.x1} y={136} textAnchor="end" fontSize="13" fontWeight="500" fill={MUT} fontFamily={FONT}>
-        loses it
+        {t.loses}
       </text>
       <path d={ENV_UP} fill="none" stroke={MUT} strokeWidth="1" strokeDasharray="3 4" />
       <path d={ENV_DOWN} fill="none" stroke={MUT} strokeWidth="1" strokeDasharray="3 4" />
       <path d={BEAT_D} fill="none" stroke={BLUE} strokeWidth="1.8" strokeLinejoin="round" />
       <text x={BEAT.x1} y={196} textAnchor="end" fontSize="13" fontWeight="500" fill={MUT} fontFamily={FONT}>
-        time
+        {t.time}
       </text>
     </svg>
   );
@@ -287,7 +332,7 @@ function Coherence() {
 
 /* ----- 01 : the magnetic relief, and a route across it --------------- */
 
-function Fingerprint() {
+function Fingerprint({ t }: { t: Words }) {
   return (
     <figure>
       <div
@@ -296,7 +341,7 @@ function Fingerprint() {
       >
         <Image
           src="/img/v3/relief.webp"
-          alt="Contour lines of a magnetic relief, with a blue route crossing it."
+          alt={t.reliefAlt}
           fill
           sizes="(min-width: 1024px) 320px, (min-width: 768px) 45vw, 90vw"
           className="object-cover"
@@ -304,7 +349,7 @@ function Fingerprint() {
         />
       </div>
       <figcaption className="figure-label is-plain mt-3">
-        Illustration: a magnetic relief, and a route across it.
+        {t.reliefCap}
       </figcaption>
     </figure>
   );
@@ -312,36 +357,46 @@ function Fingerprint() {
 
 /* ----- The lesson ---------------------------------------------------- */
 
+const STEPS_FR = [
+  { title: "La Terre a une empreinte", text: "Les roches magnétiques de la croûte déforment le champ terrestre, un peu différemment partout. Une grande partie de ce relief a été cartographiée, depuis les airs et en mer, plus finement à certains endroits qu’à d’autres." },
+  { title: "Une résonance, comme en IRM", text: "Un centre NV, un défaut du diamant, porte un spin que des micro-ondes mettent en résonance, comme dans un appareil d’IRM. Lumière verte à l’entrée, lumière rouge à la sortie : la lueur rouge baisse aux fréquences de résonance, et le champ les déplace. La position des creux donne le champ." },
+  { title: "La cohérence du spin", text: "Comme une toupie, le spin tourne autour du champ, plus vite quand le champ est plus fort. Garder ce rythme s’appelle la cohérence : plus elle dure, plus la mesure est fine." },
+];
+
 const STEPS = [
   {
     n: "01",
     title: "The Earth has a fingerprint",
     text: "Magnetic rocks in the crust distort the Earth's field, a little differently everywhere. Much of that relief has been mapped, from the air and at sea, more finely in some places than in others.",
-    media: <Fingerprint />,
+    Media: Fingerprint,
   },
   {
     n: "02",
     title: "Resonance, as in MRI",
     text: "An NV centre, a defect in diamond, carries a spin that microwaves drive into resonance, as in an MRI scanner. Green light in, red light out: the red glow dips at the resonance frequencies, and the field shifts them. Where the dips sit gives the field.",
-    media: <Resonance />,
+    Media: Resonance,
   },
   {
     n: "03",
     title: "Spin coherence",
     text: "Like a spinning top, the spin turns around the field, faster when the field is stronger. Keeping that beat is called coherence: the longer it lasts, the finer the measurement.",
-    media: <Coherence />,
+    Media: Coherence,
   },
 ];
 
 export default function Principle({
   headingLevel = 3,
   className = "",
+  lang = "en",
 }: {
+  lang?: "en" | "fr";
   /** Level of each step's title, under the section's own heading. */
   headingLevel?: 3 | 4;
   className?: string;
 }) {
   const Heading = headingLevel === 4 ? "h4" : "h3";
+  const t = WORDS[lang];
+  const steps = lang === "fr" ? STEPS.map((st, i) => ({ ...st, ...STEPS_FR[i], media: <st.Media t={t} /> })) : STEPS.map((st) => ({ ...st, media: <st.Media t={t} /> }));
   const listRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
@@ -371,7 +426,7 @@ export default function Principle({
 
   return (
     <ol ref={listRef} className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${className}`}>
-      {STEPS.map((s) => (
+      {steps.map((s) => (
         <li key={s.n} className="card p-6 md:p-7 flex flex-col">
           <p className="figure-label mb-5" aria-hidden="true">
             {s.n}
@@ -383,7 +438,7 @@ export default function Principle({
                 className="display text-2xl font-semibold tracking-tight mb-3"
                 style={{ color: "var(--text-primary)" }}
               >
-                <span className="sr-only">Step {Number(s.n)}: </span>
+                <span className="sr-only">{`${t.step} ${Number(s.n)}${lang === "fr" ? " : " : ": "}`}</span>
                 {s.title}
               </Heading>
               <p className="text-[15px] leading-7" style={{ color: "var(--text-secondary)" }}>

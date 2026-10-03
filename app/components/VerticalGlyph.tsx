@@ -20,6 +20,24 @@ const FONT = "var(--font-geist-sans)";
 const VB = "0 0 480 240";
 
 /** The shared NV sensor: dashed detection volume + the one blue point. */
+/** French words of the drawings; the English text is the key. */
+const FR: Record<string, string> = {
+  "2.5D / 3D PACKAGE": "BOÎTIER 2,5D / 3D",
+  "CELL": "CELLULE",
+  "MAGNETIC MAP": "CARTE MAGNÉTIQUE",
+  "NV SENSING PLANE": "PLAN DE MESURE NV",
+  "ROOM-TEMPERATURE SPIN REGISTER": "REGISTRE DE SPINS À TEMPÉRATURE AMBIANTE",
+  "current": "courant",
+  "field": "champ",
+  "fix": "recalage",
+  "heading": "cap",
+  "One NV sensor read two ways: the nuclear spin of a molecule bound at the diamond surface, and the radical noise inside a living cell.": "Un même capteur NV lu de deux façons : le spin nucléaire d’une molécule fixée à la surface du diamant, et le bruit des radicaux à l’intérieur d’une cellule vivante.",
+  "An NV sensor above a stacked chip images the magnetic field of a buried current path.": "Un capteur NV au-dessus d’une puce empilée image le champ magnétique d’un chemin de courant enfoui.",
+  "A nitrogen-vacancy electron spin coupled to a neighbouring nuclear spin: a small quantum register in diamond.": "Le spin électronique d’un centre azote-lacune couplé à un spin nucléaire voisin : un petit registre quantique dans le diamant.",
+  "A vehicle matches its magnetometer readings against a magnetic map to correct its position.": "Un véhicule compare les mesures de son magnétomètre à une carte magnétique pour corriger sa position.",
+};
+type Tr = (en: string) => string;
+
 function NvSensor({ x, y, label }: { x: number; y: number; label?: string }) {
   return (
     <g>
@@ -67,7 +85,7 @@ function hexagon(cx: number, cy: number, R: number, key: string) {
 }
 
 /* ---------- Life sciences: two reads of one sensor ---------- */
-function LifeSciences() {
+function LifeSciences({ tr }: { tr: Tr }) {
   const { sites, at, bonds } = lattice(25, 138, 30, 8, 2, 232);
   const nv = at(0, 3)!;
   const mx = 150, my = 54;
@@ -81,7 +99,7 @@ function LifeSciences() {
     decay += ` L ${(ix + t * iw).toFixed(1)} ${(iy + (ih - 6) * (1 - Math.exp(-3.2 * t))).toFixed(1)}`;
   }
   return (
-    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label="One NV sensor read two ways: the nuclear spin of a molecule bound at the diamond surface, and the radical noise inside a living cell.">
+    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label={tr("One NV sensor read two ways: the nuclear spin of a molecule bound at the diamond surface, and the radical noise inside a living cell.")}>
       {/* NMR scene */}
       {bonds}
       {sites.map((s) => (s === nv ? null : s.x < 232 ? <circle key={`d${s.r}-${s.c}`} cx={s.x} cy={s.y} r="2.3" fill={BORDERS} /> : null))}
@@ -97,7 +115,7 @@ function LifeSciences() {
       <line x1="240" y1="30" x2="240" y2="210" stroke={BORDER} strokeWidth="1" />
       {/* relaxometry scene */}
       <ellipse cx={cx} cy={cy} rx="100" ry="80" fill="none" stroke={INK} strokeWidth="1.2" />
-      <text x="266" y="46" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>CELL</text>
+      <text x="266" y="46" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>{tr("CELL")}</text>
       {radicals.map((p, i) => (
         <g key={`r${i}`}>
           <circle cx={p[0]} cy={p[1]} r="2.4" fill={BORDERS} />
@@ -115,16 +133,16 @@ function LifeSciences() {
 }
 
 /* ---------- Semiconductors: a buried current path, imaged ---------- */
-function Semiconductors() {
+function Semiconductors({ tr }: { tr: Tr }) {
   const layers = [150, 176, 202];
   // current path: down a via, along a buried layer, up, with a defect node
   const path = "M 150 96 L 150 176 L 300 176 L 300 150 L 360 150";
   const arcs = [10, 18, 26];
   return (
-    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label="An NV sensor above a stacked chip images the magnetic field of a buried current path.">
+    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label={tr("An NV sensor above a stacked chip images the magnetic field of a buried current path.")}>
       {/* NV sensing plane above the chip */}
       <line x1="60" y1="96" x2="420" y2="96" stroke={INK} strokeWidth="1.2" />
-      <text x="60" y="88" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>NV SENSING PLANE</text>
+      <text x="60" y="88" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>{tr("NV SENSING PLANE")}</text>
       {[110, 170, 230, 290, 350].map((x) => (
         <circle key={`s${x}`} cx={x} cy={96} r="2.6" fill={BLUE} />
       ))}
@@ -140,20 +158,20 @@ function Semiconductors() {
           <path d={`M ${225} ${176 - r} A ${r} ${r} 0 0 1 ${225} ${176 + r}`} fill="none" stroke={MUT} strokeWidth="0.8" strokeDasharray="2 3" />
         </g>
       ))}
-      <text x="248" y="150" fontSize="10" fontWeight="600" fill={BLUE} fontFamily={FONT}>current</text>
-      <text x="196" y="150" fontSize="9" fill={MUT} fontFamily={FONT}>field</text>
-      <text x="128" y="224" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>2.5D / 3D PACKAGE</text>
+      <text x="248" y="150" fontSize="10" fontWeight="600" fill={BLUE} fontFamily={FONT}>{tr("current")}</text>
+      <text x="196" y="150" fontSize="9" fill={MUT} fontFamily={FONT}>{tr("field")}</text>
+      <text x="128" y="224" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>{tr("2.5D / 3D PACKAGE")}</text>
     </svg>
   );
 }
 
 /* ---------- Quantum computing: an NV spin register ---------- */
-function QuantumComputing() {
+function QuantumComputing({ tr }: { tr: Tr }) {
   const { sites, at, bonds } = lattice(150, 96, 34, 5, 3, 356);
   const nv = at(1, 2)!;
   const nuc = at(1, 3)!; // a neighbouring nuclear spin
   return (
-    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label="A nitrogen-vacancy electron spin coupled to a neighbouring nuclear spin: a small quantum register in diamond.">
+    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label={tr("A nitrogen-vacancy electron spin coupled to a neighbouring nuclear spin: a small quantum register in diamond.")}>
       {bonds}
       {sites.map((s) => (s === nv || s === nuc ? null : <circle key={`d${s.r}-${s.c}`} cx={s.x} cy={s.y} r="2.5" fill={BORDERS} />))}
       {/* coupling between electron and nuclear spin */}
@@ -167,13 +185,13 @@ function QuantumComputing() {
       {/* optical control cue */}
       <line x1={nv.x - 40} y1={nv.y - 40} x2={nv.x - 12} y2={nv.y - 12} stroke={BLUE} strokeWidth="1.3" />
       <path d={`M ${nv.x - 12} ${nv.y - 12} l -8 1 l 3 -7 z`} fill={BLUE} />
-      <text x="150" y="196" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>ROOM-TEMPERATURE SPIN REGISTER</text>
+      <text x="150" y="196" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>{tr("ROOM-TEMPERATURE SPIN REGISTER")}</text>
     </svg>
   );
 }
 
 /* ---------- Navigation: match a reading to the magnetic map ---------- */
-function Navigation() {
+function Navigation({ tr }: { tr: Tr }) {
   // magnetic-anomaly profile (the map)
   const pts: string[] = [];
   for (let i = 0; i <= 60; i++) {
@@ -183,32 +201,33 @@ function Navigation() {
   }
   const vx = 300, mapY = 176 + Math.sin(37 * 0.5) * 10 + Math.sin(37 * 0.17) * 16;
   return (
-    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label="A vehicle matches its magnetometer readings against a magnetic map to correct its position.">
+    <svg viewBox={VB} className="w-full h-auto" role="img" aria-label={tr("A vehicle matches its magnetometer readings against a magnetic map to correct its position.")}>
       {/* magnetic map */}
       <path d={pts.join(" ")} fill="none" stroke={INK} strokeWidth="1.3" />
-      <text x="40" y="212" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>MAGNETIC MAP</text>
+      <text x="40" y="212" fontSize="8.5" letterSpacing="1.2" fill={MUT} fontFamily={FONT}>{tr("MAGNETIC MAP")}</text>
       {/* vehicle */}
       <path d={`M ${vx - 12} 70 L ${vx + 12} 78 L ${vx - 12} 86 Z`} fill="none" stroke={INK} strokeWidth="1.3" />
       {/* measured reading dropping to the map (the match) */}
       <line x1={vx} y1={88} x2={vx} y2={mapY - 6} stroke={BLUE} strokeWidth="1.3" strokeDasharray="3 4" />
       <circle cx={vx} cy={mapY} r="4" fill={BLUE} />
-      <text x={vx + 8} y={mapY - 8} fontSize="9.5" fontWeight="600" fill={BLUE} fontFamily={FONT}>fix</text>
+      <text x={vx + 8} y={mapY - 8} fontSize="9.5" fontWeight="600" fill={BLUE} fontFamily={FONT}>{tr("fix")}</text>
       {/* heading */}
       <line x1={vx + 16} y1={78} x2={vx + 74} y2={78} stroke={BLUE} strokeWidth="1.6" />
       <path d={`M ${vx + 74} 78 l -9 -4 l 0 8 z`} fill={BLUE} />
-      <text x={vx + 30} y={68} fontSize="9.5" fontWeight="600" fill={BLUE} fontFamily={FONT}>heading</text>
+      <text x={vx + 30} y={68} fontSize="9.5" fontWeight="600" fill={BLUE} fontFamily={FONT}>{tr("heading")}</text>
     </svg>
   );
 }
 
-const GLYPHS: Record<string, () => ReactNode> = {
+const GLYPHS: Record<string, (p: { tr: Tr }) => ReactNode> = {
   "life-sciences": LifeSciences,
   semiconductors: Semiconductors,
   "quantum-computing": QuantumComputing,
   navigation: Navigation,
 };
 
-export default function VerticalGlyph({ slug }: { slug: string }) {
+export default function VerticalGlyph({ slug, lang = "en" }: { slug: string; lang?: "en" | "fr" }) {
   const G = GLYPHS[slug];
-  return G ? <G /> : null;
+  const tr: Tr = (en) => (lang === "fr" ? FR[en] ?? en : en);
+  return G ? <G tr={tr} /> : null;
 }

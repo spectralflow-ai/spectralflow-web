@@ -15,20 +15,33 @@ const CY = 522;
 export default function DiamondPlate({
   aspect = "16/10",
   sizes = "(min-width: 768px) 50vw, 100vw",
-  caption = "Illustrative image: a diamond plate, with the four crystal axes along which NV centres point.",
+  caption,
   className = "",
+  lang = "en",
 }: {
+  lang?: "en" | "fr";
   aspect?: string;
   sizes?: string;
+  /** Default: the caption of the language; null hides it. */
   caption?: string | null;
   className?: string;
 }) {
+  const text =
+    caption === undefined
+      ? lang === "fr"
+        ? "Image d’illustration : une plaque de diamant, avec les quatre axes cristallins selon lesquels pointent les centres NV."
+        : "Illustrative image: a diamond plate, with the four crystal axes along which NV centres point."
+      : caption;
   return (
     <figure className={className}>
       <div className="duotone rounded-[var(--radius)]" style={{ aspectRatio: aspect }}>
         <Image
           src="/img/v3/diamond-plate.webp"
-          alt="A small square diamond plate resting on a dark sample holder."
+          alt={
+            lang === "fr"
+              ? "Une petite plaque carrée de diamant posée sur un porte-échantillon sombre."
+              : "A small square diamond plate resting on a dark sample holder."
+          }
           fill
           sizes={sizes}
           className="object-cover"
@@ -64,7 +77,7 @@ export default function DiamondPlate({
           <circle cx={CX} cy={CY} r={16} fill="#6FA1FF" />
         </svg>
       </div>
-      {caption && <figcaption className="figure-label is-plain mt-4">{caption}</figcaption>}
+      {text && <figcaption className="figure-label is-plain mt-4">{text}</figcaption>}
     </figure>
   );
 }

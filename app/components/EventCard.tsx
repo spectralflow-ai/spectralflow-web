@@ -1,6 +1,14 @@
 import Link from "next/link";
 import LogoMark from "./LogoMark";
-import type { SiteEvent } from "../lib/events";
+import type { EventRole, SiteEvent } from "../lib/events";
+
+/** Our role at the event, in French. */
+const ROLE_FR: Record<EventRole, string> = {
+  Pitching: "Présentation",
+  Speaking: "Intervention",
+  Attending: "Participation",
+  Exhibiting: "Exposant",
+};
 
 /**
  * One event: dates, place, our role, a short line and the ask.
@@ -11,6 +19,7 @@ export default function EventCard({
   today,
   headingLevel = 3,
   contactHref = "/contact",
+  lang = "en",
   className = "",
 }: {
   event: SiteEvent;
@@ -18,6 +27,7 @@ export default function EventCard({
   headingLevel?: 2 | 3;
   /** Where the ask points. */
   contactHref?: string;
+  lang?: "en" | "fr";
   className?: string;
 }) {
   const H = headingLevel === 2 ? "h2" : "h3";
@@ -29,7 +39,7 @@ export default function EventCard({
         <p className="figure-label is-plain">
           <time dateTime={event.start}>{event.dateLabel}</time>
         </p>
-        <span className="pill">{past ? "Past" : event.role}</span>
+        <span className="pill">{lang === "fr" ? (past ? "Passé" : ROLE_FR[event.role]) : past ? "Past" : event.role}</span>
       </div>
 
       {event.logo && (
@@ -62,8 +72,8 @@ export default function EventCard({
             rel="noopener noreferrer"
             className="text-sm transition-colors text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)]"
           >
-            Event page <span aria-hidden>↗</span>
-            <span className="sr-only"> (opens in a new tab)</span>
+            {lang === "fr" ? "Page de l’événement" : "Event page"} <span aria-hidden>↗</span>
+            <span className="sr-only">{lang === "fr" ? " (s’ouvre dans un nouvel onglet)" : " (opens in a new tab)"}</span>
           </a>
         )}
       </div>

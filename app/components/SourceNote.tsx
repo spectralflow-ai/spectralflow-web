@@ -1,4 +1,5 @@
 import { getSource, type ContextSource } from "../lib/facts";
+import { getSource as getSourceFr } from "../lib/fr/facts";
 
 /**
  * A small source line under a quoted figure: organisation, date, title,
@@ -14,7 +15,9 @@ export default function SourceNote({
   href,
   prefix = "Source",
   className = "",
+  lang = "en",
 }: {
+  lang?: "en" | "fr";
   source?: ContextSource;
   sourceId?: string;
   org?: string;
@@ -24,17 +27,17 @@ export default function SourceNote({
   prefix?: string;
   className?: string;
 }) {
-  const s = source ?? (sourceId ? getSource(sourceId) : undefined);
+  const s = source ?? (sourceId ? (lang === "fr" ? getSourceFr : getSource)(sourceId) : undefined);
   const o = s?.org ?? org;
   const d = s?.dateLabel ?? date;
   const t = s?.title ?? title;
   const h = s?.href ?? href;
   if (!o && !t) return null;
 
-  const label = t ? `“${t}”` : null;
+  const label = t ? (lang === "fr" ? `« ${t} »` : `“${t}”`) : null;
   return (
     <p className={`source-note ${className}`}>
-      {prefix}: {o}
+      {prefix}{lang === "fr" ? " : " : ": "}{o}
       {d && <>, {d}</>}
       {label && (
         <>
@@ -43,7 +46,7 @@ export default function SourceNote({
             <a href={h} target="_blank" rel="noopener noreferrer">
               {label}
               <span aria-hidden> ↗</span>
-              <span className="sr-only"> (opens in a new tab)</span>
+              <span className="sr-only">{lang === "fr" ? " (s’ouvre dans un nouvel onglet)" : " (opens in a new tab)"}</span>
             </a>
           ) : (
             label

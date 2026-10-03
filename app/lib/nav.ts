@@ -127,7 +127,7 @@ export const NAV: NavSection[] = [
       },
       { label: "Careers", href: "/company#careers", blurb: "Internships and roles from 2027." },
       { label: "Contact", href: "/contact", blurb: "Programmes, laboratories, press." },
-      { label: "En français", href: "/fr", blurb: "Spectral Flow en bref." },
+      { label: "En français", href: "/fr", blurb: "Le site en français." },
     ],
   },
 ];
@@ -148,9 +148,9 @@ export const FOOTER_EXTRA: NavLink[] = [
  * longest matching path. Ties go to the first section, so the navigation
  * product page belongs to "Navigation" rather than "Applications".
  */
-export function activeSection(pathname: string): string | undefined {
+export function activeSection(pathname: string, nav: NavSection[] = NAV): string | undefined {
   let best: { label: string; len: number } | undefined;
-  for (const s of NAV) {
+  for (const s of nav) {
     const paths = [s.href, ...s.links.map((l) => l.href)]
       .filter((h): h is string => !!h && h.startsWith("/"))
       .map((h) => h.split("#")[0]);

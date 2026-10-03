@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "fr:check": "node scripts/fr-sync.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.40.0",

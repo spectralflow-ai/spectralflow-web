@@ -1,5 +1,13 @@
 import Link from "next/link";
-import type { Post } from "../lib/news";
+import type { Post, PostTag } from "../lib/news";
+
+/** The kind of entry, in French (the English tag stays the key). */
+const TAG_FR: Record<PostTag, string> = {
+  Milestone: "Étape",
+  Research: "Recherche",
+  Insight: "Analyse",
+  Event: "Événement",
+};
 
 /**
  * One news entry, linking to its article.
@@ -11,19 +19,24 @@ export default function NewsCard({
   variant = "card",
   headingLevel = 3,
   className = "",
+  lang = "en",
 }: {
+  lang?: "en" | "fr";
   post: Post;
   variant?: "card" | "row";
   headingLevel?: 2 | 3;
   className?: string;
 }) {
   const H = headingLevel === 2 ? "h2" : "h3";
-  const href = `/news/${post.slug}`;
+  const fr = lang === "fr";
+  const href = `${fr ? "/fr" : ""}/news/${post.slug}`;
+  const read = fr ? "Lire" : "Read";
+  const tag = fr ? TAG_FR[post.tag] : post.tag;
 
   const meta = (
     <p className="flex items-center gap-3">
       <span className="eyebrow" style={{ marginBottom: 0 }}>
-        {post.tag}
+        {tag}
       </span>
       <time dateTime={post.date} className="figure-label is-plain">
         {post.dateLabel}
@@ -35,7 +48,7 @@ export default function NewsCard({
     return (
       <article className={`hairline py-9 grid grid-cols-1 md:grid-cols-[0.45fr_1.55fr] gap-3 md:gap-12 ${className}`}>
         <div className="flex md:flex-col gap-3 md:gap-1.5">
-          <span className="eyebrow">{post.tag}</span>
+          <span className="eyebrow">{tag}</span>
           <time dateTime={post.date} className="figure-label is-plain">
             {post.dateLabel}
           </time>
@@ -53,8 +66,8 @@ export default function NewsCard({
           <p className="text-[15px] leading-7" style={{ color: "var(--muted)" }}>
             {post.excerpt}
           </p>
-          <Link href={href} className="textlink mt-3" aria-label={`Read: ${post.title}`}>
-            Read <span aria-hidden>→</span>
+          <Link href={href} className="textlink mt-3" aria-label={`${read}${fr ? " : " : ": "}${post.title}`}>
+            {read} <span aria-hidden>→</span>
           </Link>
         </div>
       </article>
@@ -74,7 +87,7 @@ export default function NewsCard({
         {post.excerpt}
       </p>
       <span className="textlink mt-5" aria-hidden>
-        Read <span>→</span>
+        {read} <span>→</span>
       </span>
     </article>
   );

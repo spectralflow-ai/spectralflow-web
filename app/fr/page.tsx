@@ -1,154 +1,56 @@
+// fr-source: app/page.tsx sha256:7fc17699e8b22663
+// Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
-import Image from "next/image";
-import LogoMark from "../components/LogoMark";
 import Link from "next/link";
+import { getImageProps } from "next/image";
 import Reveal from "../components/Reveal";
+import Steps from "../components/Steps";
+import MissionChart from "../components/MissionChart";
+import ErrorBound from "../components/ErrorBound";
+import DuotoneClip from "../components/DuotoneClip";
 import DuotonePhoto from "../components/DuotonePhoto";
+import DiamondPlate from "../components/DiamondPlate";
+import HeroVideo from "../components/HeroVideo";
+import SourceNote from "../components/SourceNote";
 import GnssMap from "../components/GnssMap";
+import NewsCard from "../components/NewsCard";
+import EventCard from "../components/EventCard";
+import Supporters from "../components/Supporters";
+import VerticalIcon from "../components/VerticalIcon";
 import { Prose, Cinema, Eyebrow, H2, Lead, Body } from "../components/kit";
-import { CONTACT_EMAIL } from "../lib/contact";
 import {
-  ADDRESS,
-  ADDRESS_LINES,
   BRAND,
+  DESCRIPTOR,
   FACTS_AS_OF,
-  FOUNDER,
   LEGAL_NAME,
-  PATENT_APPLICATIONS,
-  RCS,
-  REGISTERED,
-  SITE_URL,
+  ADDRESS,
+  PATENT_DETAIL,
+  REGISTERED_LABEL,
+  SHARE_IMAGE,
+  STAGE_LINE,
   getSource,
-  type ContextSource, SHARE_IMAGE } from "../lib/facts";
-import {
-  SUPPORTER_KINDS,
-  supportersByKind,
-  type Supporter,
-  type SupporterKind,
-} from "../lib/supporters";
-import { todayISO, upcomingEvents, type EventRole, type SiteEvent } from "../lib/events";
+  type ContextSource,
+} from "../lib/fr/facts";
+import { latestPosts } from "../lib/fr/news";
+import { todayISO, upcomingEvents } from "../lib/fr/events";
+import { CTA_PROGRAMME, CTA_SIMULATION } from "../lib/fr/contact";
+import type { ProfileKey } from "../instrument/profiles";
 
-/** Rebuilt daily so that past events leave the list. */
-export const revalidate = 86400;
+/* ----- Page metadata ------------------------------------------------- */
 
-/**
- * /fr : Spectral Flow en bref. One page in French for French readers;
- * the rest of the site is in English. Names, dates and counts come from
- * the same sources as the English pages, formatted here in French.
- */
+const TITLE = `${BRAND} · ${DESCRIPTOR} pour la navigation`;
+const DESCRIPTION =
+  "Spectral Flow conçoit des capteurs quantiques à diamant. D’abord, une navigation fiable sans GPS : chaque position vient avec sa borne d’erreur.";
 
-/* ----- French typography --------------------------------------------- */
-
-const NBSP = "\u00A0";
-const NNBSP = "\u202F";
-
-/**
- * Typographic apostrophe, and the non-breaking spaces French typography
- * puts before : ; ? ! and %, inside guillemets and between thousands.
- * Source strings are written with plain spaces and apostrophes.
- */
-function fr(s: string): string {
-  return s
-    .replace(/'/g, "\u2019")
-    .replace(/ :/g, `${NBSP}:`)
-    .replace(/ ([;?!%])/g, `${NNBSP}$1`)
-    .replace(/\u00AB /g, `\u00AB${NBSP}`)
-    .replace(/ \u00BB/g, `${NBSP}\u00BB`)
-    .replace(/(\d) (?=\d{3}\b)/g, `$1${NNBSP}`);
-}
-
-const MOIS = [
-  "janvier",
-  "février",
-  "mars",
-  "avril",
-  "mai",
-  "juin",
-  "juillet",
-  "août",
-  "septembre",
-  "octobre",
-  "novembre",
-  "décembre",
-];
-const MONTHS_EN = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-const jour = (d: number) => (d === 1 ? "1er" : String(d));
-
-/** "2026-04-02" becomes "2 avril 2026". */
-function dateFr(iso: string): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  return `${jour(d)} ${MOIS[m - 1]} ${y}`;
-}
-
-/** "October 2026" becomes "octobre 2026"; anything else is returned as is. */
-function monthYearFr(label: string): string {
-  const [m, y] = label.split(" ");
-  const i = MONTHS_EN.indexOf(m);
-  return i >= 0 && y ? `${MOIS[i]} ${y}` : label;
-}
-
-/** "October 2026" becomes "2026-10", for a <time> element. */
-function monthYearIso(label: string): string | undefined {
-  const [m, y] = label.split(" ");
-  const i = MONTHS_EN.indexOf(m);
-  return i >= 0 && y ? `${y}-${String(i + 1).padStart(2, "0")}` : undefined;
-}
-
-/** Event dates in French: "19 novembre 2026", "8 et 9 octobre 2026". */
-function eventDatesFr(e: SiteEvent): string {
-  if (e.start === e.end) return dateFr(e.start);
-  const [y1, m1, d1] = e.start.split("-").map(Number);
-  const [y2, m2, d2] = e.end.split("-").map(Number);
-  if (y1 === y2 && m1 === m2) {
-    return d2 === d1 + 1
-      ? `${jour(d1)} et ${d2} ${MOIS[m2 - 1]} ${y2}`
-      : `du ${jour(d1)} au ${d2} ${MOIS[m2 - 1]} ${y2}`;
-  }
-  return `du ${dateFr(e.start)} au ${dateFr(e.end)}`;
-}
-
-const AS_OF_FR = monthYearFr(FACTS_AS_OF);
-const REGISTERED_FR = dateFr(REGISTERED);
-
-/* ----- Metadata ------------------------------------------------------ */
-
-const PAGE_PATH = "/fr";
-const TITLE = `${BRAND} en bref · Capteurs quantiques à diamant`;
-const DESCRIPTION = fr(
-  "Spectral Flow conçoit des capteurs quantiques à diamant. D'abord, une navigation sans GPS qui rend chaque position avec sa borne d'erreur."
-);
-
-/**
- * No hreflang pair: this page summarises the site in French, it is not
- * a translation of any English page.
- */
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  alternates: {
-    canonical: PAGE_PATH,
-  },
+  alternates: { canonical: "/fr", languages: { en: "/", fr: "/fr" } },
   openGraph: {
     images: [SHARE_IMAGE],
     title: TITLE,
     description: DESCRIPTION,
-    url: PAGE_PATH,
+    url: "/fr",
     siteName: BRAND,
     locale: "fr_FR",
     type: "website",
@@ -161,921 +63,965 @@ export const metadata: Metadata = {
   },
 };
 
-const PAGE_JSONLD = {
-  "@context": "https://schema.org",
-  "@type": "AboutPage",
-  "@id": `${SITE_URL}${PAGE_PATH}#page`,
-  url: `${SITE_URL}${PAGE_PATH}`,
-  name: TITLE,
-  description: DESCRIPTION,
-  inLanguage: "fr-FR",
-  isPartOf: { "@id": `${SITE_URL}/#website` },
-  about: { "@id": `${SITE_URL}/#org` },
-  mainEntity: { "@id": `${SITE_URL}/#org` },
+// Re-render once a day so the "Meet us" block drops events once they are past.
+export const revalidate = 86400;
+
+/* ----- French typography ------------------------------------------------ */
+
+/** A month label opens a line with a capital, and runs on in lower case. */
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const low = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+
+/* ----- Hero ------------------------------------------------------------ */
+
+const HERO_ALT = "Vue aérienne d’un estuaire à marée.";
+
+const heroLandscape = getImageProps({
+  src: "/img/v3/hero-estuary-pp.webp",
+  alt: HERO_ALT,
+  width: 1920,
+  height: 1080,
+  sizes: "100vw",
+  loading: "eager",
+  fetchPriority: "high",
+}).props;
+
+/*
+ * The track over the estuary. The still photograph is the first frame of the
+ * video at every screen size, so both tracks use the video frame and its
+ * centred cover crop, and the line stays on the same ground whether the
+ * photograph or the video is showing. On landscape screens the track stays
+ * in the right part of the frame, clear of the text column down to 1024 px
+ * wide; below that it is hidden. On portrait screens, where the frame is
+ * cropped to its middle, it comes in from the left edge over the bright
+ * sea and stops on the dark flats. The line draws itself once, then the last fix
+ * appears and its dashed bound tightens; the drawing itself lasts under five
+ * seconds. Reduced motion (the global rule strips animations) shows the
+ * finished drawing.
+ */
+type Track = { viewBox: string; d: string; end: { x: number; y: number } };
+const PORTRAIT_TRACK = {
+  viewBox: "0 0 1920 1080",
+  d: "M-40 452 C300 446 640 462 860 540 S960 590 1000 596",
+  end: { x: 1000, y: 596 },
 };
 
-/* ----- Content ------------------------------------------------------- */
+/*
+ * The moving background (see HeroVideo), at every screen size; small or
+ * portrait screens get a lighter 960 px file. The landscape track comes in
+ * from the right edge over the dark flats and stops short of the main
+ * channel, clear of the text column down to 1024 px wide and above the
+ * pause button on very wide screens. The clip plays forward then back,
+ * eased at both turns (the version the founder validated on 01/10), so the
+ * track does not follow any one channel.
+ */
+const HERO_VIDEO = {
+  poster: "/img/v3/hero-estuary-pp.webp",
+  sources: [
+    { src: "/video/hero-estuary-pp.webm", type: "video/webm" },
+    { src: "/video/hero-estuary-pp.mp4", type: "video/mp4" },
+  ],
+  smallSources: [
+    { src: "/video/hero-estuary-pp-960.webm", type: "video/webm" },
+    { src: "/video/hero-estuary-pp-960.mp4", type: "video/mp4" },
+  ],
+};
+const HERO_VIDEO_TRACK = {
+  viewBox: "0 0 1920 1080",
+  d: "M1990 840 C1860 835 1770 800 1700 780 S1600 730 1540 720",
+  end: { x: 1540, y: 720 },
+};
 
-const SECTIONS = [
-  { id: "qui-nous-sommes", label: "Qui nous sommes" },
-  { id: "le-probleme", label: "Le problème" },
-  { id: "ce-que-nous-faisons", label: "Ce que nous faisons" },
-  { id: "le-principe", label: "Le principe" },
-  { id: "ou-nous-en-sommes", label: "Où nous en sommes" },
-  { id: "reconnaissance", label: "Reconnaissance et adhésions" },
-  { id: "contact", label: "Contact" },
-];
+/*
+ * The video is much brighter than the photograph on its left side, under
+ * the text. This veil sits on the video only, on top of the shared scrims,
+ * and is shaped per width so that the text keeps its contrast on the
+ * brightest frames while the sky and the right side stay light. From
+ * 1024 px, a second layer follows the text column rather than the screen,
+ * for the end of the longest title line.
+ */
+const heroInk = (pct: number) => `color-mix(in srgb, var(--background) ${pct}%, transparent)`;
+const HERO_COL = "max(0px, 50% - 36rem)";
+const HERO_TITLE_INK = `linear-gradient(90deg,transparent calc(${HERO_COL} + 30rem),${heroInk(40)} calc(${HERO_COL} + 40rem),${heroInk(40)} calc(${HERO_COL} + 47rem),transparent calc(${HERO_COL} + 58rem))`;
+const heroVeil = (stops: [number, number][], from: number, to: number, extra?: string) => `
+background:${extra ? `${extra},` : ""}linear-gradient(90deg,${stops.map(([a, x]) => `${heroInk(a)} ${x}%`).join(",")});
+-webkit-mask-image:linear-gradient(to bottom,transparent ${from}%,#000 ${to}%);
+mask-image:linear-gradient(to bottom,transparent ${from}%,#000 ${to}%)`;
+const HERO_VEIL_CSS = `
+.sf-hero-veil{${heroVeil([[12, 0], [22, 30], [54, 42], [62, 50], [70, 60], [72, 70], [68, 100]], 10, 35)}}
+@media (min-width:1024px){.sf-hero-veil{${heroVeil([[12, 0], [22, 30], [52, 42], [60, 52], [56, 60], [34, 67], [0, 76]], 4, 28, HERO_TITLE_INK)}}}
+@media (min-width:1280px){.sf-hero-veil{${heroVeil([[12, 0], [18, 30], [44, 40], [50, 50], [26, 57], [0, 68]], 5, 36, HERO_TITLE_INK)}}}
+`;
 
-/** Counts written out in words in running text, as French style wants. */
-const EN_LETTRES: Record<number, string> = { 16: "seize", 17: "dix-sept" };
-const enLettres = (n: number) => EN_LETTRES[n] ?? String(n);
+const HERO_CSS = `
+.sf-hero-path{stroke-dasharray:1 1;stroke-dashoffset:0;animation:sf-hero-draw 2.8s cubic-bezier(.65,0,.35,1) .45s both}
+.sf-hero-fix{transform-box:fill-box;transform-origin:center;animation:sf-hero-fix .7s cubic-bezier(.22,1,.36,1) 3.1s both}
+.sf-hero-bound{transform-box:fill-box;transform-origin:center;animation:sf-hero-bound 1.4s cubic-bezier(.22,1,.36,1) 3.3s both}
+.sf-hero-scale{transform-box:fill-box;transform-origin:center}
+.sf-hero-portrait .sf-hero-path{stroke-width:4.4}
+@media (min-width:640px){
+.sf-hero-portrait .sf-hero-path{stroke-width:3}
+.sf-hero-portrait .sf-hero-scale{transform:scale(.7)}
+}
+@media (min-width:768px) and (min-height:480px) and (orientation:landscape) and (prefers-reduced-motion:no-preference){
+.sf-hero-still .sf-hero-path{animation-delay:1.95s}
+.sf-hero-still .sf-hero-fix{animation-delay:4.6s}
+.sf-hero-still .sf-hero-bound{animation-delay:4.8s}
+}
+.sf-hero-still[data-hold] :is(.sf-hero-path,.sf-hero-fix,.sf-hero-bound){animation-play-state:paused}
+@keyframes sf-hero-draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes sf-hero-fix{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+@keyframes sf-hero-bound{from{transform:scale(1.6)}to{transform:none}}
+${HERO_VEIL_CSS}`;
 
-/** Split of the patent count, as in PATENT_DETAIL; printed only while it adds up. */
-const PATENTS_UK = 16;
-const PATENTS_FRANCE = 1;
-const PATENT_SPLIT =
-  PATENTS_UK + PATENTS_FRANCE === PATENT_APPLICATIONS
-    ? ` : ${enLettres(PATENTS_UK)} demandes provisoires au Royaume-Uni et une en France`
-    : "";
-const PATENTS_SENTENCE = `${cap(enLettres(PATENT_APPLICATIONS))} demandes de brevet déposées en 2026${PATENT_SPLIT}.`;
+function HeroTrack({
+  track,
+  stroke,
+  dot,
+  bound,
+  dash,
+  className,
+}: {
+  track: Track;
+  stroke: number;
+  dot: number;
+  bound: number;
+  dash: string;
+  className: string;
+}) {
+  const { x, y } = track.end;
+  return (
+    <svg
+      viewBox={track.viewBox}
+      preserveAspectRatio="xMidYMid slice"
+      className={`absolute inset-0 h-full w-full ${className}`}
+      aria-hidden
+      focusable="false"
+    >
+      <path
+        className="sf-hero-path"
+        d={track.d}
+        pathLength={1}
+        fill="none"
+        stroke="var(--accent)"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+      />
+      <g className="sf-hero-scale">
+        <g className="sf-hero-fix">
+          <circle
+            className="sf-hero-bound"
+            cx={x}
+            cy={y}
+            r={bound}
+            fill="var(--accent)"
+            fillOpacity={0.1}
+            stroke="var(--accent)"
+            strokeWidth={stroke * 0.8}
+            strokeDasharray={dash}
+          />
+          <circle cx={x} cy={y} r={dot} fill="var(--accent)" />
+        </g>
+      </g>
+    </svg>
+  );
+}
 
-const KEY_FACTS = [
-  { k: "Société", v: `${LEGAL_NAME}, immatriculée le ${REGISTERED_FR}` },
-  { k: "Siège", v: ADDRESS.locality },
-  { k: "Première application", v: "La navigation sans GPS" },
-  { k: "Propriété intellectuelle", v: `${PATENT_APPLICATIONS} demandes de brevet déposées en 2026` },
-  { k: "Stade", v: "Prototype mobile conçu, assemblage à financer" },
-];
+function Hero() {
+  return (
+    <section
+      aria-labelledby="hero-title"
+      className="cinema relative isolate flex flex-col overflow-hidden min-h-[calc(100svh-4rem)] landscape:justify-end"
+    >
+      <style href="sf-hero" precedence="default">
+        {HERO_CSS}
+      </style>
 
-const PROBLEM_POINTS = [
+      {/* Photograph, video, track and scrims. Portrait screens stack the
+          photograph above the text; landscape screens set the text over its
+          left side. */}
+      <div className="relative portrait:flex-1 portrait:min-h-[16rem] landscape:absolute landscape:inset-0">
+        <div className="duotone" style={{ position: "absolute", inset: 0 }}>
+          <img {...heroLandscape} alt={HERO_ALT} className="absolute inset-0 h-full w-full object-cover" />
+        </div>
+
+        <HeroVideo
+          sources={HERO_VIDEO.sources}
+          smallSources={HERO_VIDEO.smallSources}
+          poster={HERO_VIDEO.poster}
+          veilClassName=""
+          still={null}
+          track={null}
+        />
+        {/* The still frame is the first frame of the video: one veil and one
+            track serve both, so nothing changes when the video takes over. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 sf-hero-veil hidden [@media(min-width:768px)_and_(orientation:landscape)]:block"
+        />
+        <HeroTrack
+          track={HERO_VIDEO_TRACK}
+          stroke={2.4}
+          dot={6.5}
+          bound={37}
+          dash="6.5 6.5"
+          className="portrait:hidden max-lg:hidden [@media(max-height:479px)]:hidden"
+        />
+        <HeroTrack
+          track={PORTRAIT_TRACK}
+          stroke={4.4}
+          dot={10}
+          bound={52}
+          dash="9 9"
+          className="sf-hero-portrait landscape:hidden"
+        />
+
+        <div
+          aria-hidden
+          className="absolute inset-0 portrait:hidden"
+          style={{
+            background:
+              "linear-gradient(90deg, color-mix(in srgb, var(--background) 90%, transparent) 0%, color-mix(in srgb, var(--background) 82%, transparent) 30%, color-mix(in srgb, var(--background) 55%, transparent) 48%, color-mix(in srgb, var(--background) 18%, transparent) 64%, transparent 80%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-1/4 portrait:hidden"
+          style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-3/5 landscape:hidden"
+          style={{
+            background:
+              "linear-gradient(to top, var(--background) 0%, color-mix(in srgb, var(--background) 72%, transparent) 30%, transparent 100%)",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 md:px-8 portrait:-mt-20 portrait:pb-14 landscape:pt-28 landscape:pb-16 lg:landscape:pb-24">
+        <div className="max-w-[44rem]">
+          <h1 id="hero-title" className="display hero-rise">
+            <span
+              className="block text-[clamp(2.1rem,9.4vw,2.5rem)] leading-[1.02] sm:text-[3.6rem] lg:text-[5.2rem]"
+              style={{ color: "var(--text-primary)" }}
+            >
+              Capteurs quantiques à diamant.
+            </span>
+            <span
+              className="block font-normal tracking-[-0.02em] text-[1.5rem] leading-[1.15] mt-2 sm:text-[2rem] sm:mt-3 lg:text-[2.75rem]"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              D’abord, une navigation fiable sans GPS.
+            </span>
+          </h1>
+          <p
+            className="hero-rise text-[1.0625rem] md:text-lg leading-relaxed max-w-[34rem] mt-6 md:mt-8"
+            style={{ color: "var(--text-secondary)", animationDelay: "160ms" }}
+          >
+            Nous lisons le champ magnétique de la Terre avec des défauts atomiques du diamant, et nous
+            rendons une position avec une borne d’erreur garantie.
+          </p>
+          <div
+            className="hero-rise flex flex-wrap items-center gap-x-7 gap-y-4 mt-8 md:mt-10"
+            style={{ animationDelay: "280ms" }}
+          >
+            <Link href="/instrument" hrefLang="en" className="btn-primary">
+              Piloter une mission (en anglais) <span aria-hidden>→</span>
+            </Link>
+            <Link href="/fr/applications/navigation" className="textlink">
+              Voir le fonctionnement <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----- The problem ------------------------------------------------------ */
+
+type HomeSituation = {
+  title: string;
+  text: string;
+  src: string;
+  alt: string;
+  clip?: { poster: string; sources: { src: string; type: string }[] };
+};
+
+const SITUATIONS: HomeSituation[] = [
   {
-    t: "Brouillé ou leurré",
-    d: "Le brouillage noie le signal des satellites. Le leurrage le remplace par un faux signal, qui peut paraître parfaitement sain.",
+    title: "Dans les airs",
+    text: "Chaque jour, des avions traversent des zones de brouillage et de leurrage. Les équipages ont besoin de savoir jusqu’où se fier à la position affichée sur leurs écrans.",
+    src: "/img/v3/air.webp",
+    alt: "Un avion de ligne au-dessus d’une couche de nuages.",
+    clip: { poster: "/video/situations/air-v4-poster.webp", sources: [{ src: "/video/situations/air-v4.webm", type: "video/webm" }, { src: "/video/situations/air-v4.mp4", type: "video/mp4" }] },
   },
   {
-    t: "La centrale inertielle dérive",
-    d: "Privé de satellites, le véhicule se replie sur sa centrale inertielle, dont l'erreur grandit avec le temps, sans plus rien pour la corriger.",
+    title: "En mer et au port",
+    text: "Les navires, et les drones qui surveillent les ports et les côtes, dépendent du positionnement par satellite. Quand il fait défaut, il leur faut une référence qu’ils emportent avec eux.",
+    src: "/img/v3/port-drone.webp",
+    alt: "Un navire de recherche qui traverse la pleine mer, vu du dessus.",
+    clip: { poster: "/video/situations/sea-v3-poster.webp", sources: [{ src: "/video/situations/sea-v3.webm", type: "video/webm" }, { src: "/video/situations/sea-v3.mp4", type: "video/mp4" }] },
   },
   {
-    t: "Aucune mesure de l'erreur",
-    d: "Sous leurrage, le récepteur peut afficher une position fausse sans alerte. La centrale estime sa propre dérive, mais aucune mesure extérieure ne vient la vérifier.",
+    title: "Dans l’espace",
+    text: "En orbite, on ne peut pas toujours compter sur le positionnement par satellite. Autour de Mars, il n’y en a aucun : un engin spatial doit déterminer seul où il se trouve.",
+    src: "/img/v3/smallsat.webp",
+    alt: "Illustration d’un petit satellite en orbite au-dessus de la Terre.",
+    clip: { poster: "/video/situations/space-v4-poster.webp", sources: [{ src: "/video/situations/space-v4.webm", type: "video/webm" }, { src: "/video/situations/space-v4.mp4", type: "video/mp4" }] },
   },
 ];
 
-/** Third-party context figures, in French, keyed to the sources in facts.ts. */
-const FIGURES = [
+/**
+ * Two third-party figures, each printed with its source. `text` keeps to
+ * the source's own terms and period; it was checked against the document.
+ */
+type Figure = { id: string; big: string; text: string };
+
+const FIGURES: Figure[] = [
   {
     id: "iata-2025-safety-report",
-    value: "+193 %",
-    text: "de cas de leurrage GPS signalés en 2025 par rapport à 2023. Les cas de brouillage signalés ont augmenté de 67 %.",
-    date: "9 mars 2026",
+    big: "+193 %",
+    text: "Les cas de brouillage signalés ont augmenté de 67 % en 2025 par rapport à 2023, et les cas de leurrage GPS signalés de 193 %.",
   },
   {
     id: "opsgroup-2024",
-    value: "1 500",
-    text: "vols leurrés par jour en août 2024, contre environ 300 en janvier.",
-    date: "6 septembre 2024",
+    big: "1 500",
+    text: "En août 2024, environ 1 500 vols par jour étaient leurrés, contre environ 300 en janvier.",
   },
 ];
 
-const STEPS = [
+const FIGURE_SOURCES = FIGURES.map((f) => ({ ...f, source: getSource(f.id) })).filter(
+  (f): f is Figure & { source: ContextSource } => !!f.source
+);
+
+/* ----- How it works ----------------------------------------------------- */
+
+const NAV_STEPS = [
   {
     n: "01",
     t: "Mesurer",
-    d: "Le capteur à diamant lit le champ magnétique de la Terre sous la forme d'un vecteur complet, à température ambiante.",
+    d: "Des capteurs à diamant lisent le champ magnétique de la Terre. La croûte terrestre y ajoute une empreinte qui change d’un endroit à l’autre et que cartographient les levés magnétiques. Passif : l’instrument lit le champ propre de la Terre et n’a besoin d’aucun signal extérieur.",
   },
   {
     n: "02",
     t: "Rejeter",
-    d: "Le véhicule porte son propre champ magnétique : moteurs, courants, acier. L'instrument le rejette à bord.",
+    d: "Moteurs, courants et acier donnent à chaque véhicule son propre champ magnétique. L’instrument est conçu pour rejeter à bord, en temps réel, le champ magnétique propre de la plateforme.",
   },
   {
     n: "03",
     t: "Recaler",
-    d: "La mesure ainsi nettoyée est comparée à une carte des anomalies magnétiques. Ce recalage corrige la dérive de la centrale inertielle.",
+    d: "La mesure ainsi nettoyée est comparée à la carte magnétique de la zone pour recaler la position.",
   },
   {
     n: "04",
     t: "Borner",
-    d: "Chaque position vient avec sa borne d'erreur. Entre deux recalages, la centrale porte la position et la borne s'élargit.",
+    d: "Chaque recalage vient avec sa borne d’erreur, pour que le système de navigation sache jusqu’où s’y fier.",
   },
 ];
 
-const POINTS = [
+/* ----- Why diamond: the four crystal axes -------------------------------- */
+
+const DIAMOND_POINTS = [
   {
-    t: "Il complète la centrale inertielle",
-    d: "Il ne la remplace pas. La centrale donne une estimation continue ; chaque recalage magnétique ramène sa dérive.",
+    t: "Température ambiante.",
+    d: "Ni cryogénie, ni chauffage, ni consommable.",
   },
   {
-    t: "Passif",
-    d: "Il lit le champ propre de la Terre et n'a besoin d'aucun signal extérieur. Une source magnétique placée à proximité peut perturber un magnétomètre : l'instrument est conçu pour le détecter et le dire.",
+    t: "Tient sur la plateforme.",
+    d: "Le diamant est un cristal dur et stable. Le capteur est conçu pour les vibrations et les chocs d’un véhicule en mouvement.",
   },
   {
-    t: "Une borne déclarée",
-    d: "La borne est déclarée par l'instrument lui-même. La certification viendra avec un programme, sur la plateforme qui le porte.",
+    t: "Quatre axes cristallins.",
+    d: "Le vecteur vient du réseau : les centres NV s’alignent sur les quatre directions de liaison du cristal, et ensemble ils donnent la direction du champ en plus de son intensité.",
   },
 ];
 
-const OFFERS = [
+
+
+/* ----- The Instrument: mission profiles, in neutral order --------------- */
+
+const MISSION_PROFILES: { key: ProfileKey; kicker: string; title: string; text: string }[] = [
   {
-    t: "Des programmes",
-    d: "Nous proposons aux intégrateurs de navigation et aux maîtres d'œuvre de développer l'instrument pour une plateforme et une mission données, dans le cadre de leurs programmes.",
+    key: "geo",
+    kicker: "Levés et prospection",
+    title: "Levé aéroporté",
+    text: "Pilotez une ligne de levé magnétique qui garde sa position sans navigation par satellite.",
   },
   {
-    t: "Des études de faisabilité et d'intégration",
-    d: "Nous étudions, en simulation et avant tout matériel, si la navigation magnétique peut fonctionner sur votre plateforme, au-dessus de votre zone et pour votre profil de mission.",
+    key: "defence",
+    kicker: "Dans les airs",
+    title: "Vol sans GPS",
+    text: "Pilotez un tronçon de vol sous brouillage du positionnement par satellite, puis injectez des pannes dans votre propre instrument.",
   },
   {
-    t: "Des sessions de simulation expertes",
-    d: "Votre mission jouée de bout en bout dans notre simulation. Celle-ci est encore en cours de calibration : elle sert à comparer des options, pas à promettre un chiffre.",
+    key: "space",
+    kicker: "Dans l’espace",
+    title: "Éclaireur martien",
+    text: "Pilotez un éclaireur au-dessus de Mars, où il n’existe aucune navigation par satellite.",
   },
 ];
 
-const PRINCIPLE = [
-  {
-    n: "01",
-    t: "La Terre a une empreinte",
-    d: "Les roches magnétiques du sous-sol déforment le champ terrestre, un peu différemment partout. Une partie de ce relief est cartographiée, souvent depuis des décennies.",
-  },
-  {
-    n: "02",
-    t: "Une résonance, lue à la lumière",
-    d: "Le centre NV, un défaut du diamant, porte un spin qui résonne dans un champ magnétique, comme dans une IRM. Éclairé en vert, il brille en rouge, et cette lueur baisse à des fréquences micro-ondes que le champ déplace. La position de ces creux donne le champ.",
-  },
-  {
-    n: "03",
-    t: "Un spin qui garde la cadence",
-    d: "Comme une toupie, le spin tourne autour du champ, à un rythme que le champ impose. Garder cette cadence s'appelle la cohérence : plus elle dure, plus la mesure est fine.",
-  },
-];
+/* ----- Where we stand --------------------------------------------------- */
 
-const WHY_DIAMOND = [
-  "Température ambiante, sans refroidissement ni consommable.",
-  "Un cristal solide, qui tient sur le véhicule.",
-  "Quatre axes cristallins : le vecteur vient du réseau.",
-];
-
-/* ----- Where we stand ------------------------------------------------ */
-
-type Status = "done" | "now" | "next";
-
-type Milestone = {
-  status: Status;
-  when: string;
-  dateTime?: string;
-  title: ReactNode;
-  body?: string;
-  link?: { href: string; label: string };
-};
+type Milestone = { date: string; title: string; text: string; state: "done" | "now" | "next" };
 
 const MILESTONES: Milestone[] = [
   {
-    status: "done",
-    when: "Avril 2026",
-    dateTime: "2026-04",
-    title: fr(`${LEGAL_NAME} immatriculée`),
+    date: REGISTERED_LABEL,
+    title: "Société immatriculée",
+    text: `${LEGAL_NAME}, ${ADDRESS.locality}, ${ADDRESS.country}.`,
+    state: "done",
   },
   {
-    status: "done",
-    when: "Juin 2026",
-    dateTime: "2026-06",
-    title: "Simulation de navigation mise en service",
-    body: "Notre capteur, tel que conçu, effectue des missions complètes en simulation, du relief magnétique jusqu'au filtre de navigation. La simulation reste à calibrer sur le matériel, et tous les résultats sont issus du modèle.",
+    date: "Juillet 2026",
+    title: "Missions de démonstration ouvertes à tous",
+    text: "Une mission complète dans le navigateur, chaque chiffre issu du modèle.",
+    state: "done",
   },
   {
-    status: "done",
-    when: "Juin 2026",
-    dateTime: "2026-06",
-    title: (
-      <>
-        Membre de <span lang="en">NVIDIA Inception</span> et du programme{" "}
-        <span lang="en">Google for Startups Cloud</span>
-      </>
-    ),
+    date: "Juillet 2026",
+    title: "Qualification Deeptech",
+    text: "Qualifiée Deeptech par Bpifrance.",
+    state: "done",
   },
   {
-    status: "done",
-    when: "Juillet 2026",
-    dateTime: "2026-07",
-    title: "Démonstrations de mission ouvertes à tous",
-    body: "Chacun peut lancer une mission dans son navigateur, sans créer de compte.",
-    link: { href: "/instrument", label: "Essayer une mission" },
+    date: "Septembre 2026",
+    title: "Dix-septième demande de brevet",
+    text: PATENT_DETAIL,
+    state: "done",
   },
   {
-    status: "done",
-    when: "Juillet 2026",
-    dateTime: "2026-07",
-    title: "Qualifiée Deeptech par Bpifrance",
+    date: cap(FACTS_AS_OF),
+    title: "Prototype conçu",
+    text: STAGE_LINE,
+    state: "now",
   },
   {
-    status: "done",
-    when: "Septembre 2026",
-    dateTime: "2026-09",
-    title: "Dix-septième demande de brevet, déposée en France",
-    body: `${PATENTS_SENTENCE} Leur contenu n'est pas public.`,
-  },
-  {
-    status: "now",
-    when: cap(AS_OF_FR),
-    dateTime: monthYearIso(FACTS_AS_OF),
-    title: "Premier prototype mobile conçu",
-    body: "Son assemblage commence dès que son financement est confirmé.",
-  },
-  {
-    status: "next",
-    when: "Ensuite",
-    title: "Assemblage et premiers essais",
-    body: "Premières mesures sur le prototype assemblé, puis essais en mouvement.",
+    date: "Ensuite",
+    title: "Assemblage, puis premières mesures",
+    text: "Assemblage du premier prototype mobile, puis ses premières mesures.",
+    state: "next",
   },
 ];
 
-const STATUS_LABEL: Record<Status, string> = {
-  done: "Fait",
-  now: "Maintenant",
-  next: "À venir",
-};
-
-function Dot({ status }: { status: Status }) {
-  const base = "absolute left-0 top-[0.3rem] block h-[11px] w-[11px] rounded-full";
-  if (status === "now") {
+function MilestoneDot({ state }: { state: Milestone["state"] }) {
+  if (state === "now") {
     return (
       <span
         aria-hidden
-        className={base}
+        className="absolute left-0 top-[3px] xl:top-0 h-[11px] w-[11px] rounded-full"
         style={{ background: "var(--accent)", boxShadow: "0 0 0 4px var(--accent-soft)" }}
       />
     );
   }
-  if (status === "next") {
+  if (state === "next") {
     return (
       <span
         aria-hidden
-        className={base}
-        style={{ background: "var(--background)", border: "1.5px dashed var(--border-strong)" }}
+        className="absolute left-0 top-[3px] xl:top-0 h-[11px] w-[11px] rounded-full border border-dashed"
+        style={{ borderColor: "var(--accent)", background: "var(--background)" }}
       />
     );
   }
-  return <span aria-hidden className={base} style={{ background: "var(--text-primary)" }} />;
-}
-
-/* ----- Recognition and memberships ----------------------------------- */
-
-const KIND_FR: Record<SupporterKind, string> = {
-  Recognised: "Qualification",
-  "Pre-incubated at": "Pré-incubation",
-  "Member of": "Adhésions",
-  "Selected for": "Sélection",
-};
-
-/** French wording of each entry in supporters.ts, keyed by name. */
-const STATEMENT_FR: Record<string, ReactNode> = {
-  Bpifrance: "Qualifiée Deeptech par Bpifrance",
-  "Incubateur Provence Côte d'Azur": "Pré-incubée à l'Incubateur Provence Côte d'Azur",
-  QuIC: (
-    <>
-      Membre de QuIC, le consortium européen de l&apos;industrie quantique (<span lang="en">European Quantum Industry Consortium</span>)
-    </>
-  ),
-  "NVIDIA Inception": (
-    <>
-      Membre de <span lang="en">NVIDIA Inception</span>
-    </>
-  ),
-  "Google for Startups Cloud Program": (
-    <>
-      Membre du programme <span lang="en">Google for Startups Cloud</span>
-    </>
-  ),
-  "Tech Tour Quantum & Defence 2026": (
-    <>
-      Sélectionnée pour présenter son projet au{" "}
-      <span lang="en">Tech Tour Quantum &amp; Defence 2026</span>, à Berlin
-    </>
-  ),
-};
-
-const LOGO_ALT_FR: Record<string, string> = {
-  "NVIDIA Inception": "Membre de NVIDIA Inception",
-};
-
-function sinceFr(s: Supporter): string | null {
-  if (!s.since) return null;
-  const m = monthYearFr(s.since);
-  return s.kind === "Selected for" ? cap(m) : `Depuis ${m}`;
-}
-
-/* ----- Events -------------------------------------------------------- */
-
-const ROLE_FR: Record<EventRole, string> = {
-  Pitching: "Nous y présentons Spectral Flow.",
-  Attending: "Nous y serons.",
-  Speaking: "Nous y intervenons.",
-  Exhibiting: "Nous y exposons.",
-};
-
-const COUNTRY_FR: Record<string, string> = {
-  Germany: "Allemagne",
-  France: "France",
-};
-
-/** Event names already in French; the others are marked as English. */
-const EVENT_NAME_FR = new Set(["rencontres-du-spatial-region-sud-2026"]);
-
-/* ----- Small parts --------------------------------------------------- */
-
-function Point({ t, d }: { t: string; d: string }) {
   return (
-    <div className="hairline pt-6 h-full">
-      <h3 className="font-semibold mb-2.5" style={{ color: "var(--text-primary)" }}>
-        {fr(t)}
-      </h3>
-      <Body>{fr(d)}</Body>
-    </div>
+    <span
+      aria-hidden
+      className="absolute left-[1px] top-[4px] xl:top-[1px] h-[9px] w-[9px] rounded-full"
+      style={{ background: "var(--text-primary)" }}
+    />
   );
 }
 
-function SourceFr({ source, date }: { source: ContextSource; date: string }) {
+function Timeline() {
   return (
-    <p className="source-note mt-4">
-      {fr(`Source : ${source.org}, ${date}, `)}
-      <a href={source.href} target="_blank" rel="noopener noreferrer" hrefLang="en">
-        {`«${NBSP}`}
-        <span lang="en">{source.title}</span>
-        {`${NBSP}»`}
-        <span aria-hidden> ↗</span>
-        <span className="sr-only">{fr(" (en anglais, s'ouvre dans un nouvel onglet)")}</span>
-      </a>
-      .
-    </p>
+    // Vertical below 1280 px, so that each milestone keeps a readable
+    // measure; six columns from there up.
+    <ol className="grid grid-cols-1 max-w-2xl xl:max-w-none xl:grid-cols-6 gap-x-6">
+      {MILESTONES.map((m, i) => {
+        const last = i === MILESTONES.length - 1;
+        // The segment that leads to the next milestone is dashed when that
+        // milestone is still ahead.
+        const rail = `1px ${MILESTONES[i + 1]?.state === "next" ? "dashed" : "solid"} var(--border-strong)`;
+        return (
+          <li key={`${m.date}-${m.title}`} className="relative pl-8 pb-9 xl:pl-0 xl:pb-0 xl:pt-9 xl:pr-2">
+            {!last && (
+              <>
+                <span
+                  aria-hidden
+                  className="absolute left-[5px] top-4 bottom-0 xl:hidden"
+                  style={{ borderLeft: rail }}
+                />
+                <span
+                  aria-hidden
+                  className="absolute hidden xl:block left-4 -right-6 top-[5px]"
+                  style={{ borderTop: rail }}
+                />
+              </>
+            )}
+            <MilestoneDot state={m.state} />
+            <p className="figure-label is-plain" style={m.state === "now" ? { color: "var(--accent)" } : undefined}>
+              {m.state === "now" ? `${m.date} · Maintenant` : m.date}
+            </p>
+            <p className="font-semibold mt-1.5 leading-snug" style={{ color: "var(--text-primary)" }}>
+              {m.title}
+            </p>
+            <p className="text-sm leading-6 mt-1.5" style={{ color: "var(--muted)" }}>
+              {m.text}
+            </p>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
-/* ----- Page ---------------------------------------------------------- */
+/* ----- One platform ----------------------------------------------------- */
 
-export default function EnBref() {
-  const figures = FIGURES.map((f) => ({ ...f, source: getSource(f.id) })).filter(
-    (f): f is (typeof FIGURES)[number] & { source: ContextSource } => !!f.source
-  );
-  const events = upcomingEvents(todayISO());
+/**
+ * The applications of the "Applications" menu section (lib/nav.ts), in its
+ * order, worded in French here. Only navigation has a French page; the
+ * others link to their English page.
+ */
+const PLATFORM: { label: string; href: string; blurb?: string; slug: string; en?: boolean }[] = [
+  {
+    label: "Navigation",
+    href: "/fr/applications/navigation",
+    blurb: "Un positionnement fiable sans GPS.",
+    slug: "navigation",
+  },
+  {
+    label: "Sciences du vivant",
+    href: "/applications/life-sciences",
+    blurb: "La résonance magnétique sur de petits échantillons, et la signature magnétique des cellules.",
+    slug: "life-sciences",
+    en: true,
+  },
+  {
+    label: "Semi-conducteurs et industrie",
+    href: "/applications/semiconductors",
+    blurb: "Chemins de courant et défauts enfouis, vus par leur champ magnétique.",
+    slug: "semiconductors",
+    en: true,
+  },
+  {
+    label: "Informatique quantique",
+    href: "/applications/quantum-computing",
+    blurb: "Le contrôle des spins à température ambiante.",
+    slug: "quantum-computing",
+    en: true,
+  },
+];
+
+/* ----- Page ------------------------------------------------------------- */
+
+export default function Accueil() {
+  const today = todayISO();
+  const posts = latestPosts(3);
+  const events = upcomingEvents(today).slice(0, 3);
 
   return (
     <main lang="fr">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(PAGE_JSONLD) }}
-      />
+      <Hero />
 
-      {/* ============================ HERO ============================ */}
-      <section>
-        <div className="max-w-6xl mx-auto px-6 md:px-8 pt-20 md:pt-28 pb-14 md:pb-20">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
-            <div>
-              <div className="hero-rise">
-                <Eyebrow>{fr(`${BRAND} en bref`)}</Eyebrow>
-                <h1
-                  className="display text-[2.5rem] leading-[1.05] sm:text-6xl lg:text-[4.1rem] font-semibold tracking-tight"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  Capteurs quantiques à diamant.
-                  <span
-                    className="block mt-2 font-medium"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {fr("D'abord, une navigation fiable sans GPS.")}
-                  </span>
-                </h1>
-              </div>
-              <div className="hero-rise" style={{ animationDelay: "140ms" }}>
-                <Lead className="max-w-xl mt-7">
-                  {fr(
-                    "Nous lisons le champ magnétique de la Terre avec des défauts atomiques du diamant, et nous rendons une position avec une borne d'erreur garantie."
-                  )}
-                </Lead>
-                <Body className="max-w-xl mt-4">
-                  {fr(
-                    `${BRAND} est une société française, installée à ${ADDRESS.locality}. Cette page résume qui nous sommes, le problème que nous traitons et où nous en sommes. Le reste du site est en anglais.`
-                  )}
-                </Body>
-              </div>
-              <div
-                className="hero-rise flex flex-wrap gap-3 mt-9"
-                style={{ animationDelay: "260ms" }}
-              >
-                <a href="#contact" className="btn-primary">
-                  {fr("Nous écrire")} <span aria-hidden>→</span>
-                </a>
-                <Link href="/instrument" hrefLang="en" className="btn-ghost">
-                  Essayer une mission
-                  <span className="sr-only">{fr(" (en anglais)")}</span>
-                </Link>
-              </div>
-            </div>
-
-            <figure className="hero-rise" style={{ animationDelay: "200ms" }}>
-              <div
-                className="relative overflow-hidden rounded-[var(--radius)]"
-                style={{
-                  aspectRatio: "4/3",
-                  border: "1px solid var(--border)",
-                  background: "var(--background)",
-                }}
-              >
-                <Image
-                  src="/img/v3/relief.webp"
-                  alt={fr("Courbes de niveau tracées à l'encre, traversées par un trait bleu.")}
-                  fill
-                  preload
-                  sizes="(min-width: 1024px) 40vw, 100vw"
-                  className="object-cover"
-                  style={{ objectPosition: "60% 55%" }}
-                />
-              </div>
-              <figcaption className="figure-label is-plain mt-3">
-                {fr("Illustration : un relief magnétique, et une route qui le traverse.")}
-              </figcaption>
-            </figure>
-          </div>
-
-          {/* Key facts */}
-          <div className="hairline mt-14 pt-8">
-            <p className="figure-label is-plain mb-5">{fr(`Situation en ${AS_OF_FR}`)}</p>
-            <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-8 gap-y-6">
-              {KEY_FACTS.map((f) => (
-                <div key={f.k}>
-                  <dt className="figure-label">{fr(f.k)}</dt>
-                  <dd
-                    className="text-[15px] leading-6 mt-1.5"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {fr(f.v)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </div>
-      </section>
-
-      {/* On this page */}
-      <nav aria-label="Sur cette page" className="hairline">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 py-5">
-          <ul className="flex flex-wrap gap-x-6 gap-y-2">
-            {SECTIONS.map((s) => (
-              <li key={s.id}>
-                <a
-                  href={`#${s.id}`}
-                  className="text-sm transition-colors text-[var(--muted)] hover:text-[var(--text-primary)]"
-                >
-                  {fr(s.label)}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
-
-      {/* ======================= QUI NOUS SOMMES ======================= */}
-      <Prose id="qui-nous-sommes">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-          <Reveal>
-            <Eyebrow>Qui nous sommes</Eyebrow>
-            <H2 className="mb-6">
-              {fr("Partis du capteur, nous avons cherché où il valait le plus : la navigation.")}
-            </H2>
-            <Lead>
-              {fr(
-                `${BRAND} conçoit des capteurs quantiques fondés sur les centres NV du diamant. Un centre NV est un défaut du cristal : un atome d'azote placé à côté d'une lacune, c'est-à-dire d'un atome de carbone manquant. On l'interroge avec de la lumière. Il fonctionne à température ambiante.`
-              )}
-            </Lead>
-          </Reveal>
-          <Reveal delay={100}>
-            <Body className="mb-4">
-              {fr(
-                "Nous commençons par la navigation : un instrument conçu pour lire le champ magnétique de la Terre et rendre chaque position avec sa borne d'erreur. Le même cœur de mesure peut servir d'autres instruments, qui suivront chacun à son rythme."
-              )}
-            </Body>
-            <Body>
-              {fr(
-                "Nous concevons la tête de mesure, l'électronique et le logiciel ; nous achetons la matière et les composants ; nous confions la fabrication à des partenaires spécialisés."
-              )}
-            </Body>
-          </Reveal>
-        </div>
-
-        {/* Founder */}
+      {/* ========================= THE PROBLEM ========================= */}
+      <Cinema id="problem">
         <Reveal>
-          <div className="hairline mt-14 pt-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 md:gap-12 items-start">
-            <div>
-              <DuotonePhoto
-                src="/founder-alexandre-papa.jpg"
-                alt={`${FOUNDER.name}, fondateur de ${BRAND}`}
-                width={170}
-                height={170}
-                sizes="176px"
-                className="w-40 md:w-44"
-              />
-              <h3 className="font-semibold mt-4" style={{ color: "var(--text-primary)" }}>
-                {FOUNDER.name}
-              </h3>
-              <p className="figure-label is-plain mt-1">{fr("Fondateur et président")}</p>
-            </div>
-            <div className="max-w-2xl">
-              <Body className="mb-4">
-                {fr(
-                  `${FOUNDER.name} a fondé ${BRAND} à ${ADDRESS.locality}. Il a passé vingt-cinq ans dans la finance et les opérations : adjoint au directeur financier d'un groupe de 11 000 personnes, puis directeur financier de transition de sociétés plus petites. Ce parcours lui a appris que les problèmes les plus difficiles se logent aux frontières entre disciplines.`
-                )}
-              </Body>
-              <Body className="mb-4">
-                {fr(
-                  `En novembre 2025, il lit ses premiers articles sur les capteurs quantiques à diamant. Il ne se demande pas ce que ces capteurs savent faire, mais où ils valent le plus. La réponse est la navigation. ${LEGAL_NAME} est immatriculée le ${REGISTERED_FR}.`
-                )}
-              </Body>
-              <Body>
-                {fr(
-                  "Sa règle vient de l'histoire de l'aviation : pas de Concorde. Chaque instrument doit aussi avoir un sens économique."
-                )}
-              </Body>
-            </div>
-          </div>
-        </Reveal>
-
-        {/* Research laboratories */}
-        <Reveal>
-          <div className="hairline mt-10 pt-8 grid grid-cols-1 md:grid-cols-[0.6fr_1.4fr] gap-3 md:gap-12">
-            <h3 className="eyebrow">Laboratoires de recherche</h3>
-            <Body className="max-w-2xl">
-              {fr(
-                "Nous travaillons avec les meilleurs laboratoires de recherche européens, en croissance et nanofabrication du diamant, en photonique et en physique du spin. Leurs noms sont communiqués sur demande."
-              )}
-            </Body>
-          </div>
-        </Reveal>
-      </Prose>
-
-      {/* ========================= LE PROBLÈME ========================= */}
-      <Cinema id="le-probleme">
-        <Reveal>
-          <Eyebrow>{fr("Le problème")}</Eyebrow>
+          <Eyebrow>Le problème</Eyebrow>
           <H2 className="max-w-4xl mb-6">
-            {fr("Là où le GPS lâche, personne ne sait dire de combien la position est fausse.")}
+            Là où le GPS lâche, personne ne sait dire de combien la position est fausse.
           </H2>
           <Lead className="max-w-3xl">
-            {fr(
-              "Le brouillage et le leurrage du GPS et des autres systèmes de positionnement par satellite (GNSS) sont devenus quotidiens dans plusieurs régions du monde. Le besoin est le même pour les levés et la prospection, en mer, dans les airs et dans l'espace : partout où le positionnement par satellite manque ou n'est pas digne de confiance."
-            )}
+            Le brouillage et le leurrage de la navigation par satellite sont en hausse. Quand le signal
+            est perdu, la centrale inertielle continue seule et dérive. Quand il est leurré, le récepteur
+            peut suivre une fausse position.
           </Lead>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6 mt-12">
-          {PROBLEM_POINTS.map((p, i) => (
-            <Reveal key={p.t} delay={i * 80}>
-              <Point t={p.t} d={p.d} />
+        <ul className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 mt-14">
+          {SITUATIONS.map((s, i) => (
+            <Reveal key={s.title} as="li" delay={i * 90}>
+              {/* a clip only where it loops cleanly; a still photograph otherwise */}
+              {s.clip ? (
+                <DuotoneClip
+                  poster={s.clip.poster}
+                  sources={s.clip.sources}
+                  alt={s.alt}
+                  aspect="4/3"
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                />
+              ) : (
+                <DuotonePhoto src={s.src} alt={s.alt} aspect="4/3" sizes="(min-width: 768px) 33vw, 100vw" />
+              )}
+              <h3 className="text-lg font-semibold display mt-5" style={{ color: "var(--text-primary)" }}>
+                {s.title}
+              </h3>
+              <Body className="mt-2">{s.text}</Body>
             </Reveal>
+          ))}
+        </ul>
+        <p className="figure-label is-plain mt-6">Images d’illustration.</p>
+
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 gap-px mt-14 rounded-[var(--radius)] overflow-hidden"
+          style={{ background: "var(--border)" }}
+        >
+          {FIGURE_SOURCES.map((f) => (
+            <div key={f.id} className="p-7 md:p-9" style={{ background: "var(--background)" }}>
+              <p
+                className="display text-5xl md:text-6xl tabular-nums"
+                style={{ color: "var(--text-primary)" }}
+              >
+                {f.big}
+              </p>
+              <p className="text-[15px] leading-7 mt-4 max-w-md" style={{ color: "var(--text-secondary)" }}>
+                {f.text}
+              </p>
+              <SourceNote source={f.source} lang="fr" className="mt-4 max-w-md" />
+            </div>
           ))}
         </div>
 
-        {figures.length > 0 && (
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-14">
-            {figures.map((f, i) => (
-              <Reveal as="li" key={f.id} delay={i * 100} className="card p-7 md:p-8">
-                <p
-                  className="display text-5xl md:text-6xl tabular-nums"
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {fr(f.value)}
-                </p>
-                <p className="text-[15px] leading-7 mt-3" style={{ color: "var(--text-secondary)" }}>
-                  {fr(f.text)}
-                </p>
-                <SourceFr source={f.source} date={f.date} />
-              </Reveal>
-            ))}
-          </ul>
-        )}
-
-        {/* Today's interference map, live */}
-        <Reveal>
-          <div className="hairline mt-14 pt-10 max-w-3xl">
-            <h3 className="font-semibold text-lg mb-2.5" style={{ color: "var(--text-primary)" }}>
-              {fr("Les interférences du jour")}
-            </h3>
-            <Body>
-              {fr(
-                "La carte ci-dessous est établie chaque jour par GPSJAM, un site tiers en anglais, à partir des données de précision de navigation que transmettent les avions. Elle se charge d'elle-même quand vous approchez de cette section."
-              )}
-            </Body>
+        {/* The daily interference map, live, beside the sentence that turns it
+            towards our question. */}
+        <Reveal className="mt-14">
+          <div className="card relative grid grid-cols-1 md:grid-cols-[1.1fr_1fr] overflow-hidden">
+            <GnssMap variant="compact" locale="fr" />
+            <div className="p-7 md:p-9 flex flex-col justify-center">
+              <p className="eyebrow mb-3">Cartographié chaque jour</p>
+              <p
+                className="text-xl md:text-[1.4rem] leading-snug font-semibold tracking-tight"
+                style={{ color: "var(--text-primary)" }}
+              >
+                La carte montre où des avions ont perdu confiance dans le positionnement par satellite.
+                Elle ne peut pas montrer de combien chaque position était fausse.
+              </p>
+              <p className="text-[15px] leading-7 mt-3" style={{ color: "var(--muted)" }}>
+                C’est la question à laquelle notre instrument est conçu pour répondre.
+              </p>
+              <Link href="/fr/applications/navigation#problem" className="textlink mt-6 self-start">
+                Pourquoi c’est important <span aria-hidden>→</span>
+              </Link>
+              <p className="source-note mt-5">
+                La carte est établie à partir des rapports ADS-B des avions. Données d’un tiers, pas
+                celles de Spectral Flow.
+              </p>
+            </div>
           </div>
-        </Reveal>
-        <Reveal delay={100}>
-          {/* The component prints the argument sentence itself, and hides it
-              when the drawing replaces the live map. */}
-          <GnssMap className="mt-8" locale="fr" />
         </Reveal>
       </Cinema>
 
-      {/* ===================== CE QUE NOUS FAISONS ===================== */}
-      <Prose id="ce-que-nous-faisons">
-        <Reveal>
-          <Eyebrow>Ce que nous faisons</Eyebrow>
-          <H2 className="max-w-4xl mb-6">
-            {fr("Non pas la précision d'un bon jour : l'erreur possible, à l'instant.")}
-          </H2>
-          <Lead className="max-w-3xl">
-            {fr(
-              "Notre instrument est conçu pour lire le champ magnétique de la Terre, le comparer à une carte et rendre chaque position avec sa borne d'erreur."
-            )}
-          </Lead>
-        </Reveal>
-
-        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-12">
-          {STEPS.map((s, i) => (
-            <Reveal as="li" key={s.n} delay={i * 80} className="card p-6 h-full">
-              <p className="figure-label is-plain" aria-hidden>
-                {s.n}
-              </p>
-              <h3 className="font-semibold text-lg mt-3 mb-2" style={{ color: "var(--text-primary)" }}>
-                {fr(s.t)}
-              </h3>
-              <Body>{fr(s.d)}</Body>
-            </Reveal>
-          ))}
-        </ol>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6 mt-14">
-          {POINTS.map((p, i) => (
-            <Reveal key={p.t} delay={i * 80}>
-              <Point t={p.t} d={p.d} />
-            </Reveal>
-          ))}
+      {/* ======================== THE ERROR BOUND ======================== */}
+      <Prose id="bound">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-12 lg:gap-16 items-center">
+          <Reveal>
+            <Eyebrow>La borne d’erreur</Eyebrow>
+            <H2 className="mb-6">
+              Non pas la précision d’un bon jour&nbsp;: l’erreur possible, à l’instant.
+            </H2>
+            <Lead className="mb-4">Chaque recalage vient avec sa borne d’erreur.</Lead>
+            <Body className="max-w-xl">
+              Entre deux recalages magnétiques, la borne s’élargit, et à chaque recalage elle se
+              resserre. L’intégrité passe en premier&nbsp;: l’instrument dit quand ne pas lui faire
+              confiance, pour que le système qu’il alimente puisse décider de la conduite à tenir.
+            </Body>
+            <Link href="/fr/applications/navigation#bound" className="textlink mt-7">
+              En savoir plus sur la borne d’erreur <span aria-hidden>→</span>
+            </Link>
+          </Reveal>
+          <Reveal delay={120}>
+            <div className="plate p-5 md:p-8">
+              <ErrorBound
+                labels={{
+                  others: "Une position seule",
+                  ours: "Une position avec sa borne d’erreur",
+                  truth: "Trajectoire réelle",
+                }}
+                note="Illustration, pas des données."
+                ariaLabel={"Illustration : sur la même trajectoire, une position donnée seule s’éloigne sans rien qui montre son erreur, tandis qu’une position donnée avec sa borne d’erreur reste dans un disque en pointillés qui s’élargit entre deux recalages magnétiques et se resserre à chaque recalage."}
+              />
+            </div>
+          </Reveal>
         </div>
+      </Prose>
 
-        {/* What we offer */}
+      {/* ========================= HOW IT WORKS ========================= */}
+      <Prose id="how">
+        <Steps
+          eyebrow="Le fonctionnement"
+          title="Du champ terrestre à un recalage borné."
+          lead="Quatre étapes, à bord. L’instrument complète la centrale inertielle, il ne la remplace pas."
+          steps={NAV_STEPS}
+        />
         <Reveal>
-          <div className="hairline mt-16 pt-10">
-            <p className="eyebrow mb-3">Ce que nous proposons</p>
-            <h3
-              className="display text-2xl md:text-3xl font-semibold tracking-tight max-w-3xl mb-8"
+          <div className="hairline mt-10 pt-10 grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-5 md:gap-12 items-baseline">
+            <p
+              className="display text-2xl md:text-3xl font-semibold tracking-tight"
               style={{ color: "var(--text-primary)" }}
             >
-              {fr("D'abord un marché de programmes, ensuite des unités.")}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
-              {OFFERS.map((o) => (
-                <div key={o.t}>
-                  <h4 className="font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
-                    {fr(o.t)}
-                  </h4>
-                  <Body>{fr(o.d)}</Body>
-                </div>
-              ))}
-            </div>
-            <p className="mt-9">
-              <Link href="/applications/navigation" hrefLang="en" className="textlink">
-                {fr("La navigation en détail (en anglais)")} <span aria-hidden>→</span>
-              </Link>
+              Ils compensent. Nous mesurons.
             </p>
-          </div>
-        </Reveal>
-      </Prose>
-
-      {/* ========================== LE PRINCIPE ======================== */}
-      <Prose id="le-principe">
-        <Reveal>
-          <Eyebrow>Le principe</Eyebrow>
-          <H2 className="max-w-3xl mb-6">
-            {fr("Lire le champ magnétique avec un défaut du diamant, en trois temps.")}
-          </H2>
-        </Reveal>
-
-        <ol className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-10">
-          {PRINCIPLE.map((p, i) => (
-            <Reveal as="li" key={p.n} delay={i * 80} className="plate p-7 h-full">
-              <p className="figure-label is-plain" aria-hidden>
-                {p.n}
-              </p>
-              <h3 className="font-semibold text-lg mt-3 mb-2" style={{ color: "var(--text-primary)" }}>
-                {fr(p.t)}
-              </h3>
-              <Body>{fr(p.d)}</Body>
-            </Reveal>
-          ))}
-        </ol>
-
-        <Reveal>
-          <div className="hairline mt-14 pt-8 grid grid-cols-1 md:grid-cols-[0.6fr_1.4fr] gap-3 md:gap-12">
-            <h3 className="eyebrow">Pourquoi le diamant</h3>
-            <div>
-              <ul className="flex flex-col gap-2">
-                {WHY_DIAMOND.map((w) => (
-                  <li key={w} className="text-[15px] leading-7" style={{ color: "var(--text-secondary)" }}>
-                    {fr(w)}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-6">
-                <Link href="/technology#principle" hrefLang="en" className="textlink">
-                  {fr("Le principe en détail")} <span aria-hidden>→</span>
-                  <span className="sr-only">{fr(" (en anglais)")}</span>
-                </Link>
-              </p>
-            </div>
-          </div>
-        </Reveal>
-      </Prose>
-
-      {/* ====================== OÙ NOUS EN SOMMES ====================== */}
-      <Prose id="ou-nous-en-sommes">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-start">
-          <Reveal className="lg:sticky lg:top-28">
-            <Eyebrow>{fr("Où nous en sommes")}</Eyebrow>
-            <H2 className="mb-6">{fr("Ce qui est fait, et ce qui vient.")}</H2>
-            <Lead className="mb-5">
-              {fr(
-                "Notre premier prototype mobile est conçu ; son assemblage commence dès que son financement est confirmé."
-              )}
-            </Lead>
-            <Body className="mb-6">
-              {fr(
-                "Toute la chaîne de navigation est jouée de bout en bout en simulation, et chaque résultat que nous montrons est issu du modèle."
-              )}
+            <Body className="max-w-xl">
+              La navigation magnétique modélise depuis longtemps le champ propre du véhicule à partir
+              d’un vol de calibration, puis le soustrait. Notre instrument est conçu pour rejeter aussi
+              ce champ à bord, en temps réel, afin qu’il reste moins à corriger pour le modèle.
             </Body>
-            <p className="figure-label is-plain">{fr(`Situation en ${AS_OF_FR}`)}</p>
-          </Reveal>
+          </div>
+        </Reveal>
+      </Prose>
 
-          <div className="relative">
-            <span
-              aria-hidden
-              className="absolute left-[5px] top-2 bottom-2 w-px"
-              style={{ background: "var(--border-strong)" }}
-            />
-            <ol className="relative" aria-label={fr(`Étapes, situation en ${AS_OF_FR}`)}>
-              {MILESTONES.map((m, i) => (
-                <Reveal
-                  as="li"
-                  key={`${m.when}-${i}`}
-                  delay={i * 50}
-                  className="relative pl-9 pb-9 last:pb-0"
-                >
-                  <Dot status={m.status} />
-                  <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <span className="figure-label is-plain">
-                      {m.dateTime ? <time dateTime={m.dateTime}>{m.when}</time> : m.when}
-                    </span>
-                    {m.status === "now" ? (
-                      <span className="figure-label" style={{ color: "var(--accent)" }}>
-                        {STATUS_LABEL.now}
-                      </span>
-                    ) : (
-                      <span className="sr-only">{STATUS_LABEL[m.status]}</span>
-                    )}
-                  </p>
-                  <h3
-                    className="font-semibold text-[17px] leading-snug mt-1.5"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {typeof m.title === "string" ? fr(m.title) : m.title}
-                  </h3>
-                  {m.body && <Body className="mt-1.5 max-w-xl">{fr(m.body)}</Body>}
-                  {m.link && (
-                    <Link href={m.link.href} hrefLang="en" className="textlink mt-2">
-                      {fr(m.link.label)} <span aria-hidden>→</span>
-                      <span className="sr-only">{fr(" (en anglais)")}</span>
-                    </Link>
-                  )}
+      {/* ========================= WHY DIAMOND ========================= */}
+      <Prose id="diamond">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-16 items-center">
+          <div>
+            <Reveal>
+              <Eyebrow>Pourquoi le diamant</Eyebrow>
+              <H2 className="mb-6">Des défauts atomiques du diamant, lus à la lumière.</H2>
+              <Lead className="max-w-xl mb-10">
+                Un centre azote-lacune (NV) est un défaut du diamant qui se comporte comme une minuscule
+                boussole que l’on lit avec de la lumière.
+              </Lead>
+            </Reveal>
+            <ul className="flex flex-col">
+              {DIAMOND_POINTS.map((p, i) => (
+                <Reveal key={p.t} as="li" delay={i * 80}>
+                  <div className="hairline py-5">
+                    <p className="font-semibold mb-1.5" style={{ color: "var(--text-primary)" }}>
+                      {p.t}
+                    </p>
+                    <Body className="max-w-xl">{p.d}</Body>
+                  </div>
                 </Reveal>
               ))}
-            </ol>
+            </ul>
+            <Reveal>
+              <Link href="/fr/technology#principle" className="textlink mt-6">
+                Le principe, en trois temps <span aria-hidden>→</span>
+              </Link>
+            </Reveal>
           </div>
+          <Reveal delay={120}>
+            <DiamondPlate
+              lang="fr"
+              caption={"Image d’illustration : une plaque de diamant, avec les quatre axes cristallins selon lesquels pointent les centres NV."}
+            />
+          </Reveal>
         </div>
       </Prose>
 
-      {/* ================ RECONNAISSANCE ET ADHÉSIONS ================== */}
-      <Prose id="reconnaissance">
-        <Reveal>
-          <H2 className="max-w-3xl mb-10">{fr("Reconnaissance et adhésions.")}</H2>
-        </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {SUPPORTER_KINDS.map((kind, i) => {
-            const items = supportersByKind(kind);
-            if (items.length === 0) return null;
-            return (
-              <Reveal key={kind} delay={i * 80} className="h-full">
-                <div className="card p-6 md:p-7 h-full">
-                  <h3 className="eyebrow mb-5">{fr(KIND_FR[kind])}</h3>
-                  <ul className="flex flex-col gap-6">
-                    {items.map((s) => {
-                      const statement = STATEMENT_FR[s.name] ?? <span lang="en">{s.statement}</span>;
-                      return (
-                        <li key={s.name}>
-                          {s.logo && (
-                            <div className="mb-3">
-                              <LogoMark
-                                logo={{ ...s.logo, alt: LOGO_ALT_FR[s.name] ?? s.logo.alt }}
-                                height={40}
-                                maxWidth={170}
-                              />
-                            </div>
-                          )}
-                          <p
-                            className="text-[15px] leading-6 font-medium"
-                            style={{ color: "var(--text-primary)" }}
-                          >
-                            {s.href ? (
-                              <a
-                                href={s.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:underline"
-                              >
-                                {statement}
-                              </a>
-                            ) : (
-                              statement
-                            )}
-                          </p>
-                          {sinceFr(s) && <p className="figure-label is-plain mt-1">{fr(sinceFr(s) as string)}</p>}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
-      </Prose>
-
-      {/* =========================== CONTACT =========================== */}
-      <Cinema id="contact">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-start">
+      {/* ======================== THE INSTRUMENT ======================== */}
+      <Cinema id="instrument">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16 items-end mb-10">
           <Reveal>
-            <Eyebrow>Contact</Eyebrow>
-            <H2 className="mb-6">{fr("Nous cherchons des partenaires de programme.")}</H2>
-            <Lead className="max-w-xl mb-9">
-              {fr(
-                "Intégrateurs de navigation, laboratoires de recherche, investisseurs qui apportent un programme : écrivez-nous, en français si vous le souhaitez."
-              )}
+            <Eyebrow>Missions de démonstration</Eyebrow>
+            <H2 className="mb-6">Pilotez une mission.</H2>
+            <Lead>
+              Nos missions de démonstration jouent toute la chaîne de navigation en simulation, en
+              direct dans votre navigateur&nbsp;: une carte magnétique, un véhicule avec ses propres
+              perturbations, le capteur et le filtre de navigation.
             </Lead>
-            <div className="flex flex-wrap gap-3">
-              <a href={`mailto:${CONTACT_EMAIL}`} className="btn-primary">
-                {fr(`Écrire à ${CONTACT_EMAIL}`)}
-              </a>
-              <Link href="/contact" hrefLang="en" className="btn-ghost">
-                {fr("Formulaire de contact, en anglais")}
+          </Reveal>
+          <Reveal delay={90}>
+            <Body>
+              Injectez des pannes, voyez l’instrument les signaler, et lisez le bilan de mission. Chaque
+              chiffre est issu du modèle&nbsp;: une simulation encore à calibrer sur le matériel, utile
+              en relatif. Aucun compte à créer.
+            </Body>
+          </Reveal>
+        </div>
+
+        <Reveal>
+          <MissionChart lang="fr" />
+        </Reveal>
+
+        <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          {MISSION_PROFILES.map((p, i) => (
+            <Reveal key={p.key} as="li" delay={i * 80}>
+              <Link
+                href={`/instrument?profile=${p.key}`}
+                hrefLang="en"
+                className="card p-6 md:p-7 h-full flex flex-col gap-2"
+              >
+                <span className="eyebrow">{p.kicker}</span>
+                <h3 className="text-lg font-semibold display" style={{ color: "var(--text-primary)" }}>
+                  {p.title}
+                </h3>
+                <span className="text-[15px] leading-7 flex-1" style={{ color: "var(--muted)" }}>
+                  {p.text}
+                </span>
+                <span className="textlink mt-3">
+                  Piloter cette mission<span className="sr-only"> (en anglais)</span>{" "}
+                  <span aria-hidden>→</span>
+                </span>
+              </Link>
+            </Reveal>
+          ))}
+        </ul>
+
+        <Reveal>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-7 mt-10">
+            <Link href="/instrument" hrefLang="en" className="btn-primary self-start">
+              Piloter l’Instrument (en anglais) <span aria-hidden>→</span>
+            </Link>
+            <Link href={CTA_SIMULATION} className="textlink">
+              Demander une session de simulation experte <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </Reveal>
+      </Cinema>
+
+      {/* ======================== WHERE WE STAND ======================== */}
+      <Prose id="where-we-stand">
+        <Reveal>
+          <Eyebrow>Où nous en sommes</Eyebrow>
+          <H2 className="max-w-3xl mb-6">De la simulation à un premier prototype mobile.</H2>
+          <Lead className="max-w-2xl">
+            Ce qui est fait, et ce qui vient. Chaque chiffre de performance que nous montrons aujourd’hui
+            est issu du modèle, obtenu en simulation.
+          </Lead>
+          <p className="figure-label is-plain mt-10 mb-8">Situation en {low(FACTS_AS_OF)}</p>
+        </Reveal>
+        <Reveal delay={80}>
+          <Timeline />
+        </Reveal>
+        <Reveal>
+          <Link href="/fr/company#where-we-stand" className="textlink mt-10">
+            Où nous en sommes, en détail <span aria-hidden>→</span>
+          </Link>
+        </Reveal>
+      </Prose>
+
+      {/* ========================= ONE PLATFORM ========================= */}
+      <Prose id="platform">
+        <Reveal>
+          <Eyebrow>Une plateforme</Eyebrow>
+          <H2 className="max-w-3xl mb-6">
+            Une plateforme diamant, de nombreux instruments. La navigation d’abord.
+          </H2>
+          <Lead className="max-w-2xl mb-12">
+            La navigation est le premier instrument. Son cœur, des spins du diamant lus à la lumière,
+            peut servir d’autres domaines&nbsp;: les sciences du vivant, l’inspection des
+            semi-conducteurs et l’informatique quantique.
+          </Lead>
+        </Reveal>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {PLATFORM.map((v, i) => (
+            <Reveal key={v.href} as="li" delay={i * 70}>
+              <Link
+                href={v.href}
+                hrefLang={v.en ? "en" : undefined}
+                className="card p-6 h-full flex flex-col gap-3"
+              >
+                <span className="flex items-center justify-between gap-3">
+                  <VerticalIcon slug={v.slug} />
+                  {i === 0 && <span className="pill">Première</span>}
+                </span>
+                <h3 className="font-semibold text-lg display mt-1" style={{ color: "var(--text-primary)" }}>
+                  {v.label}
+                </h3>
+                {v.blurb && (
+                  <span className="text-[15px] leading-7 flex-1" style={{ color: "var(--muted)" }}>
+                    {v.blurb}
+                  </span>
+                )}
+                <span className="textlink mt-2">
+                  Découvrir{v.en && <span className="sr-only"> (en anglais)</span>}{" "}
+                  <span aria-hidden>→</span>
+                </span>
+              </Link>
+            </Reveal>
+          ))}
+        </ul>
+      </Prose>
+
+      {/* ======================== NEWS AND EVENTS ======================== */}
+      <Prose id="news">
+        <Reveal>
+          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 mb-10">
+            <div>
+              <Eyebrow>Actualités</Eyebrow>
+              <H2>Dernières actualités</H2>
+            </div>
+            <Link href="/fr/news" className="textlink">
+              Toutes les actualités <span aria-hidden>→</span>
+            </Link>
+          </div>
+        </Reveal>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {posts.map((p, i) => (
+            <Reveal key={p.slug} delay={i * 80} className="h-full">
+              <NewsCard post={p} lang="fr" />
+            </Reveal>
+          ))}
+        </div>
+
+        <div className="mt-20">
+          <Reveal>
+            <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 mb-8">
+              <div>
+                <Eyebrow>Événements</Eyebrow>
+                <h2
+                  className="display text-2xl md:text-3xl font-semibold tracking-tight"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  Nous rencontrer
+                </h2>
+              </div>
+              <Link href="/fr/events" className="textlink">
+                Tous les événements <span aria-hidden>→</span>
               </Link>
             </div>
-            <p className="text-sm leading-6 mt-10" style={{ color: "var(--muted)" }}>
-              {fr(`${LEGAL_NAME} · ${RCS} · ${ADDRESS_LINES[0]}, ${ADDRESS_LINES[1]}`)}
-              <br />
-              <Link
-                href="/legal"
-                hrefLang="en"
-                className="underline underline-offset-2 hover:text-[var(--text-primary)]"
-              >
-                {fr("Mentions légales (en anglais)")}
-              </Link>
-            </p>
           </Reveal>
-
-          {events.length > 0 && (
-            <Reveal delay={100}>
-              <p className="eyebrow mb-5">Nous rencontrer</p>
-              <ul className="flex flex-col gap-4">
-                {events.map((e) => (
-                  <li key={e.slug} className="card p-6">
-                    <p className="figure-label is-plain">
-                      <time dateTime={e.start}>{cap(eventDatesFr(e))}</time>
-                    </p>
-                    <h3
-                      className="font-semibold text-lg mt-2"
-                      style={{ color: "var(--text-primary)" }}
-                      lang={EVENT_NAME_FR.has(e.slug) ? undefined : "en"}
-                    >
-                      {e.name}
-                    </h3>
-                    <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-                      {fr(`${e.city} (${COUNTRY_FR[e.country] ?? e.country}), ${e.venue}`)}
-                    </p>
-                    <Body className="mt-3">{fr(`${ROLE_FR[e.role]} Retrouvez-nous à ${e.city}.`)}</Body>
-                    {e.href && (
-                      <a
-                        href={e.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        hrefLang="en"
-                        className="textlink mt-3"
-                      >
-                        {fr("Site de l'événement")} <span aria-hidden>↗</span>
-                        <span className="sr-only">{fr(" (en anglais, s'ouvre dans un nouvel onglet)")}</span>
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
+          {events.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {events.map((e, i) => (
+                <Reveal key={e.slug} delay={i * 80} className="h-full">
+                  <EventCard event={e} today={today} contactHref="/fr/contact" lang="fr" />
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            <Body>
+              Aucune date publique pour le moment.{" "}
+              <Link href="/fr/contact" className="textlink">
+                Nous écrire <span aria-hidden>→</span>
+              </Link>
+            </Body>
           )}
         </div>
-      </Cinema>
+      </Prose>
+
+      {/* ============ RECOGNITIONS, MEMBERSHIPS AND SELECTIONS ============ */}
+      <section aria-label="Reconnaissances, adhésions et sélections">
+        <Supporters
+          variant="strip"
+          id="support"
+          heading="Reconnaissances, adhésions et sélections"
+          showResearchLine
+          lang="fr"
+        />
+      </section>
+
+      {/* ========================= CLOSING CALL ========================= */}
+      <Prose id="work-with-us">
+        <Reveal>
+          <Eyebrow>Contact</Eyebrow>
+          <H2 className="max-w-3xl mb-6">Travaillons ensemble.</H2>
+          <Lead className="max-w-2xl mb-9">
+            Nous cherchons des partenaires de programme&nbsp;: intégrateurs de navigation, laboratoires
+            de recherche et investisseurs qui apportent un programme.
+          </Lead>
+          <div className="flex flex-col sm:flex-row gap-3.5">
+            <Link href={CTA_PROGRAMME} className="btn-primary self-start">
+              Nous contacter <span aria-hidden>→</span>
+            </Link>
+            <Link href="/instrument" hrefLang="en" className="btn-ghost self-start">
+              Piloter une mission (en anglais)
+            </Link>
+          </div>
+        </Reveal>
+      </Prose>
     </main>
   );
 }

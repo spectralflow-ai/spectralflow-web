@@ -45,7 +45,7 @@ function neighbours(s: Site): Site[] {
   return out;
 }
 
-export default function NVDiagram() {
+export default function NVDiagram({ lang = "en" }: { lang?: "en" | "fr" } = {}) {
   return (
     <svg
       viewBox="0 0 410 250"
@@ -54,8 +54,9 @@ export default function NVDiagram() {
       aria-labelledby="nv-diagram-title"
     >
       <title id="nv-diagram-title">
-        A schematic crystal lattice with one nitrogen atom beside one missing carbon: the
-        nitrogen-vacancy centre.
+        {lang === "fr"
+          ? "Un réseau cristallin schématique, avec un atome d’azote à côté d’un carbone manquant : le centre azote-lacune."
+          : "A schematic crystal lattice with one nitrogen atom beside one missing carbon: the nitrogen-vacancy centre."}
       </title>
       {/* bonds */}
       {sites.flatMap((s) =>
@@ -179,7 +180,7 @@ const FIELD_DIR = (() => {
   return { x: dx / n, y: dy / n };
 })();
 
-export function NVAxes() {
+export function NVAxes({ lang = "en" }: { lang?: "en" | "fr" } = {}) {
   const c = AX_CENTRE;
   const t = FIELD_TIP;
   const u = FIELD_DIR;
@@ -198,9 +199,9 @@ export function NVAxes() {
       aria-labelledby="nv-axes-title"
     >
       <title id="nv-axes-title">
-        One NV centre in three dimensions: a vacancy at the centre, bonded to four neighbouring
-        sites, with the nitrogen on one of them. NV centres point along these four directions. An
-        arrow shows the magnetic field.
+        {lang === "fr"
+          ? "Un centre NV en trois dimensions : une lacune au centre, liée à quatre sites voisins, dont l’un porte l’azote. Les centres NV pointent selon ces quatre directions. Une flèche montre le champ magnétique."
+          : "One NV centre in three dimensions: a vacancy at the centre, bonded to four neighbouring sites, with the nitrogen on one of them. NV centres point along these four directions. An arrow shows the magnetic field."}
       </title>
 
       {/* bonds */}
@@ -239,7 +240,7 @@ export function NVAxes() {
         fill="var(--text-secondary)"
         fontFamily="var(--font-geist-sans)"
       >
-        magnetic field
+        {lang === "fr" ? "champ magnétique" : "magnetic field"}
       </text>
 
       {/* neighbouring sites */}

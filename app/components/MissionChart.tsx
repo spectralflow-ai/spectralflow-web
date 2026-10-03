@@ -71,7 +71,8 @@ const BOUNDED = toPath(BOUNDED_PTS);
 const DRIFT_END = DRIFT_PTS[DRIFT_PTS.length - 1];
 const BOUNDED_END = BOUNDED_PTS[BOUNDED_PTS.length - 1];
 
-export default function MissionChart() {
+export default function MissionChart({ lang = "en" }: { lang?: "en" | "fr" } = {}) {
+  const fr = lang === "fr";
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-15% 0px" });
   const reduced = useReducedMotion();
@@ -86,16 +87,20 @@ export default function MissionChart() {
     <div ref={ref} className="card p-6 md:p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-3 mb-5">
         <p className="font-semibold" style={{ color: "var(--text-primary)" }}>
-          Position error over a GNSS-denied mission
+          {fr ? "Erreur de position au cours d’une mission sans GNSS" : "Position error over a GNSS-denied mission"}
         </p>
-        <p className="figure-label">Simulation · model-derived</p>
+        <p className="figure-label">{fr ? "Simulation · issu du modèle" : "Simulation · model-derived"}</p>
       </div>
 
       <svg
         viewBox="0 0 720 300"
         className="w-full h-auto"
         role="img"
-        aria-label="Inertial-only position error grows without bound; magnetically aided navigation stays bounded."
+        aria-label={
+          fr
+            ? "L’erreur de position de la seule centrale inertielle croît sans limite ; la navigation aidée par le champ magnétique reste bornée."
+            : "Inertial-only position error grows without bound; magnetically aided navigation stays bounded."
+        }
       >
         <defs>
           <clipPath id={clipId}>
@@ -224,7 +229,7 @@ export default function MissionChart() {
             style={{ fill: "var(--text-secondary)" }}
             fontFamily="var(--font-geist-sans)"
           >
-            inertial only · drift grows
+            {fr ? "centrale inertielle seule · la dérive croît" : "inertial only · drift grows"}
           </text>
         </motion.g>
         <motion.g
@@ -250,7 +255,7 @@ export default function MissionChart() {
             style={{ fill: AIDED }}
             fontFamily="var(--font-geist-sans)"
           >
-            magnetically aided · bounded
+            {fr ? "aidée par le champ magnétique · bornée" : "magnetically aided · bounded"}
           </text>
         </motion.g>
 
@@ -266,7 +271,7 @@ export default function MissionChart() {
           fontWeight="600"
           letterSpacing="0.15em"
         >
-          MISSION TIME →
+          {fr ? "TEMPS DE MISSION →" : "MISSION TIME →"}
         </text>
         <text
           className="max-md:hidden"
@@ -280,7 +285,7 @@ export default function MissionChart() {
           letterSpacing="0.15em"
           transform={`rotate(-90 16 ${Y0 / 2})`}
         >
-          POSITION ERROR →
+          {fr ? "ERREUR DE POSITION →" : "POSITION ERROR →"}
         </text>
       </svg>
 
@@ -303,7 +308,7 @@ export default function MissionChart() {
               strokeDasharray="5 4"
             />
           </svg>
-          inertial only · drift grows
+          {fr ? "centrale inertielle seule · la dérive croît" : "inertial only · drift grows"}
         </span>
         <span className="inline-flex items-center gap-2.5">
           <svg width="24" height="8" viewBox="0 0 24 8">
@@ -317,9 +322,9 @@ export default function MissionChart() {
               strokeLinecap="round"
             />
           </svg>
-          magnetically aided · bounded
+          {fr ? "aidée par le champ magnétique · bornée" : "magnetically aided · bounded"}
         </span>
-        <span className="figure-label mt-1">Position error against mission time</span>
+        <span className="figure-label mt-1">{fr ? "Erreur de position en fonction du temps de mission" : "Position error against mission time"}</span>
       </div>
     </div>
   );
