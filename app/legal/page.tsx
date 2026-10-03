@@ -10,8 +10,7 @@ import {
   LEGAL_NAME,
   RCS,
   REGISTERED_LABEL,
-  STAGE_LINE,
-} from "../lib/facts";
+  STAGE_LINE, SHARE_IMAGE } from "../lib/facts";
 
 /** The stage, dated: it goes stale, so it always carries its date. */
 const STAGE_DATED = `As of ${FACTS_AS_OF}, ${STAGE_LINE.charAt(0).toLowerCase()}${STAGE_LINE.slice(1)}`;
@@ -24,6 +23,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: "/legal" },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: `Legal notice · ${BRAND}`,
     description: DESCRIPTION,
     url: "/legal",
@@ -32,6 +32,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: `Legal notice · ${BRAND}`,
     description: DESCRIPTION,

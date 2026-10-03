@@ -10,7 +10,7 @@ import {
   VERTICALS_ORDERED,
   verticalHref,
 } from "../lib/verticals";
-import { BRAND, SITE_URL } from "../lib/facts";
+import { BRAND, SITE_URL, SHARE_IMAGE } from "../lib/facts";
 
 const PAGE_PATH = "/applications";
 const SHARE_TITLE = `Applications · ${BRAND}`;
@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: PAGE_PATH },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: SHARE_TITLE,
     description: DESCRIPTION,
     url: PAGE_PATH,
@@ -30,6 +31,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: SHARE_TITLE,
     description: DESCRIPTION,

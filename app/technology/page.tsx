@@ -5,7 +5,7 @@ import NVDiagram, { NVAxes } from "../components/NVDiagram";
 import DiamondPlate from "../components/DiamondPlate";
 import Principle from "../components/Principle";
 import { Prose, Eyebrow, H2, Lead, Body } from "../components/kit";
-import { BRAND, SITE_URL, STAGE_LINE } from "../lib/facts";
+import { BRAND, SITE_URL, STAGE_LINE, SHARE_IMAGE } from "../lib/facts";
 import { CTA_SIMULATION } from "../lib/contact";
 import { getPost } from "../lib/news";
 
@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: PAGE_PATH },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: SHARE_TITLE,
     description: DESCRIPTION,
     url: PAGE_PATH,
@@ -30,6 +31,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: SHARE_TITLE,
     description: DESCRIPTION,

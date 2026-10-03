@@ -17,6 +17,17 @@ export const DESCRIPTOR = "Diamond quantum sensors";
 export const BRAND_LINE = `${BRAND} · ${DESCRIPTOR}`;
 
 export const SITE_URL = "https://www.spectralflow.ai";
+
+/**
+ * The site's share image (app/opengraph-image.tsx). A page that sets its own
+ * openGraph or twitter metadata replaces the parent's and must name it again.
+ */
+export const SHARE_IMAGE = {
+  url: "/opengraph-image",
+  width: 1200,
+  height: 630,
+  alt: "Spectral Flow · Diamond quantum sensors. First, navigation you can trust without GPS.",
+};
 export const LINKEDIN_URL = "https://www.linkedin.com/company/spectralflow";
 
 /** Date that dated counts and the "where we stand" timeline refer to. */

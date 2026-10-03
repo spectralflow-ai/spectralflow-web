@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Prose, Eyebrow, H2, Body, PageHeader } from "../components/kit";
 import { CONTACT_EMAIL } from "../lib/contact";
-import { ADDRESS, BRAND, LEGAL_NAME } from "../lib/facts";
+import { ADDRESS, BRAND, LEGAL_NAME, SHARE_IMAGE } from "../lib/facts";
 
 const DESCRIPTION = `Privacy policy (politique de confidentialité) for spectralflow.ai: how ${LEGAL_NAME} handles personal data under the GDPR.`;
 
@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: "/privacy" },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: `Privacy policy · ${BRAND}`,
     description: DESCRIPTION,
     url: "/privacy",
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: `Privacy policy · ${BRAND}`,
     description: DESCRIPTION,

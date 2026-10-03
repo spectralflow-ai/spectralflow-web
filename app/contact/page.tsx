@@ -13,7 +13,7 @@ import {
   CTA_PROGRAMME,
   CTA_SIMULATION,
 } from "../lib/contact";
-import { BRAND, LEGAL_NAME, ADDRESS, SITE_URL } from "../lib/facts";
+import { BRAND, LEGAL_NAME, ADDRESS, SITE_URL, SHARE_IMAGE } from "../lib/facts";
 import { RESEARCH_PARTNERS_LINE } from "../lib/supporters";
 
 const DESCRIPTION = `Talk to ${BRAND} about diamond quantum sensors: navigation programmes, research collaborations, the model-derived datasheet, expert simulation sessions, press and careers. Email ${CONTACT_EMAIL}.`;
@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: "/contact" },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: `Contact · ${BRAND}`,
     description: DESCRIPTION,
     url: "/contact",
@@ -31,6 +32,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: `Contact · ${BRAND}`,
     description: DESCRIPTION,

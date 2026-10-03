@@ -20,8 +20,7 @@ import {
   REGISTERED,
   SITE_URL,
   getSource,
-  type ContextSource,
-} from "../lib/facts";
+  type ContextSource, SHARE_IMAGE } from "../lib/facts";
 import {
   SUPPORTER_KINDS,
   supportersByKind,
@@ -146,6 +145,7 @@ export const metadata: Metadata = {
     canonical: PAGE_PATH,
   },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: TITLE,
     description: DESCRIPTION,
     url: PAGE_PATH,
@@ -154,6 +154,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,

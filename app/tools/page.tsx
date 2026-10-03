@@ -3,7 +3,7 @@ import Link from "next/link";
 import Reveal from "../components/Reveal";
 import { Prose, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
 import { CTA_DATASHEET, CTA_SIMULATION } from "../lib/contact";
-import { BRAND, FACTS_AS_OF, STAGE_LINE } from "../lib/facts";
+import { BRAND, FACTS_AS_OF, STAGE_LINE, SHARE_IMAGE } from "../lib/facts";
 
 const DESCRIPTION = `${BRAND}'s tools: the Instrument (free mission demos in the browser, computed in simulation), expert simulation sessions and the model-derived datasheet. All figures model-derived.`;
 
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: "/tools" },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: `Tools · ${BRAND}`,
     description: DESCRIPTION,
     url: "/tools",
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: `Tools · ${BRAND}`,
     description: DESCRIPTION,

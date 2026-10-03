@@ -17,8 +17,7 @@ import {
   RCS,
   REGISTERED_LABEL,
   SITE_URL,
-  STAGE_LINE,
-} from "../lib/facts";
+  STAGE_LINE, SHARE_IMAGE } from "../lib/facts";
 import { NAV } from "../lib/nav";
 import { getPost } from "../lib/news";
 import { RESEARCH_PARTNERS_LINE } from "../lib/supporters";
@@ -32,6 +31,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: PAGE_PATH },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: `Company · ${BRAND}`,
     description: DESCRIPTION,
     url: PAGE_PATH,
@@ -40,6 +40,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: `Company · ${BRAND}`,
     description: DESCRIPTION,

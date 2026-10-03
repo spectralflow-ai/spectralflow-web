@@ -4,7 +4,7 @@ import Reveal from "../components/Reveal";
 import EventCard from "../components/EventCard";
 import NewsCard from "../components/NewsCard";
 import { Prose, Cinema, Eyebrow, H2, Lead, Body, PageHeader } from "../components/kit";
-import { BRAND, SITE_URL } from "../lib/facts";
+import { BRAND, SITE_URL, SHARE_IMAGE } from "../lib/facts";
 import { EVENTS, pastEvents, todayISO, upcomingEvents, type SiteEvent } from "../lib/events";
 import { POSTS } from "../lib/news";
 
@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: { canonical: PAGE_PATH },
   openGraph: {
+    images: [SHARE_IMAGE],
     title: `Events · ${BRAND}`,
     description: DESCRIPTION,
     url: PAGE_PATH,
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
+    images: [SHARE_IMAGE.url],
     card: "summary_large_image",
     title: `Events · ${BRAND}`,
     description: DESCRIPTION,
