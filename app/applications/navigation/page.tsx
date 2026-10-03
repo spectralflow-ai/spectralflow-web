@@ -7,6 +7,7 @@ import Steps from "../../components/Steps";
 import GnssMap from "../../components/GnssMap";
 import ErrorBound from "../../components/ErrorBound";
 import SourceNote from "../../components/SourceNote";
+import DuotonePhoto from "../../components/DuotonePhoto";
 import DuotoneClip from "../../components/DuotoneClip";
 import NewsCard from "../../components/NewsCard";
 import VerticalGlyph from "../../components/VerticalGlyph";
@@ -143,7 +144,8 @@ type Situation = {
   body: string;
   status: string[];
   photo: { src: string; alt: string; position?: string };
-  clip: { poster: string; sources: { src: string; type: string }[] };
+  /** only where the clip loops cleanly; the photograph otherwise */
+  clip?: { poster: string; sources: { src: string; type: string }[] };
   link?: { href: string; label: string };
 };
 
@@ -155,10 +157,9 @@ const SITUATIONS: Situation[] = [
     body: "An airborne magnetic survey is only as good as the position of each reading and the quiet of the platform. The instrument is designed for both: it rejects the aircraft's own field on board and keeps each position within its bound, including where satellite positioning is lost.",
     status: ["Mission demo available", "Model-derived"],
     photo: {
-      src: "/img/v3/estuary-16x9.webp",
+      src: "/img/v3/survey-drone.webp",
       alt: "A civilian survey drone flying low over a desert plain.",
     },
-    clip: { poster: "/video/situations/survey-v3-poster.webp", sources: [{ src: "/video/situations/survey-v3.webm", type: "video/webm" }, { src: "/video/situations/survey-v3.mp4", type: "video/mp4" }] },
     link: { href: "/instrument?profile=geo", label: "Fly the survey" },
   },
   {
@@ -181,7 +182,6 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/air.webp",
       alt: "An airliner above the clouds at dusk.",
     },
-    clip: { poster: "/video/situations/air-v3-poster.webp", sources: [{ src: "/video/situations/air-v3.webm", type: "video/webm" }, { src: "/video/situations/air-v3.mp4", type: "video/mp4" }] },
     link: { href: "/instrument", label: "Fly a mission" },
   },
   {
@@ -193,7 +193,6 @@ const SITUATIONS: Situation[] = [
       src: "/img/v3/smallsat.webp",
       alt: "A small spacecraft above a planet.",
     },
-    clip: { poster: "/video/situations/space-v3-poster.webp", sources: [{ src: "/video/situations/space-v3.webm", type: "video/webm" }, { src: "/video/situations/space-v3.mp4", type: "video/mp4" }] },
     link: { href: "/instrument?profile=space", label: "Fly the Mars scout" },
   },
 ];
@@ -578,13 +577,23 @@ export default function NavigationPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-14">
           {SITUATIONS.map((s, i) => (
             <Reveal key={s.label} delay={(i % 2) * 90} as="article" className="flex flex-col h-full">
-              <DuotoneClip
-                poster={s.clip.poster}
-                sources={s.clip.sources}
-                alt={s.photo.alt}
-                aspect="16/9"
-                sizes="(min-width: 768px) 50vw, 100vw"
-              />
+              {s.clip ? (
+                <DuotoneClip
+                  poster={s.clip.poster}
+                  sources={s.clip.sources}
+                  alt={s.photo.alt}
+                  aspect="16/9"
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                />
+              ) : (
+                <DuotonePhoto
+                  src={s.photo.src}
+                  alt={s.photo.alt}
+                  aspect="16/9"
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  objectPosition={s.photo.position}
+                />
+              )}
               <p className="eyebrow mt-6 mb-2">{s.label}</p>
               <h3
                 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug mb-3"
