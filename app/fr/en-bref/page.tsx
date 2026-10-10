@@ -24,7 +24,6 @@ import {
 import {
   SUPPORTER_KINDS,
   supportersByKind,
-  type Supporter,
   type SupporterKind,
 } from "../../lib/supporters";
 import { todayISO, upcomingEvents, type EventRole, type SiteEvent } from "../../lib/events";
@@ -436,6 +435,7 @@ const STATEMENT_FR: Record<string, ReactNode> = {
       Membre de QuIC, le consortium européen de l&apos;industrie quantique (<span lang="en">European Quantum Industry Consortium</span>)
     </>
   ),
+  "SAFE cluster": "Membre du pôle SAFE (sécurité, aéronautique, spatial, défense)",
   "NVIDIA Inception": (
     <>
       Membre de <span lang="en">NVIDIA Inception</span>
@@ -455,14 +455,9 @@ const STATEMENT_FR: Record<string, ReactNode> = {
 };
 
 const LOGO_ALT_FR: Record<string, string> = {
+  "SAFE cluster": "Membre du pôle SAFE",
   "NVIDIA Inception": "Membre de NVIDIA Inception",
 };
-
-function sinceFr(s: Supporter): string | null {
-  if (!s.since) return null;
-  const m = monthYearFr(s.since);
-  return s.kind === "Selected for" ? cap(m) : `Depuis ${m}`;
-}
 
 /* ----- Events -------------------------------------------------------- */
 
@@ -968,11 +963,22 @@ export default function EnBref() {
                         <li key={s.name}>
                           {s.logo && (
                             <div className="mb-3">
-                              <LogoMark
-                                logo={{ ...s.logo, alt: LOGO_ALT_FR[s.name] ?? s.logo.alt }}
-                                height={40}
-                                maxWidth={170}
-                              />
+                              {s.href ? (
+                                // La phrase dessous porte le lien accessible ; celui-ci sert au pointeur seulement.
+                                <a href={s.href} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true">
+                                  <LogoMark
+                                    logo={{ ...s.logo, alt: LOGO_ALT_FR[s.name] ?? s.logo.alt }}
+                                    height={40}
+                                    maxWidth={170}
+                                  />
+                                </a>
+                              ) : (
+                                <LogoMark
+                                  logo={{ ...s.logo, alt: LOGO_ALT_FR[s.name] ?? s.logo.alt }}
+                                  height={40}
+                                  maxWidth={170}
+                                />
+                              )}
                             </div>
                           )}
                           <p
@@ -987,12 +993,12 @@ export default function EnBref() {
                                 className="hover:underline"
                               >
                                 {statement}
+                                <span className="sr-only">{fr(" (s'ouvre dans un nouvel onglet)")}</span>
                               </a>
                             ) : (
                               statement
                             )}
                           </p>
-                          {sinceFr(s) && <p className="figure-label is-plain mt-1">{fr(sinceFr(s) as string)}</p>}
                         </li>
                       );
                     })}

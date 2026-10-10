@@ -1,4 +1,4 @@
-// fr-source: app/lib/supporters.ts sha256:7576f9d35b402f45
+// fr-source: app/lib/supporters.ts sha256:7f139f075051aee3
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 
 /**
@@ -37,8 +37,6 @@ function dateLabelFr(label: string): string {
     .replace(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/g, (m) => MOIS[m])
     .replace(/ and /g, " et ");
 }
-
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /* ----- Entrées --------------------------------------------------------- */
 
@@ -82,12 +80,6 @@ export const SUPPORTERS: Supporter[] = SUPPORTERS_EN.flatMap((s) => {
 
 export function supportersByKind(kind: SupporterKind): Supporter[] {
   return SUPPORTERS.filter((s) => s.kind === kind);
-}
-
-/** La ligne imprimée sous une entrée : un mois de début, ou rien. */
-export function sinceLine(s: Supporter): string | null {
-  if (!s.since) return null;
-  return s.kind === "Selected for" ? cap(s.since) : `Depuis ${s.since}`;
 }
 
 /** La phrase unique sur les partenaires de recherche. */

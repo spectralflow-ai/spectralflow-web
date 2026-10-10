@@ -26,7 +26,6 @@ import { getPost } from "../../lib/fr/news";
 import {
   RESEARCH_PARTNERS_LINE,
   SUPPORTER_KINDS,
-  sinceLine,
   supportersByKind,
 } from "../../lib/fr/supporters";
 import { VERTICALS_CONTENT } from "../../lib/fr/verticals";

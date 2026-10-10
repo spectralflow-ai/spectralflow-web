@@ -13,7 +13,7 @@ export type Supporter = {
   kind: SupporterKind;
   /** The full sentence, as it may be printed. */
   statement: string;
-  /** Month the relationship started, as printed. */
+  /** Month the relationship started. Kept for llms.txt; the supporters lists do not print it. */
   since?: string;
   logo?: Logo;
   href?: string;
@@ -26,6 +26,7 @@ export const SUPPORTERS: Supporter[] = [
     statement: "Qualified as a deeptech company by Bpifrance",
     since: "July 2026",
     logo: { src: "/logos/bpifrance.svg", alt: "Bpifrance", width: 77.352, height: 22.2 },
+    href: "https://www.bpifrance.fr/nos-solutions/innovation/les-deeptech",
   },
   {
     name: "Incubateur Provence Côte d'Azur",
@@ -37,6 +38,7 @@ export const SUPPORTERS: Supporter[] = [
       width: 304,
       height: 132,
     },
+    href: "https://incubateurpca.org/",
   },
   {
     name: "QuIC",
@@ -66,6 +68,7 @@ export const SUPPORTERS: Supporter[] = [
       height: 216,
       tone: "original",
     },
+    href: "https://www.nvidia.com/en-us/startups/",
   },
   {
     name: "Google for Startups Cloud Program",
@@ -73,6 +76,7 @@ export const SUPPORTERS: Supporter[] = [
     statement: "Member of the Google for Startups Cloud Program",
     since: "June 2026",
     logo: { src: "/logos/google-for-startups.svg", alt: "Google for Startups", width: 824, height: 100 },
+    href: "https://startup.google.com/cloud/",
   },
   {
     name: "Tech Tour Quantum & Defence 2026",
@@ -80,6 +84,7 @@ export const SUPPORTERS: Supporter[] = [
     statement: "Selected to pitch at Tech Tour Quantum & Defence 2026 (Berlin)",
     since: "July 2026",
     logo: { src: "/logos/tech-tour.svg", alt: "Tech Tour", width: 577.5, height: 101.6 },
+    href: "https://techtour.com/ttqd26/",
   },
 ];
 
@@ -93,12 +98,6 @@ export const SUPPORTER_KINDS: SupporterKind[] = [
 
 export function supportersByKind(kind: SupporterKind): Supporter[] {
   return SUPPORTERS.filter((s) => s.kind === kind);
-}
-
-/** The line printed under a supporter: a start month, or nothing. */
-export function sinceLine(s: Supporter): string | null {
-  if (!s.since) return null;
-  return s.kind === "Selected for" ? s.since : `Since ${s.since}`;
 }
 
 /** The one sentence about research partners. */

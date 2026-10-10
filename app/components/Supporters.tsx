@@ -3,13 +3,11 @@ import LogoMark from "./LogoMark";
 import {
   RESEARCH_PARTNERS_LINE,
   SUPPORTER_KINDS,
-  sinceLine,
   supportersByKind,
   type Supporter,
 } from "../lib/supporters";
 import {
   RESEARCH_PARTNERS_LINE as RESEARCH_PARTNERS_LINE_FR,
-  sinceLine as sinceLineFr,
   supportersByKind as supportersByKindFr,
 } from "../lib/fr/supporters";
 import type { SupporterKind } from "../lib/supporters";
@@ -22,6 +20,8 @@ const KIND_FR: Record<SupporterKind, string> = {
   "Selected for": "Sélection",
 };
 const kindLabel = (k: SupporterKind, lang: "en" | "fr") => (lang === "fr" ? KIND_FR[k] : k);
+/** Read after a link that opens the partner's site in a new tab. */
+const newTab = (lang: "en" | "fr") => (lang === "fr" ? " (s’ouvre dans un nouvel onglet)" : " (opens in a new tab)");
 
 /**
  * Recognitions, memberships and selections, each labelled by the nature
@@ -44,7 +44,7 @@ function StripItem({ s, lang }: { s: Supporter; lang: "en" | "fr" }) {
       <span className="figure-label">{kindLabel(s.kind, lang)}</span>
       <div className="h-10 flex items-center" title={s.statement}>
         {s.href ? (
-          <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.statement}>
+          <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.statement + newTab(lang)}>
             {item}
           </a>
         ) : (
@@ -75,7 +75,6 @@ export default function Supporters({
   const withResearch = showResearchLine ?? variant === "full";
   const byKind = lang === "fr" ? supportersByKindFr : supportersByKind;
   const researchLine = lang === "fr" ? RESEARCH_PARTNERS_LINE_FR : RESEARCH_PARTNERS_LINE;
-  const sinceOf = lang === "fr" ? sinceLineFr : sinceLine;
 
   if (variant === "strip") {
     const title =
@@ -116,24 +115,30 @@ export default function Supporters({
               <p className="eyebrow mb-5">{kindLabel(kind, lang)}</p>
               <ul className="flex flex-col gap-7">
                 {items.map((s) => {
-                  const since = sinceOf(s);
                   return (
                     <li key={s.name}>
                       {s.logo && (
                         <div className="mb-3 h-11 flex items-center">
-                          <LogoMark logo={s.logo} height={40} maxWidth={170} />
+                          {s.href ? (
+                            // The statement below carries the accessible link; this one is for the pointer only.
+                            <a href={s.href} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true">
+                              <LogoMark logo={s.logo} height={40} maxWidth={170} />
+                            </a>
+                          ) : (
+                            <LogoMark logo={s.logo} height={40} maxWidth={170} />
+                          )}
                         </div>
                       )}
                       <p className="text-[15px] leading-6 font-medium" style={{ color: "var(--text-primary)" }}>
                         {s.href ? (
                           <a href={s.href} target="_blank" rel="noopener noreferrer" className="hover:underline">
                             {s.statement}
+                            <span className="sr-only">{newTab(lang)}</span>
                           </a>
                         ) : (
                           s.statement
                         )}
                       </p>
-                      {since && <p className="figure-label is-plain mt-1">{since}</p>}
                     </li>
                   );
                 })}

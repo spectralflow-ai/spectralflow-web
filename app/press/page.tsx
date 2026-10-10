@@ -112,11 +112,6 @@ const FACTS: { k: string; v: ReactNode }[] = [
         {supportersByKind(kind).map((s) => (
           <li key={s.name}>
             {s.statement}
-            {kind !== "Selected for" && s.since && (
-              <span className="block text-sm" style={{ color: "var(--muted)" }}>
-                Since {s.since}
-              </span>
-            )}
           </li>
         ))}
       </ul>
