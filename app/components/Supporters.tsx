@@ -9,6 +9,7 @@ import {
 } from "../lib/supporters";
 import {
   RESEARCH_PARTNERS_LINE as RESEARCH_PARTNERS_LINE_FR,
+  sinceLine as sinceLineFr,
   supportersByKind as supportersByKindFr,
 } from "../lib/fr/supporters";
 import type { SupporterKind } from "../lib/supporters";
@@ -74,6 +75,7 @@ export default function Supporters({
   const withResearch = showResearchLine ?? variant === "full";
   const byKind = lang === "fr" ? supportersByKindFr : supportersByKind;
   const researchLine = lang === "fr" ? RESEARCH_PARTNERS_LINE_FR : RESEARCH_PARTNERS_LINE;
+  const sinceOf = lang === "fr" ? sinceLineFr : sinceLine;
 
   if (variant === "strip") {
     const title =
@@ -114,7 +116,7 @@ export default function Supporters({
               <p className="eyebrow mb-5">{kindLabel(kind, lang)}</p>
               <ul className="flex flex-col gap-7">
                 {items.map((s) => {
-                  const since = sinceLine(s);
+                  const since = sinceOf(s);
                   return (
                     <li key={s.name}>
                       {s.logo && (

@@ -1,4 +1,4 @@
-// fr-source: app/lib/supporters.ts sha256:666500b4534d7f8a
+// fr-source: app/lib/supporters.ts sha256:7576f9d35b402f45
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 
 /**
@@ -53,6 +53,10 @@ const TEXT: Record<string, { statement: string; logoAlt?: string }> = {
   QuIC: {
     statement:
       "Membre de QuIC, le consortium européen de l’industrie quantique (European Quantum Industry Consortium)",
+  },
+  "SAFE cluster": {
+    statement: "Membre du pôle SAFE (sécurité, aéronautique, spatial, défense)",
+    logoAlt: "Membre du pôle SAFE",
   },
   "NVIDIA Inception": {
     statement: "Membre de NVIDIA Inception",

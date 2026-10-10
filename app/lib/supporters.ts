@@ -47,6 +47,14 @@ export const SUPPORTERS: Supporter[] = [
     href: "https://www.euroquic.org/",
   },
   {
+    name: "SAFE cluster",
+    kind: "Member of",
+    statement: "Member of the SAFE cluster for security, aeronautics, space and defence",
+    since: "October 2026",
+    logo: { src: "/logos/safe-member.png", alt: "SAFE member", width: 371, height: 167 },
+    href: "https://www.safecluster.com/",
+  },
+  {
     name: "NVIDIA Inception",
     kind: "Member of",
     statement: "Member of NVIDIA Inception",
