@@ -1,4 +1,4 @@
-// fr-source: app/page.tsx sha256:f22d747f2f5a28de
+// fr-source: app/(en)/page.tsx sha256:ebdfafee5f6542c9
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -34,7 +34,7 @@ import {
 import { latestPosts } from "../lib/fr/news";
 import { todayISO, upcomingEvents } from "../lib/fr/events";
 import { CTA_PROGRAMME, CTA_SIMULATION } from "../lib/fr/contact";
-import type { ProfileKey } from "../instrument/profiles";
+import type { ProfileKey } from "../(en)/instrument/profiles";
 
 /* ----- Page metadata ------------------------------------------------- */
 

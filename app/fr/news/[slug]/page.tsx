@@ -1,4 +1,4 @@
-// fr-source: app/news/[slug]/page.tsx sha256:cf3f5ebe06b4db93
+// fr-source: app/(en)/news/[slug]/page.tsx sha256:b25bbafaaf14e39f
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";

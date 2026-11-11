@@ -1,4 +1,4 @@
-// fr-source: app/applications/navigation/page.tsx sha256:8229a81d02fcb71b
+// fr-source: app/(en)/applications/navigation/page.tsx sha256:85e1145b60e8ed6a
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
