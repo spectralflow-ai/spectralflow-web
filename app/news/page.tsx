@@ -28,6 +28,8 @@ export const metadata: Metadata = {
     title: `News · ${BRAND}`,
     description: DESCRIPTION,
     url: "/news",
+    siteName: BRAND,
+    locale: "en_GB",
     type: "website",
     images: [OG_IMAGE],
   },

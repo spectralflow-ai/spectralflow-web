@@ -30,8 +30,13 @@ const ROUTES: { path: string; priority: number; changeFrequency: Entry["changeFr
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // Pages carry the build date; each article carries its own publication date.
-  const built = new Date();
+  // A date is given only where it is true: each article carries its own
+  // publication (or update) date, and the news index the date of its latest
+  // article. Other pages carry none: the build date changed on every deploy,
+  // which teaches search engines to ignore the dates of the whole sitemap.
+  const latestPost = POSTS.map((p) => p.updated ?? p.date).sort().at(-1);
+  const lastModifiedOf = (path: string) =>
+    path === "/news" && latestPost ? new Date(`${latestPost}T12:00:00Z`) : undefined;
 
   // A page that exists in both languages is listed twice, each entry naming
   // the other (hreflang), so that search engines pair them.
@@ -45,7 +50,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pages: Entry[] = ROUTES.flatMap((r) => {
     const base: Entry = {
       url: `${BASE}${r.path}`,
-      lastModified: built,
+      lastModified: lastModifiedOf(r.path),
       changeFrequency: r.changeFrequency,
       priority: r.priority,
     };

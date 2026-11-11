@@ -1,4 +1,4 @@
-// fr-source: app/news/page.tsx sha256:24288987af0c6b06
+// fr-source: app/news/page.tsx sha256:0778994043f1e1bc
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -31,6 +31,7 @@ export const metadata: Metadata = {
     title: `Actualités · ${BRAND}`,
     description: DESCRIPTION,
     url: "/fr/news",
+    siteName: BRAND,
     locale: "fr_FR",
     type: "website",
     images: [OG_IMAGE],

@@ -116,7 +116,7 @@ const SITE_JSONLD = {
       name: BRAND,
       description: DESCRIPTION,
       publisher: { "@id": `${SITE_URL}/#org` },
-      inLanguage: "en",
+      inLanguage: ["en", "fr"],
     },
     {
       "@type": "Person",
