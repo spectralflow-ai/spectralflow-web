@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "./lib/i18n";
 import Link from "next/link";
 import { getImageProps } from "next/image";
 import Reveal from "./components/Reveal";
@@ -43,7 +44,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  alternates: { canonical: "/" },
+  alternates: { canonical: "/", languages: languages("/") },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,

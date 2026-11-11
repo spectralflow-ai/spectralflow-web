@@ -1,4 +1,4 @@
-// fr-source: app/applications/navigation/page.tsx sha256:3a635cbab2fde1af
+// fr-source: app/applications/navigation/page.tsx sha256:8229a81d02fcb71b
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: {
     canonical: PAGE_PATH,
-    languages: { en: EN_PATH, fr: PAGE_PATH },
+    languages: { en: EN_PATH, fr: PAGE_PATH, "x-default": EN_PATH },
   },
   openGraph: {
     images: [SHARE_IMAGE],

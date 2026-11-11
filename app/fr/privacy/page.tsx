@@ -1,4 +1,4 @@
-// fr-source: app/privacy/page.tsx sha256:b83a056268419764
+// fr-source: app/privacy/page.tsx sha256:61fef8057c5b26ce
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -12,7 +12,7 @@ const DESCRIPTION = `Politique de confidentialité du site spectralflow.ai : co
 export const metadata: Metadata = {
   title: "Politique de confidentialité",
   description: DESCRIPTION,
-  alternates: { canonical: "/fr/privacy", languages: { en: "/privacy", fr: "/fr/privacy" } },
+  alternates: { canonical: "/fr/privacy", languages: { en: "/privacy", fr: "/fr/privacy", "x-default": "/privacy" } },
   openGraph: {
     images: [SHARE_IMAGE],
     title: `Politique de confidentialité · ${BRAND}`,

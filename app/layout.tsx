@@ -37,7 +37,6 @@ export const metadata: Metadata = {
     template: `%s · ${BRAND}`,
   },
   description: DESCRIPTION,
-  alternates: { canonical: "/" },
   applicationName: BRAND,
   verification: { google: "oyPBoJQ-UcuzTdlAquK44i-meA0AANU_CIDZ7uHeIDw" },
   keywords: [

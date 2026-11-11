@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "../lib/i18n";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
 import VerticalIcon from "../components/VerticalIcon";
@@ -20,7 +21,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: "Applications",
   description: DESCRIPTION,
-  alternates: { canonical: PAGE_PATH },
+  alternates: { canonical: PAGE_PATH, languages: languages(PAGE_PATH) },
   openGraph: {
     images: [SHARE_IMAGE],
     title: SHARE_TITLE,

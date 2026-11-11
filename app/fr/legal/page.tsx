@@ -1,4 +1,4 @@
-// fr-source: app/legal/page.tsx sha256:8230038409eb17e4
+// fr-source: app/legal/page.tsx sha256:d41af02b7181dbf7
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -16,7 +16,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: "Mentions légales",
   description: DESCRIPTION,
-  alternates: { canonical: "/fr/legal", languages: { en: "/legal", fr: "/fr/legal" } },
+  alternates: { canonical: "/fr/legal", languages: { en: "/legal", fr: "/fr/legal", "x-default": "/legal" } },
   openGraph: {
     images: [SHARE_IMAGE],
     title: `Mentions légales · ${BRAND}`,

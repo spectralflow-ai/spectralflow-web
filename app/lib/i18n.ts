@@ -47,6 +47,6 @@ export function counterpart(pathname: string): string {
 }
 
 /** hreflang alternates for the metadata of a page that exists in both languages. */
-export function languages(enPath: string): { en: string; fr: string } {
-  return { en: enPath, fr: frHref(enPath) };
+export function languages(enPath: string): { en: string; fr: string; "x-default": string } {
+  return { en: enPath, fr: frHref(enPath), "x-default": enPath };
 }

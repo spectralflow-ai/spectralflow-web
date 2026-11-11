@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "../lib/i18n";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import Reveal from "../components/Reveal";
@@ -29,7 +30,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: "Company",
   description: DESCRIPTION,
-  alternates: { canonical: PAGE_PATH },
+  alternates: { canonical: PAGE_PATH, languages: languages(PAGE_PATH) },
   openGraph: {
     images: [SHARE_IMAGE],
     title: `Company · ${BRAND}`,

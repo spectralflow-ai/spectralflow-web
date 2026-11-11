@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "../../lib/i18n";
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,7 +39,7 @@ const SHARE_DESCRIPTION =
 export const metadata: Metadata = {
   title: META_TITLE,
   description: DESCRIPTION,
-  alternates: { canonical: PAGE_PATH },
+  alternates: { canonical: PAGE_PATH, languages: languages(PAGE_PATH) },
   openGraph: {
     title: SHARE_TITLE,
     description: SHARE_DESCRIPTION,

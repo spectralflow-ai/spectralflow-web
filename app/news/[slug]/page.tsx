@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "../../lib/i18n";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import NewsCard from "../../components/NewsCard";
@@ -38,6 +39,7 @@ export async function generateMetadata({
     description: post.excerpt,
     alternates: {
       canonical: url,
+      languages: languages(url),
       types: { "application/rss+xml": [{ url: "/news/feed.xml", title: `${BRAND} · News` }] },
     },
     openGraph: {

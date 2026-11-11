@@ -1,4 +1,4 @@
-// fr-source: app/contact/page.tsx sha256:2501aa103e1e7b88
+// fr-source: app/contact/page.tsx sha256:7f3652c2fbccb6c5
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -24,7 +24,7 @@ const DESCRIPTION = `Parlez avec ${BRAND} des capteurs quantiques à diamant : 
 export const metadata: Metadata = {
   title: "Contact",
   description: DESCRIPTION,
-  alternates: { canonical: "/fr/contact", languages: { en: "/contact", fr: "/fr/contact" } },
+  alternates: { canonical: "/fr/contact", languages: { en: "/contact", fr: "/fr/contact", "x-default": "/contact" } },
   openGraph: {
     images: [SHARE_IMAGE],
     title: `Contact · ${BRAND}`,

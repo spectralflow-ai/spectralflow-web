@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "../lib/i18n";
 import Link from "next/link";
 import { Prose, Eyebrow, H2, Body, PageHeader } from "../components/kit";
 import { CONTACT_EMAIL } from "../lib/contact";
@@ -21,7 +22,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: "Legal notice",
   description: DESCRIPTION,
-  alternates: { canonical: "/legal" },
+  alternates: { canonical: "/legal", languages: languages("/legal") },
   openGraph: {
     images: [SHARE_IMAGE],
     title: `Legal notice · ${BRAND}`,

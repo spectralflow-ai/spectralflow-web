@@ -1,4 +1,4 @@
-// fr-source: app/events/page.tsx sha256:ebad0bb8417b6125
+// fr-source: app/events/page.tsx sha256:940103e0970ffb08
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -20,7 +20,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: "Événements",
   description: DESCRIPTION,
-  alternates: { canonical: PAGE_PATH, languages: { en: "/events", fr: PAGE_PATH } },
+  alternates: { canonical: PAGE_PATH, languages: { en: "/events", fr: PAGE_PATH, "x-default": "/events" } },
   openGraph: {
     images: [SHARE_IMAGE],
     title: `Événements · ${BRAND}`,

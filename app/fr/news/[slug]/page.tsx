@@ -1,4 +1,4 @@
-// fr-source: app/news/[slug]/page.tsx sha256:2ff931ffd2c17731
+// fr-source: app/news/[slug]/page.tsx sha256:cf3f5ebe06b4db93
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -71,7 +71,7 @@ export async function generateMetadata({
     description: post.excerpt,
     alternates: {
       canonical: url,
-      languages: { en: `/news/${post.slug}`, fr: url },
+      languages: { en: `/news/${post.slug}`, fr: url, "x-default": `/news/${post.slug}` },
       types: {
         "application/rss+xml": [{ url: "/news/feed.xml", title: `${BRAND} · Actualités (en anglais)` }],
       },

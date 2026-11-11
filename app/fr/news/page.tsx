@@ -1,4 +1,4 @@
-// fr-source: app/news/page.tsx sha256:29f395ee378cbc6e
+// fr-source: app/news/page.tsx sha256:24288987af0c6b06
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: {
     canonical: "/fr/news",
-    languages: { en: "/news", fr: "/fr/news" },
+    languages: { en: "/news", fr: "/fr/news", "x-default": "/news" },
     types: {
       "application/rss+xml": [{ url: "/news/feed.xml", title: `${BRAND} · Actualités (en anglais)` }],
     },

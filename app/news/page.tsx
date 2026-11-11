@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "../lib/i18n";
 import Link from "next/link";
 import NewsCard from "../components/NewsCard";
 import { Prose, Body, PageHeader } from "../components/kit";
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   alternates: {
     canonical: "/news",
+    languages: languages("/news"),
     types: { "application/rss+xml": [{ url: "/news/feed.xml", title: `${BRAND} · News` }] },
   },
   openGraph: {

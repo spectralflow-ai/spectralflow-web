@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "../lib/i18n";
 import Link from "next/link";
 import { Prose, Eyebrow, H2, Body, PageHeader } from "../components/kit";
 import { CONTACT_EMAIL } from "../lib/contact";
@@ -9,7 +10,7 @@ const DESCRIPTION = `Privacy policy (politique de confidentialité) for spectral
 export const metadata: Metadata = {
   title: "Privacy policy",
   description: DESCRIPTION,
-  alternates: { canonical: "/privacy" },
+  alternates: { canonical: "/privacy", languages: languages("/privacy") },
   openGraph: {
     images: [SHARE_IMAGE],
     title: `Privacy policy · ${BRAND}`,

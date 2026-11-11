@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { languages } from "../lib/i18n";
 import Link from "next/link";
 import { Suspense } from "react";
 import Reveal from "../components/Reveal";
@@ -21,7 +22,7 @@ const DESCRIPTION = `Talk to ${BRAND} about diamond quantum sensors: navigation 
 export const metadata: Metadata = {
   title: "Contact",
   description: DESCRIPTION,
-  alternates: { canonical: "/contact" },
+  alternates: { canonical: "/contact", languages: languages("/contact") },
   openGraph: {
     images: [SHARE_IMAGE],
     title: `Contact · ${BRAND}`,

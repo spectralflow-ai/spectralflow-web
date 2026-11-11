@@ -1,4 +1,4 @@
-// fr-source: app/page.tsx sha256:7fc17699e8b22663
+// fr-source: app/page.tsx sha256:f22d747f2f5a28de
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -45,7 +45,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
-  alternates: { canonical: "/fr", languages: { en: "/", fr: "/fr" } },
+  alternates: { canonical: "/fr", languages: { en: "/", fr: "/fr", "x-default": "/" } },
   openGraph: {
     images: [SHARE_IMAGE],
     title: TITLE,
