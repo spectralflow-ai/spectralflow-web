@@ -7,6 +7,21 @@ const nextConfig: NextConfig = {
     // app/global-not-found.tsx (no layout sits above both languages).
     globalNotFound: true,
   },
+  // A renamed article keeps its old address.
+  async redirects() {
+    return [
+      {
+        source: "/news/seventeen-patent-applications",
+        destination: "/news/eighteen-patent-applications",
+        permanent: true,
+      },
+      {
+        source: "/fr/news/seventeen-patent-applications",
+        destination: "/fr/news/eighteen-patent-applications",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

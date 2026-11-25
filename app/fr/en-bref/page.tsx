@@ -186,15 +186,15 @@ const SECTIONS = [
 ];
 
 /** Counts written out in words in running text, as French style wants. */
-const EN_LETTRES: Record<number, string> = { 16: "seize", 17: "dix-sept" };
+const EN_LETTRES: Record<number, string> = { 16: "seize", 17: "dix-sept", 18: "dix-huit" };
 const enLettres = (n: number) => EN_LETTRES[n] ?? String(n);
 
 /** Split of the patent count, as in PATENT_DETAIL; printed only while it adds up. */
 const PATENTS_UK = 16;
-const PATENTS_FRANCE = 1;
+const PATENTS_FRANCE = 2;
 const PATENT_SPLIT =
   PATENTS_UK + PATENTS_FRANCE === PATENT_APPLICATIONS
-    ? ` : ${enLettres(PATENTS_UK)} demandes provisoires au Royaume-Uni et une en France`
+    ? ` : ${enLettres(PATENTS_UK)} demandes provisoires au Royaume-Uni et deux en France`
     : "";
 const PATENTS_SENTENCE = `${cap(enLettres(PATENT_APPLICATIONS))} demandes de brevet déposées en 2026${PATENT_SPLIT}.`;
 
@@ -370,7 +370,7 @@ const MILESTONES: Milestone[] = [
     status: "done",
     when: "Septembre 2026",
     dateTime: "2026-09",
-    title: "Dix-septième demande de brevet, déposée en France",
+    title: "Deux nouvelles demandes de brevet, déposées en France",
     body: `${PATENTS_SENTENCE} Leur contenu n'est pas public.`,
   },
   {
@@ -378,7 +378,7 @@ const MILESTONES: Milestone[] = [
     when: cap(AS_OF_FR),
     dateTime: monthYearIso(FACTS_AS_OF),
     title: "Premier prototype mobile conçu",
-    body: "Son assemblage commence dès que son financement est confirmé.",
+    body: "Ses pièces sont en commande ; son assemblage commence en décembre 2026.",
   },
   {
     status: "next",
@@ -885,7 +885,7 @@ export default function EnBref() {
             <H2 className="mb-6">{fr("Ce qui est fait, et ce qui vient.")}</H2>
             <Lead className="mb-5">
               {fr(
-                "Notre premier prototype mobile est conçu ; son assemblage commence dès que son financement est confirmé."
+                "Notre premier prototype mobile est conçu et ses pièces sont en commande ; son assemblage commence en décembre 2026."
               )}
             </Lead>
             <Body className="mb-6">

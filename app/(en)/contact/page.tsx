@@ -112,7 +112,7 @@ const CHANNELS: {
     eyebrow: "Careers",
     label: "Write to us",
     href: CTA_CAREERS,
-    body: "We are a small team. In 2027 we will open internships in diamond nanofabrication and quantum sensing, and engineering roles.",
+    body: "We are a young company. In 2027 we will open internships in diamond nanofabrication and quantum sensing, and engineering roles.",
   },
 ];
 

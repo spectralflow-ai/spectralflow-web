@@ -1,4 +1,4 @@
-// fr-source: app/(en)/page.tsx sha256:ebdfafee5f6542c9
+// fr-source: app/(en)/page.tsx sha256:e1ac634f1b75724d
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -488,7 +488,7 @@ const MILESTONES: Milestone[] = [
   },
   {
     date: "Septembre 2026",
-    title: "Dix-septième demande de brevet",
+    title: "Deux nouvelles demandes de brevet",
     text: PATENT_DETAIL,
     state: "done",
   },

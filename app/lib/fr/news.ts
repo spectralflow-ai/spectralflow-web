@@ -1,4 +1,4 @@
-// fr-source: app/lib/news.ts sha256:0260838ad52fa0ef
+// fr-source: app/lib/news.ts sha256:cb143a77dc3b6937
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 
 /**
@@ -67,12 +67,12 @@ const TEXT: Record<string, PostText> = {
   "first-mobile-prototype-designed": {
     title: "Notre premier prototype mobile est conçu",
     excerpt:
-      "La conception de notre premier prototype mobile est achevée. Son assemblage commence dès que son financement est confirmé.",
+      "La conception de notre premier prototype mobile est achevée. Ses pièces sont en commande et son assemblage commence en décembre.",
     body: [
       "La conception de notre premier prototype mobile est achevée : le capteur, l’électronique qui le pilote et le lit, et la mécanique qui les porte sur un véhicule en mouvement.",
       "Son premier rôle est de vérifier, sous les contraintes d’un instrument qui se déplace, que rien n’a été oublié entre la simulation et le matériel.",
       "Le logiciel de navigation a déjà effectué des missions complètes en simulation. Ici, c’est le logiciel qui attend le matériel, et non l’inverse.",
-      "Son assemblage commence dès que son financement est confirmé. Viendront ensuite les premières mesures, puis les essais en mouvement.",
+      "Ses pièces sont en commande et son assemblage commence en décembre. Viendront ensuite les premières mesures, puis les essais en mouvement.",
     ],
     ctaLabel: "Où nous en sommes",
   },
@@ -87,12 +87,12 @@ const TEXT: Record<string, PostText> = {
     ],
     ctaLabel: "Retrouvez-nous à Berlin",
   },
-  "seventeen-patent-applications": {
-    title: "Dix-sept demandes de brevet déposées en 2026",
-    excerpt: "En septembre 2026, nous avons déposé une nouvelle demande de brevet, en France.",
+  "eighteen-patent-applications": {
+    title: "Dix-huit demandes de brevet déposées en 2026",
+    excerpt: "En septembre 2026, nous avons déposé deux nouvelles demandes de brevet, en France.",
     body: [
-      "En septembre 2026, nous avons déposé une nouvelle demande de brevet, en France.",
-      "Cela porte à dix-sept le nombre de demandes de brevet déposées en 2026 : seize demandes provisoires au Royaume-Uni et une en France. Le contenu de la nouvelle demande reste confidentiel jusqu’à sa publication.",
+      "En septembre 2026, nous avons déposé deux nouvelles demandes de brevet, en France.",
+      "Cela porte à dix-huit le nombre de demandes de brevet déposées en 2026 : seize demandes provisoires au Royaume-Uni et deux en France. Leur contenu reste confidentiel jusqu’à leur publication.",
     ],
     ctaLabel: "Nos demandes de brevet",
   },
@@ -146,7 +146,7 @@ const TEXT: Record<string, PostText> = {
     body: [
       "Trois demandes de brevet ont été déposées en dix jours, entre fin juin et début juillet, ce qui porte le total à seize demandes provisoires au Royaume-Uni.",
       "Parmi elles, l’une porte sur la façon dont l’architecture de mesure rejette à bord les interférences magnétiques propres à la plateforme porteuse. Une autre porte sur la couche embarquée qui transforme le signal nettoyé en données de navigation dont le système peut se porter garant. Leur détail n’est pas public.",
-      "Mise à jour, octobre 2026 : une dix-septième demande, déposée en France, a suivi en septembre.",
+      "Mise à jour, octobre 2026 : deux autres demandes, déposées en France, ont suivi en septembre.",
     ],
   },
   "qualified-deeptech-bpifrance": {

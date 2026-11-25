@@ -31,16 +31,16 @@ export const SHARE_IMAGE = {
 export const LINKEDIN_URL = "https://www.linkedin.com/company/spectralflow";
 
 /** Date that dated counts and the "where we stand" timeline refer to. */
-export const FACTS_AS_OF = "October 2026";
+export const FACTS_AS_OF = "November 2026";
 
 /* ----- Patents ------------------------------------------------------- */
 
-export const PATENT_APPLICATIONS = 17;
+export const PATENT_APPLICATIONS = 18;
 /** Undated, number-free line for permanent surfaces. */
 export const PATENT_LINE = "Patent applications filed in 2026";
 /** Dated detail, for Company, Press and the news archive. */
 export const PATENT_DETAIL =
-  "Seventeen patent applications filed in 2026: sixteen UK provisional, one French.";
+  "Eighteen patent applications filed in 2026: sixteen UK provisional, two French.";
 
 /** @deprecated kept until every page migrates. Use PATENT_APPLICATIONS or PATENT_LINE. */
 export const PATENT_FAMILIES = PATENT_APPLICATIONS;
@@ -50,7 +50,7 @@ export const PATENT_FAMILIES_LABEL = PATENT_LINE;
 /* ----- Stage --------------------------------------------------------- */
 
 export const STAGE_LINE =
-  "Our first mobile prototype is designed; assembly starts once funding is confirmed.";
+  "Our first mobile prototype is designed and its parts are on order; assembly starts in December 2026.";
 
 /* ----- Company on paper ---------------------------------------------- */
 

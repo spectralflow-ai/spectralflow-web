@@ -1,4 +1,4 @@
-// fr-source: app/lib/facts.ts sha256:373252dac804c8e5
+// fr-source: app/lib/facts.ts sha256:5b110ece07803eec
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 
 /**
@@ -81,7 +81,7 @@ export const FACTS_AS_OF = dateLabelFr(FACTS_AS_OF_EN);
 export const PATENT_LINE = "Demandes de brevet déposées en 2026";
 /** Détail daté, pour la page Société, la presse et les actualités. */
 export const PATENT_DETAIL =
-  "Dix-sept demandes de brevet déposées en 2026 : seize demandes provisoires au Royaume-Uni et une en France.";
+  "Dix-huit demandes de brevet déposées en 2026 : seize demandes provisoires au Royaume-Uni et deux en France.";
 
 /** @deprecated conservé tant que toutes les pages n'ont pas migré. Utiliser PATENT_LINE. */
 export const PATENT_FAMILIES_LABEL = PATENT_LINE;
@@ -89,7 +89,7 @@ export const PATENT_FAMILIES_LABEL = PATENT_LINE;
 /* ----- Stade ----------------------------------------------------------- */
 
 export const STAGE_LINE =
-  "Notre premier prototype mobile est conçu ; son assemblage commence dès que son financement est confirmé.";
+  "Notre premier prototype mobile est conçu et ses pièces sont en commande ; son assemblage commence en décembre 2026.";
 
 /* ----- La société sur le papier ---------------------------------------- */
 

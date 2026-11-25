@@ -484,7 +484,7 @@ const MILESTONES: Milestone[] = [
   },
   {
     date: "September 2026",
-    title: "Seventeenth patent application",
+    title: "Two further patent applications",
     text: PATENT_DETAIL,
     state: "done",
   },

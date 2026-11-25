@@ -1,4 +1,4 @@
-// fr-source: app/(en)/company/page.tsx sha256:9ab73ffc6ba8df30
+// fr-source: app/(en)/company/page.tsx sha256:983a233d5f9bcd22
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -188,14 +188,14 @@ const MILESTONES: Milestone[] = [
     status: "done",
     when: "Septembre 2026",
     dateTime: "2026-09",
-    title: "Dix-septième demande de brevet, déposée en France",
+    title: "Deux nouvelles demandes de brevet, déposées en France",
     link: { href: "#patents", label: "Demandes de brevet" },
   },
   {
     status: "now",
     when: cap(FACTS_AS_OF),
     /** The same month as FACTS_AS_OF: update both together. */
-    dateTime: "2026-10",
+    dateTime: "2026-11",
     title: "Premier prototype mobile conçu",
     body: "Le capteur, l'électronique qui le pilote et le lit, et la mécanique qui les porte sur un véhicule en mouvement.",
     link: newsLink("first-mobile-prototype-designed", "À propos du prototype"),
@@ -552,7 +552,7 @@ export default function Company() {
           </H2>
           <Lead className="max-w-2xl">
             {fr(
-              "Nous sommes une petite équipe. En 2027, nous ouvrirons des stages en nanofabrication du diamant et en capteurs quantiques, ainsi que des postes d'ingénieur. Nous accueillons aussi les candidatures spontanées de chercheurs et de postdoctorants dont les travaux sont proches des nôtres : croissance et nanofabrication du diamant, physique du spin, photonique et navigation magnétique."
+              "Nous sommes une jeune société. En 2027, nous ouvrirons des stages en nanofabrication du diamant et en capteurs quantiques, ainsi que des postes d'ingénieur. Nous accueillons aussi les candidatures spontanées de chercheurs et de postdoctorants dont les travaux sont proches des nôtres : croissance et nanofabrication du diamant, physique du spin, photonique et navigation magnétique."
             )}{" "}
             <Link
               href={frHref("/contact")}

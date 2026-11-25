@@ -197,7 +197,7 @@ export default function BioLeaveBehind() {
         <div className="max-w-6xl mx-auto px-6 md:px-8 py-10">
           <p style={{ color: "var(--muted)", fontSize: "0.85rem", maxWidth: "42rem", lineHeight: 1.6 }}>
             {BRAND} is at the design stage. As of {FACTS_AS_OF}, our first mobile prototype, for
-            navigation, is designed; assembly starts once funding is confirmed. The life-sciences
+            navigation, is designed and its parts are on order; assembly starts in December 2026. The life-sciences
             work on this page is a research direction: every target here is model-derived, and what
             each method can read is taken from the published literature. The methods are covered
             by patent applications filed in 2026.

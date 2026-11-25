@@ -146,14 +146,14 @@ const MILESTONES: Milestone[] = [
     status: "done",
     when: "September 2026",
     dateTime: "2026-09",
-    title: "Seventeenth patent application, filed in France",
+    title: "Two further patent applications, filed in France",
     link: { href: "#patents", label: "Patent applications" },
   },
   {
     status: "now",
     when: FACTS_AS_OF,
     /** The same month as FACTS_AS_OF: update both together. */
-    dateTime: "2026-10",
+    dateTime: "2026-11",
     title: "First mobile prototype designed",
     body: "The sensor, the electronics that drive and read it, and the mechanics that carry them on a moving vehicle.",
     link: newsLink("first-mobile-prototype-designed", "About the prototype"),
@@ -486,7 +486,7 @@ export default function Company() {
           <Eyebrow>Careers</Eyebrow>
           <H2 className="max-w-3xl mb-6">Internships and engineering roles, from 2027.</H2>
           <Lead className="max-w-2xl">
-            We are a small team. In 2027 we will open internships in diamond nanofabrication and
+            We are a young company. In 2027 we will open internships in diamond nanofabrication and
             quantum sensing, and engineering roles. We also welcome spontaneous applications from
             researchers and postdocs whose work is closely aligned with ours: diamond growth and
             nanofabrication, spin physics, photonics and magnetic navigation.{" "}

@@ -1,4 +1,4 @@
-// fr-source: app/(en)/contact/page.tsx sha256:0b8856f2106cb20c
+// fr-source: app/(en)/contact/page.tsx sha256:11deb5a324513270
 // Généré par traduction de la page anglaise : corriger l'anglais ou le cahier, puis retraduire.
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -116,7 +116,7 @@ const CHANNELS: {
     eyebrow: "Carrières",
     label: "Nous écrire",
     href: CTA_CAREERS,
-    body: "Nous sommes une petite équipe. En 2027, nous ouvrirons des stages en nanofabrication du diamant et en capteurs quantiques, ainsi que des postes d’ingénieur.",
+    body: "Nous sommes une jeune société. En 2027, nous ouvrirons des stages en nanofabrication du diamant et en capteurs quantiques, ainsi que des postes d’ingénieur.",
   },
 ];
 
